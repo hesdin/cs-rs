@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Pencil, Plus, Trash2 } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { Pencil, Plus, Trash2, X } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 import FaqController from '@/actions/App/Http/Controllers/Admin/FaqController';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,17 +36,41 @@ interface Paginated<T> {
 
 const props = defineProps<{
     faqs: Paginated<Faq>;
-    filters: { q: string };
+    categories: string[];
+    filters: { q: string; category: string; status: string };
 }>();
 
 const search = ref(props.filters.q ?? '');
+const category = ref(props.filters.category ?? '');
+const status = ref(props.filters.status ?? 'all');
 
-const submitSearch = () => {
+const applyFilters = () => {
     router.get(
         admin.faqs.index().url,
-        { q: search.value },
+        {
+            q: search.value || undefined,
+            category: category.value || undefined,
+            status: status.value !== 'all' ? status.value : undefined,
+        },
         { preserveState: true, replace: true },
     );
+};
+
+// Auto-apply saat dropdown kategori/status berubah; search tetap manual via submit
+watch([category, status], applyFilters);
+
+const hasActiveFilters = computed(
+    () =>
+        !!search.value ||
+        !!category.value ||
+        (status.value && status.value !== 'all'),
+);
+
+const resetFilters = () => {
+    search.value = '';
+    category.value = '';
+    status.value = 'all';
+    router.get(admin.faqs.index().url, {}, { preserveState: true, replace: true });
 };
 
 const remove = (faq: Faq) => {
@@ -75,14 +99,73 @@ const remove = (faq: Faq) => {
             </Button>
         </div>
 
-        <form class="flex gap-2" @submit.prevent="submitSearch">
-            <Input
-                v-model="search"
-                placeholder="Cari pertanyaan, kategori..."
-                class="max-w-sm"
-            />
-            <Button variant="outline" type="submit">Cari</Button>
-        </form>
+        <Card>
+            <CardContent class="p-4">
+                <form
+                    class="flex flex-wrap items-end gap-3"
+                    @submit.prevent="applyFilters"
+                >
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs text-muted-foreground"
+                            >Pencarian</label
+                        >
+                        <Input
+                            v-model="search"
+                            placeholder="Pertanyaan, jawaban, kategori..."
+                            class="w-72"
+                        />
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs text-muted-foreground"
+                            >Kategori</label
+                        >
+                        <select
+                            v-model="category"
+                            class="h-9 w-44 rounded-md border bg-background px-2 text-sm"
+                        >
+                            <option value="">Semua kategori</option>
+                            <option
+                                v-for="cat in categories"
+                                :key="cat"
+                                :value="cat"
+                            >
+                                {{ cat }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs text-muted-foreground"
+                            >Status</label
+                        >
+                        <select
+                            v-model="status"
+                            class="h-9 w-36 rounded-md border bg-background px-2 text-sm"
+                        >
+                            <option value="all">Semua</option>
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Nonaktif</option>
+                        </select>
+                    </div>
+
+                    <Button type="submit" variant="outline">Terapkan</Button>
+                    <Button
+                        v-if="hasActiveFilters"
+                        type="button"
+                        variant="ghost"
+                        @click="resetFilters"
+                    >
+                        <X class="size-4" /> Reset
+                    </Button>
+
+                    <span class="ml-auto text-xs text-muted-foreground">
+                        Menampilkan {{ faqs.data.length }} dari
+                        {{ faqs.total }} FAQ
+                    </span>
+                </form>
+            </CardContent>
+        </Card>
 
         <Card>
             <CardContent class="p-0">
@@ -162,7 +245,7 @@ const remove = (faq: Faq) => {
                                 colspan="5"
                                 class="px-4 py-8 text-center text-muted-foreground"
                             >
-                                Belum ada FAQ.
+                                Tidak ada FAQ yang cocok dengan filter.
                             </td>
                         </tr>
                     </tbody>

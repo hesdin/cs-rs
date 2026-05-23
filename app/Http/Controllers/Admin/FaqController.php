@@ -19,19 +19,37 @@ class FaqController extends Controller
         $faqs = Faq::query()
             ->when($request->string('q')->toString(), function ($q, string $term): void {
                 $q->where(function ($inner) use ($term): void {
-                    $inner->where('question', 'ILIKE', "%{$term}%")
-                        ->orWhere('answer', 'ILIKE', "%{$term}%")
-                        ->orWhere('category', 'ILIKE', "%{$term}%");
+                    $inner->whereRaw('LOWER(question) LIKE ?', ['%'.mb_strtolower($term).'%'])
+                        ->orWhereRaw('LOWER(answer) LIKE ?', ['%'.mb_strtolower($term).'%'])
+                        ->orWhereRaw('LOWER(category) LIKE ?', ['%'.mb_strtolower($term).'%']);
                 });
+            })
+            ->when($request->filled('category'), function ($q) use ($request): void {
+                $q->where('category', $request->string('category')->toString());
+            })
+            ->when($request->filled('status') && $request->string('status')->toString() !== 'all', function ($q) use ($request): void {
+                $q->where('is_active', $request->string('status')->toString() === 'active');
             })
             ->orderByDesc('priority')
             ->orderBy('category')
             ->paginate(15)
             ->withQueryString();
 
+        $categories = Faq::query()
+            ->select('category')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category')
+            ->all();
+
         return Inertia::render('admin/faqs/Index', [
             'faqs' => $faqs,
-            'filters' => ['q' => $request->string('q')->toString()],
+            'categories' => $categories,
+            'filters' => [
+                'q' => $request->string('q')->toString(),
+                'category' => $request->string('category')->toString(),
+                'status' => $request->string('status')->toString() ?: 'all',
+            ],
         ]);
     }
 
