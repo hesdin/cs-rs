@@ -68,6 +68,34 @@ class FaqSeeder extends Seeder
                 'keywords' => ['fasilitas', 'igd', 'icu', 'lab', 'radiologi'],
                 'priority' => 60,
             ],
+            [
+                'category' => 'Umum',
+                'question' => 'Apa saja jam operasional rumah sakit?',
+                'answer' => "Jam operasional layanan:\n• IGD: 24 jam non-stop\n• Poliklinik: Senin–Sabtu 08.00–20.00, Minggu 09.00–14.00 (ada layanan terbatas)\n• Farmasi: 24 jam\n• Laboratorium & Radiologi: Senin–Sabtu 07.00–21.00, Minggu 08.00–14.00\n• Loket pendaftaran: Senin–Sabtu 07.00–20.00\n• Kasir: 24 jam (sesuai layanan terkait)",
+                'keywords' => ['jam operasional', 'jam buka', 'jam layanan', 'jam praktek', 'jam kerja', 'buka', 'tutup', 'operasional'],
+                'priority' => 80,
+            ],
+            [
+                'category' => 'IGD',
+                'question' => 'Bagaimana alur masuk IGD non-darurat?',
+                'answer' => "IGD RS Sehat Sentosa buka 24 jam di gedung utama lantai dasar (pintu samping). Untuk pasien BPJS yang masuk via IGD tidak perlu rujukan faskes 1, cukup tunjukkan kartu BPJS aktif + KTP. Untuk pasien umum, deposit awal dapat diatur setelah pemeriksaan awal.\n\nUntuk kondisi mengancam nyawa, datang langsung ke IGD atau hubungi (021) 555-9119 / 119.",
+                'keywords' => ['igd', 'gawat darurat', 'instalasi gawat darurat', 'unit gawat darurat', 'ugd', 'emergency room'],
+                'priority' => 80,
+            ],
+            [
+                'category' => 'Biaya',
+                'question' => 'Bagaimana cara mengetahui estimasi biaya pengobatan?',
+                'answer' => "Estimasi biaya dapat diperoleh melalui:\n1. Bagian Admisi (lantai 1) untuk rawat inap & tindakan terjadwal\n2. Customer Service (021) 555-1234 untuk pertanyaan tarif konsultasi & pemeriksaan umum\n3. Website rsss.example/tarif untuk daftar tarif tindakan standar\n\nUntuk pasien BPJS, sebagian besar layanan ditanggung sesuai paket INA-CBG. Pasien umum/asuransi swasta akan diberi rincian biaya sebelum tindakan.",
+                'keywords' => ['biaya', 'tarif', 'harga', 'estimasi', 'rincian biaya', 'cost'],
+                'priority' => 85,
+            ],
+            [
+                'category' => 'Administrasi',
+                'question' => 'Bagaimana cara mengambil hasil pemeriksaan lab/radiologi?',
+                'answer' => "Pengambilan hasil pemeriksaan:\n1. Datang ke loket Laboratorium/Radiologi (lantai 2) dengan membawa bukti pembayaran/struk pemeriksaan dan KTP pasien\n2. Hasil dapat diwakilkan dengan surat kuasa bermaterai + KTP pasien dan KTP pengambil\n3. Hasil digital dapat diunduh di aplikasi mobile RS Sehat Sentosa setelah dikonfirmasi dokter\n\nUntuk interpretasi hasil pemeriksaan, silakan konsultasikan langsung dengan dokter pemeriksa atau dokter rujukan Anda.",
+                'keywords' => ['ambil hasil', 'pengambilan hasil', 'hasil lab', 'hasil radiologi', 'hasil pemeriksaan', 'rontgen', 'usg', 'ct scan', 'mri'],
+                'priority' => 75,
+            ],
         ];
 
         foreach ($faqs as $faq) {

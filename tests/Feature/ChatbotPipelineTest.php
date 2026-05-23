@@ -128,6 +128,22 @@ it('uses fallback message when LLM fails', function (): void {
         ->and($result['reply'])->toBe(ChatbotSetting::get('fallback_message'));
 });
 
+it('detects handoff request and skips LLM', function (): void {
+    Http::preventStrayRequests();
+
+    $result = app(ChatService::class)->handle([
+        'session_id' => null,
+        'message' => 'Saya mau bicara dengan customer service saja',
+        'channel' => 'web',
+        'user_identifier' => '127.0.0.1',
+    ]);
+
+    expect($result['intent'])->toBe('request_handoff')
+        ->and($result['handoff'])->toBeTrue()
+        ->and($result['used_llm'])->toBeFalse()
+        ->and($result['reply'])->toContain('petugas customer service');
+});
+
 it('exposes POST /api/chat endpoint that returns structured response', function (): void {
     config()->set('openrouter.api_key', 'test-key');
 

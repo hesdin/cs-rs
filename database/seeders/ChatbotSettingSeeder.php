@@ -48,6 +48,12 @@ class ChatbotSettingSeeder extends Seeder
                 'group' => 'safety',
                 'label' => 'Medical Advice Message',
             ],
+            [
+                'key' => 'handoff_message',
+                'value' => "Tentu, saya akan menghubungkan Anda dengan petugas customer service kami.\n\nSilakan hubungi (021) 555-1234 (Senin-Sabtu 08.00-20.00) atau tunggu sebentar, percakapan ini akan diteruskan ke petugas.",
+                'group' => 'general',
+                'label' => 'Handoff Message',
+            ],
         ];
 
         foreach ($defaults as $row) {

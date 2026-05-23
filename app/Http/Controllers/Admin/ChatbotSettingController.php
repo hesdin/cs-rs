@@ -24,6 +24,7 @@ class ChatbotSettingController extends Controller
         ['key' => 'fallback_message', 'label' => 'Fallback Message', 'group' => 'safety', 'description' => 'Pesan ketika layanan AI gagal.', 'type' => 'textarea'],
         ['key' => 'emergency_message', 'label' => 'Emergency Message', 'group' => 'safety', 'description' => 'Pesan untuk pertanyaan darurat (IGD).', 'type' => 'textarea'],
         ['key' => 'medical_advice_message', 'label' => 'Medical Advice Message', 'group' => 'safety', 'description' => 'Pesan untuk pertanyaan diagnosis/obat/gejala.', 'type' => 'textarea'],
+        ['key' => 'handoff_message', 'label' => 'Handoff Message', 'group' => 'general', 'description' => 'Pesan ketika user minta disambungkan ke petugas/CS.', 'type' => 'textarea'],
         ['key' => 'welcome_message', 'label' => 'Welcome Message', 'group' => 'general', 'description' => 'Sapaan pembuka chatbot.', 'type' => 'textarea'],
     ];
 

@@ -8,6 +8,7 @@ enum ChatbotIntent: string
 {
     case Emergency = 'emergency';
     case MedicalAdvice = 'medical_advice';
+    case RequestHandoff = 'request_handoff';
     case Faq = 'faq';
     case Schedule = 'schedule';
     case General = 'general';
@@ -19,13 +20,13 @@ enum ChatbotIntent: string
     public function allowsLlm(): bool
     {
         return match ($this) {
-            self::Emergency, self::MedicalAdvice, self::Blocked => false,
+            self::Emergency, self::MedicalAdvice, self::RequestHandoff, self::Blocked => false,
             default => true,
         };
     }
 
     public function requiresHandoff(): bool
     {
-        return in_array($this, [self::Emergency, self::MedicalAdvice], true);
+        return in_array($this, [self::Emergency, self::MedicalAdvice, self::RequestHandoff], true);
     }
 }

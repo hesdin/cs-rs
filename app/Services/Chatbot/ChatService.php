@@ -202,6 +202,11 @@ class ChatService
                 'medical_advice_message',
                 'Untuk pertanyaan terkait gejala, penyakit, obat, atau hasil pemeriksaan, saya sarankan untuk berkonsultasi langsung dengan dokter kami. Apakah Anda ingin saya bantu menjadwalkan konsultasi?'
             ) ?? ''),
+            ChatbotIntent::RequestHandoff => ChatbotSetting::get(
+                'handoff_message',
+                "Tentu, saya akan menghubungkan Anda dengan petugas customer service kami.\n\n".
+                'Silakan hubungi (021) 555-1234 (Senin-Sabtu 08.00-20.00) atau tunggu sebentar, percakapan ini akan diteruskan ke petugas.'
+            ) ?? '',
             default => throw new RuntimeException('safeReplyFor dipanggil untuk intent yang seharusnya boleh ke LLM.'),
         };
     }
