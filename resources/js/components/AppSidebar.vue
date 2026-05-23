@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-vue-next';
+import {
+    BookOpen,
+    FolderGit2,
+    HelpCircle,
+    LayoutGrid,
+    MessageSquare,
+    MessagesSquare,
+    Settings2,
+    UserRound,
+} from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -14,6 +23,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import admin from '@/routes/admin';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
@@ -23,13 +33,38 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Chatbot Dashboard',
+        href: admin.dashboard(),
+        icon: LayoutGrid,
+    },
+    {
+        title: 'FAQ',
+        href: admin.faqs.index(),
+        icon: HelpCircle,
+    },
+    {
+        title: 'Dokter & Jadwal',
+        href: admin.doctors.index(),
+        icon: UserRound,
+    },
+    {
+        title: 'Percakapan',
+        href: admin.conversations.index(),
+        icon: MessagesSquare,
+    },
+    {
+        title: 'Pengaturan Bot',
+        href: admin.chatbotSettings.edit(),
+        icon: Settings2,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: FolderGit2,
+        title: 'Buka Chat Publik',
+        href: '/chat',
+        icon: MessageSquare,
     },
     {
         title: 'Documentation',

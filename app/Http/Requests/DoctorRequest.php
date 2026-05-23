@@ -1,29 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DoctorRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return $this->user() !== null;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string', 'max:120'],
+            'specialization' => ['required', 'string', 'max:120'],
+            'polyclinic' => ['nullable', 'string', 'max:120'],
+            'bio' => ['nullable', 'string', 'max:2000'],
+            'photo_url' => ['nullable', 'url', 'max:500'],
+            'is_active' => ['boolean'],
+
+            'schedules' => ['array'],
+            'schedules.*.day_of_week' => ['required_with:schedules', 'integer', 'between:0,6'],
+            'schedules.*.start_time' => ['required_with:schedules', 'date_format:H:i'],
+            'schedules.*.end_time' => ['required_with:schedules', 'date_format:H:i', 'after:schedules.*.start_time'],
+            'schedules.*.room' => ['nullable', 'string', 'max:60'],
+            'schedules.*.is_active' => ['boolean'],
         ];
     }
 }
