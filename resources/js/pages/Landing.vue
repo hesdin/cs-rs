@@ -95,7 +95,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
         <!-- ========== HERO BLUE BLOCK ========== -->
         <section class="relative px-3 pt-3 pb-10 sm:px-5 sm:pt-5">
             <div
-                class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#4F67D8] via-[#5972DC] to-[#7C8EE6] px-6 pt-6 pb-12 text-white sm:px-10 sm:pt-8"
+                class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#059669] via-[#10b981] to-[#34d399] px-6 pt-6 pb-12 text-white sm:px-10 sm:pt-8"
             >
                 <!-- Decorative blobs -->
                 <div
@@ -109,7 +109,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                 <header class="relative flex items-center justify-between">
                     <Link href="/" class="flex items-center gap-2">
                         <div
-                            class="flex size-9 items-center justify-center rounded-xl bg-white text-[#4F67D8] shadow-sm"
+                            class="flex size-9 items-center justify-center rounded-xl bg-white text-[#059669] shadow-sm"
                         >
                             <HeartPulse class="size-5" stroke-width="2.5" />
                         </div>
@@ -168,11 +168,11 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                         >
                         <Link
                             href="/chat"
-                            class="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#4F67D8] shadow-sm transition hover:bg-blue-50"
+                            class="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#059669] shadow-sm transition hover:bg-emerald-50"
                         >
                             Tanya Asisten Virtual
                             <span
-                                class="flex size-5 items-center justify-center rounded-full bg-[#4F67D8] text-white"
+                                class="flex size-5 items-center justify-center rounded-full bg-[#059669] text-white"
                             >
                                 <ArrowRight class="size-3" />
                             </span>
@@ -215,11 +215,11 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
 
                         <a
                             href="#layanan"
-                            class="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#4F67D8] shadow-md transition hover:shadow-lg"
+                            class="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#059669] shadow-md transition hover:shadow-lg"
                         >
                             Lihat Layanan Kami
                             <span
-                                class="flex size-6 items-center justify-center rounded-full bg-[#4F67D8] text-white"
+                                class="flex size-6 items-center justify-center rounded-full bg-[#059669] text-white"
                             >
                                 <ArrowRight class="size-3.5" />
                             </span>
@@ -278,7 +278,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                                     <Check class="size-3" /> Ramah
                                 </span>
                                 <span
-                                    class="flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[#4F67D8]"
+                                    class="flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[#059669]"
                                 >
                                     <Check class="size-3" /> Islami
                                 </span>
@@ -300,14 +300,14 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                 <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
                     <div>
                         <span
-                            class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
+                            class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
                         >
                             <Sparkles class="size-3.5" /> Profil Rumah Sakit
                         </span>
                     </div>
                     <div class="flex items-start gap-5">
                         <div
-                            class="size-16 flex-shrink-0 overflow-hidden rounded-full ring-4 ring-blue-100"
+                            class="size-16 flex-shrink-0 overflow-hidden rounded-full ring-4 ring-emerald-100"
                         >
                             <img
                                 src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=200&auto=format&fit=crop&q=70"
@@ -332,14 +332,14 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                     <div class="flex items-center gap-3">
                         <button
                             type="button"
-                            class="flex size-10 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition hover:border-[#4F67D8] hover:text-[#4F67D8]"
+                            class="flex size-10 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition hover:border-[#059669] hover:text-[#059669]"
                             @click="setValue(activeValue - 1)"
                         >
                             <ArrowLeft class="size-4" />
                         </button>
                         <button
                             type="button"
-                            class="flex size-10 items-center justify-center rounded-full bg-[#4F67D8] text-white shadow-md transition hover:bg-[#3d54c4]"
+                            class="flex size-10 items-center justify-center rounded-full bg-[#059669] text-white shadow-md transition hover:bg-[#047857]"
                             @click="setValue(activeValue + 1)"
                         >
                             <ArrowRight class="size-4" />
@@ -351,7 +351,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
 
                     <div>
                         <p
-                            class="text-5xl font-semibold tracking-tight text-[#4F67D8]"
+                            class="text-5xl font-semibold tracking-tight text-[#059669]"
                         >
                             {{ stats.doctors * 8 }}+
                         </p>
@@ -363,15 +363,15 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
 
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div
-                            class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5"
+                            class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5"
                         >
                             <div
-                                class="flex size-10 items-center justify-center rounded-xl bg-white text-[#4F67D8] shadow-sm"
+                                class="flex size-10 items-center justify-center rounded-xl bg-white text-[#059669] shadow-sm"
                             >
                                 <HeartPulse class="size-5" />
                             </div>
                             <span
-                                class="mt-3 inline-block rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-[#4F67D8]"
+                                class="mt-3 inline-block rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-[#059669]"
                                 >Akreditasi Paripurna</span
                             >
                             <p class="mt-2 font-semibold">Mutu Terjamin</p>
@@ -381,15 +381,15 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             </p>
                         </div>
                         <div
-                            class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5"
+                            class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5"
                         >
                             <div
-                                class="flex size-10 items-center justify-center rounded-xl bg-white text-[#4F67D8] shadow-sm"
+                                class="flex size-10 items-center justify-center rounded-xl bg-white text-[#059669] shadow-sm"
                             >
                                 <Lock class="size-5" />
                             </div>
                             <span
-                                class="mt-3 inline-block rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-[#4F67D8]"
+                                class="mt-3 inline-block rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-[#059669]"
                                 >Rekam Medis Aman</span
                             >
                             <p class="mt-2 font-semibold">Data Rahasia</p>
@@ -408,7 +408,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
             <div class="mx-auto max-w-6xl">
                 <div class="mb-12">
                     <span
-                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
                     >
                         <Sparkles class="size-3.5" /> Mengapa RS Ibnu Sina
                     </span>
@@ -448,7 +448,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                                 class="flex cursor-pointer items-center justify-between rounded-xl px-4 py-3 text-sm transition"
                                 :class="
                                     i === activeValue
-                                        ? 'bg-[#4F67D8] text-white'
+                                        ? 'bg-[#059669] text-white'
                                         : 'text-slate-700 hover:bg-slate-50'
                                 "
                                 @click="activeValue = i"
@@ -491,7 +491,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
 
                     <!-- Blue commitment card -->
                     <div
-                        class="flex flex-col justify-between rounded-3xl bg-gradient-to-br from-[#4F67D8] to-[#5C7AE0] p-7 text-white"
+                        class="flex flex-col justify-between rounded-3xl bg-gradient-to-br from-[#059669] to-[#0d9488] p-7 text-white"
                     >
                         <div>
                             <p class="text-xs font-medium text-white/70">
@@ -521,10 +521,10 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
         </section>
 
         <!-- ========== TOTAL CARE MODEL ========== -->
-        <section class="bg-blue-50/60 px-4 py-20 sm:px-6">
+        <section class="bg-emerald-50/60 px-4 py-20 sm:px-6">
             <div class="mx-auto max-w-6xl text-center">
                 <span
-                    class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
+                    class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
                 >
                     <Sparkles class="size-3.5" /> Pendekatan Pelayanan
                 </span>
@@ -542,7 +542,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                 </p>
 
                 <div
-                    class="relative mt-10 overflow-hidden rounded-3xl ring-1 ring-blue-100"
+                    class="relative mt-10 overflow-hidden rounded-3xl ring-1 ring-emerald-100"
                 >
                     <img
                         src="https://images.unsplash.com/photo-1559757175-5700dde675bc?w=1400&auto=format&fit=crop&q=70"
@@ -551,11 +551,11 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                         loading="lazy"
                     />
                     <div
-                        class="absolute inset-0 bg-gradient-to-t from-[#4F67D8]/80 via-[#4F67D8]/20 to-transparent"
+                        class="absolute inset-0 bg-gradient-to-t from-[#059669]/80 via-[#059669]/20 to-transparent"
                     />
                     <button
                         type="button"
-                        class="absolute top-1/2 left-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#4F67D8] backdrop-blur transition hover:bg-white"
+                        class="absolute top-1/2 left-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#059669] backdrop-blur transition hover:bg-white"
                     >
                         <Play class="size-6 fill-current" />
                     </button>
@@ -576,7 +576,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
             <div class="mx-auto max-w-6xl">
                 <div class="mb-10 text-center">
                     <span
-                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
                     >
                         <Stethoscope class="size-3.5" /> Tim Dokter
                     </span>
@@ -596,11 +596,11 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                     <div
                         v-for="d in doctors"
                         :key="d.id"
-                        class="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-lg hover:shadow-blue-100/50"
+                        class="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-100/50"
                     >
                         <div class="flex items-start gap-3">
                             <div
-                                class="flex size-12 items-center justify-center rounded-full bg-blue-100 text-[#4F67D8] font-semibold"
+                                class="flex size-12 items-center justify-center rounded-full bg-emerald-100 text-[#059669] font-semibold"
                             >
                                 {{ d.name.charAt(0) }}
                             </div>
@@ -609,7 +609,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                                     {{ d.name }}
                                 </p>
                                 <p
-                                    class="text-xs font-medium text-[#4F67D8]"
+                                    class="text-xs font-medium text-[#059669]"
                                 >
                                     {{ d.specialization }}
                                 </p>
@@ -640,9 +640,9 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                     <span
                         v-for="spec in specializations"
                         :key="spec"
-                        class="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs text-slate-700 transition hover:bg-blue-100"
+                        class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs text-slate-700 transition hover:bg-emerald-100"
                     >
-                        <Stethoscope class="size-3 text-[#4F67D8]" />
+                        <Stethoscope class="size-3 text-[#059669]" />
                         {{ spec }}
                     </span>
                 </div>
@@ -654,7 +654,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
             <div class="mx-auto max-w-6xl">
                 <div class="mb-12 text-center">
                     <span
-                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
                     >
                         <Star class="size-3.5" /> Testimoni Pasien
                     </span>
@@ -677,7 +677,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                         class="rounded-2xl p-6 transition"
                         :class="
                             t.featured
-                                ? 'bg-gradient-to-br from-[#4F67D8] to-[#5C7AE0] text-white shadow-lg shadow-blue-200'
+                                ? 'bg-gradient-to-br from-[#059669] to-[#0d9488] text-white shadow-lg shadow-emerald-200'
                                 : 'border border-slate-200 bg-white'
                         "
                     >
@@ -706,7 +706,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                                 :class="
                                     t.featured
                                         ? 'bg-white/20 text-white'
-                                        : 'bg-blue-100 text-[#4F67D8]'
+                                        : 'bg-emerald-100 text-[#059669]'
                                 "
                             >
                                 {{ t.name.charAt(0) }}
@@ -739,7 +739,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
             <div class="mx-auto max-w-6xl">
                 <div class="mb-10">
                     <span
-                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
                     >
                         <Sparkles class="size-3.5" /> Edukasi Kesehatan
                     </span>
@@ -774,7 +774,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                         </div>
                         <div class="px-2 pt-4 pb-2">
                             <span
-                                class="text-[10px] font-medium tracking-wide text-[#4F67D8] uppercase"
+                                class="text-[10px] font-medium tracking-wide text-[#059669] uppercase"
                                 >{{ post.category }}</span
                             >
                             <h3
@@ -792,11 +792,11 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             >
                                 <a
                                     href="#"
-                                    class="inline-flex items-center gap-1 text-xs font-medium text-[#4F67D8]"
+                                    class="inline-flex items-center gap-1 text-xs font-medium text-[#059669]"
                                 >
                                     Baca Selengkapnya
                                     <span
-                                        class="flex size-5 items-center justify-center rounded-full bg-[#4F67D8] text-white transition group-hover:translate-x-0.5"
+                                        class="flex size-5 items-center justify-center rounded-full bg-[#059669] text-white transition group-hover:translate-x-0.5"
                                     >
                                         <ArrowRight class="size-3" />
                                     </span>
@@ -814,7 +814,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
         <!-- ========== DARK FOOTER ========== -->
         <footer
             id="kontak"
-            class="bg-gradient-to-br from-[#243766] to-[#2E4576] px-4 pt-16 pb-10 text-white sm:px-6"
+            class="bg-gradient-to-br from-[#064e3b] to-[#115e59] px-4 pt-16 pb-10 text-white sm:px-6"
         >
             <div class="mx-auto max-w-6xl">
                 <div class="grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
@@ -842,7 +842,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             />
                             <button
                                 type="submit"
-                                class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#243766] hover:bg-blue-50"
+                                class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#064e3b] hover:bg-emerald-50"
                             >
                                 Berlangganan
                             </button>
