@@ -10,16 +10,21 @@ import admin from '@/routes/admin';
 
 interface Faq {
     id: number;
-    category: string;
+    category_id: number;
     question: string;
     answer: string;
     is_active: boolean;
     priority: number;
     keywords: string[] | null;
 }
+interface Category {
+    id: number;
+    name: string;
+}
 
 const props = defineProps<{
     faq: Faq | null;
+    categories: Category[];
 }>();
 
 defineOptions({
@@ -37,7 +42,7 @@ const action = props.faq
     : FaqController.store.form();
 
 const initial = {
-    category: props.faq?.category ?? '',
+    category_id: props.faq?.category_id ?? props.categories[0]?.id ?? '',
     question: props.faq?.question ?? '',
     answer: props.faq?.answer ?? '',
     priority: props.faq?.priority ?? 0,
@@ -61,10 +66,24 @@ const initial = {
             </h1>
         </div>
 
+        <div
+            v-if="categories.length === 0"
+            class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"
+        >
+            Belum ada kategori aktif. Buat kategori terlebih dahulu di
+            <Link
+                :href="admin.categories.create().url"
+                class="underline font-medium"
+                >halaman Kategori</Link
+            >.
+        </div>
+
         <Form
+            v-else
             v-bind="action"
             :transform="(data: any) => ({
                 ...data,
+                category_id: Number(data.category_id),
                 is_active: !!data.is_active,
                 priority: Number(data.priority || 0),
                 keywords: typeof data.keywords === 'string'
@@ -75,15 +94,23 @@ const initial = {
             v-slot="{ errors, processing }"
         >
             <div class="grid gap-2">
-                <Label for="category">Kategori</Label>
-                <Input
-                    id="category"
-                    name="category"
-                    :default-value="initial.category"
-                    placeholder="contoh: Pendaftaran, Administrasi"
+                <Label for="category_id">Kategori</Label>
+                <select
+                    id="category_id"
+                    name="category_id"
+                    :value="initial.category_id"
                     required
-                />
-                <InputError :message="errors.category" />
+                    class="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                >
+                    <option
+                        v-for="c in categories"
+                        :key="c.id"
+                        :value="c.id"
+                    >
+                        {{ c.name }}
+                    </option>
+                </select>
+                <InputError :message="errors.category_id" />
             </div>
 
             <div class="grid gap-2">
@@ -102,7 +129,7 @@ const initial = {
                 <textarea
                     id="answer"
                     name="answer"
-                    rows="5"
+                    rows="6"
                     :value="initial.answer"
                     required
                     class="rounded-md border bg-background px-3 py-2 text-sm"

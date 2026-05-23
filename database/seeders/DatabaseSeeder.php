@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             ChatbotSettingSeeder::class,
+            FaqCategorySeeder::class,
             FaqSeeder::class,
             DoctorSeeder::class,
         ]);

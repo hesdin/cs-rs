@@ -73,23 +73,26 @@ class RetrieveKnowledge
         $limit = (int) config('openrouter.chatbot.max_faq_context', 5);
 
         $faqs = Faq::query()
+            ->with('category:id,name')
             ->where('is_active', true)
             ->where(function (Builder $q) use ($tokens): void {
                 foreach ($tokens as $token) {
                     $like = '%'.mb_strtolower($token).'%';
                     $q->orWhereRaw('LOWER(question) LIKE ?', [$like])
                         ->orWhereRaw('LOWER(answer) LIKE ?', [$like])
-                        ->orWhereRaw('LOWER(category) LIKE ?', [$like])
+                        ->orWhereHas('category', function ($c) use ($like): void {
+                            $c->whereRaw('LOWER(name) LIKE ?', [$like]);
+                        })
                         ->orWhereRaw('LOWER(CAST(keywords AS TEXT)) LIKE ?', [$like]);
                 }
             })
             ->orderByDesc('priority')
             ->limit($limit)
-            ->get(['id', 'category', 'question', 'answer']);
+            ->get(['id', 'category_id', 'question', 'answer']);
 
         return $faqs->map(fn (Faq $f): array => [
             'id' => $f->id,
-            'category' => $f->category,
+            'category' => $f->category?->name ?? '-',
             'question' => $f->question,
             'answer' => $f->answer,
         ])->all();

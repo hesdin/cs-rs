@@ -6,6 +6,7 @@ use App\Models\ChatbotSetting;
 use App\Models\ChatMessage;
 use App\Models\Doctor;
 use App\Models\Faq;
+use App\Models\FaqCategory;
 use App\Services\Chatbot\ChatService;
 use Database\Seeders\ChatbotSettingSeeder;
 use Illuminate\Support\Facades\Http;
@@ -13,8 +14,14 @@ use Illuminate\Support\Facades\Http;
 beforeEach(function (): void {
     $this->seed(ChatbotSettingSeeder::class);
 
+    $bpjsCategory = FaqCategory::create([
+        'name' => 'Pendaftaran',
+        'slug' => 'pendaftaran',
+        'is_active' => true,
+    ]);
+
     Faq::create([
-        'category' => 'Pendaftaran',
+        'category_id' => $bpjsCategory->id,
         'question' => 'Apakah RS menerima BPJS Kesehatan?',
         'answer' => 'Ya, RS menerima BPJS dengan rujukan faskes 1.',
         'keywords' => ['bpjs'],

@@ -19,7 +19,8 @@ defineOptions({
 
 interface Faq {
     id: number;
-    category: string;
+    category_id: number;
+    category: { id: number; name: string } | null;
     question: string;
     answer: string;
     is_active: boolean;
@@ -34,14 +35,19 @@ interface Paginated<T> {
     total: number;
 }
 
+interface Category {
+    id: number;
+    name: string;
+}
+
 const props = defineProps<{
     faqs: Paginated<Faq>;
-    categories: string[];
-    filters: { q: string; category: string; status: string };
+    categories: Category[];
+    filters: { q: string; category_id: number | null; status: string };
 }>();
 
 const search = ref(props.filters.q ?? '');
-const category = ref(props.filters.category ?? '');
+const categoryId = ref<number | ''>(props.filters.category_id ?? '');
 const status = ref(props.filters.status ?? 'all');
 
 const applyFilters = () => {
@@ -49,26 +55,25 @@ const applyFilters = () => {
         admin.faqs.index().url,
         {
             q: search.value || undefined,
-            category: category.value || undefined,
+            category_id: categoryId.value || undefined,
             status: status.value !== 'all' ? status.value : undefined,
         },
         { preserveState: true, replace: true },
     );
 };
 
-// Auto-apply saat dropdown kategori/status berubah; search tetap manual via submit
-watch([category, status], applyFilters);
+watch([categoryId, status], applyFilters);
 
 const hasActiveFilters = computed(
     () =>
         !!search.value ||
-        !!category.value ||
+        !!categoryId.value ||
         (status.value && status.value !== 'all'),
 );
 
 const resetFilters = () => {
     search.value = '';
-    category.value = '';
+    categoryId.value = '';
     status.value = 'all';
     router.get(admin.faqs.index().url, {}, { preserveState: true, replace: true });
 };
@@ -121,16 +126,16 @@ const remove = (faq: Faq) => {
                             >Kategori</label
                         >
                         <select
-                            v-model="category"
+                            v-model="categoryId"
                             class="h-9 w-44 rounded-md border bg-background px-2 text-sm"
                         >
                             <option value="">Semua kategori</option>
                             <option
                                 v-for="cat in categories"
-                                :key="cat"
-                                :value="cat"
+                                :key="cat.id"
+                                :value="cat.id"
                             >
-                                {{ cat }}
+                                {{ cat.name }}
                             </option>
                         </select>
                     </div>
@@ -188,7 +193,7 @@ const remove = (faq: Faq) => {
                             <td class="px-4 py-3 align-top">
                                 <span
                                     class="inline-block rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                                >{{ faq.category }}</span>
+                                >{{ faq.category?.name ?? '—' }}</span>
                             </td>
                             <td class="px-4 py-3">
                                 <p class="font-medium">{{ faq.question }}</p>

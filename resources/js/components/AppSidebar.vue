@@ -8,6 +8,7 @@ import {
     MessageSquare,
     MessagesSquare,
     Settings2,
+    Tags,
     UserRound,
 } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
@@ -42,6 +43,11 @@ const mainNavItems: NavItem[] = [
         title: 'FAQ',
         href: admin.faqs.index(),
         icon: HelpCircle,
+    },
+    {
+        title: 'Kategori FAQ',
+        href: admin.categories.index(),
+        icon: Tags,
     },
     {
         title: 'Dokter & Jadwal',

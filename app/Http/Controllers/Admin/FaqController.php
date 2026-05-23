@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FaqRequest;
 use App\Models\Faq;
+use App\Models\FaqCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,37 +18,39 @@ class FaqController extends Controller
     public function index(Request $request): Response
     {
         $faqs = Faq::query()
+            ->with('category')
             ->when($request->string('q')->toString(), function ($q, string $term): void {
                 $q->where(function ($inner) use ($term): void {
-                    $inner->whereRaw('LOWER(question) LIKE ?', ['%'.mb_strtolower($term).'%'])
-                        ->orWhereRaw('LOWER(answer) LIKE ?', ['%'.mb_strtolower($term).'%'])
-                        ->orWhereRaw('LOWER(category) LIKE ?', ['%'.mb_strtolower($term).'%']);
+                    $like = '%'.mb_strtolower($term).'%';
+                    $inner->whereRaw('LOWER(question) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(answer) LIKE ?', [$like])
+                        ->orWhereHas('category', function ($c) use ($like): void {
+                            $c->whereRaw('LOWER(name) LIKE ?', [$like]);
+                        });
                 });
             })
-            ->when($request->filled('category'), function ($q) use ($request): void {
-                $q->where('category', $request->string('category')->toString());
+            ->when($request->filled('category_id'), function ($q) use ($request): void {
+                $q->where('category_id', $request->integer('category_id'));
             })
             ->when($request->filled('status') && $request->string('status')->toString() !== 'all', function ($q) use ($request): void {
                 $q->where('is_active', $request->string('status')->toString() === 'active');
             })
             ->orderByDesc('priority')
-            ->orderBy('category')
+            ->orderBy('id')
             ->paginate(15)
             ->withQueryString();
 
-        $categories = Faq::query()
-            ->select('category')
-            ->distinct()
-            ->orderBy('category')
-            ->pluck('category')
-            ->all();
+        $categories = FaqCategory::query()
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
         return Inertia::render('admin/faqs/Index', [
             'faqs' => $faqs,
             'categories' => $categories,
             'filters' => [
                 'q' => $request->string('q')->toString(),
-                'category' => $request->string('category')->toString(),
+                'category_id' => $request->integer('category_id') ?: null,
                 'status' => $request->string('status')->toString() ?: 'all',
             ],
         ]);
@@ -57,6 +60,11 @@ class FaqController extends Controller
     {
         return Inertia::render('admin/faqs/Form', [
             'faq' => null,
+            'categories' => FaqCategory::query()
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ]);
     }
 
@@ -73,6 +81,11 @@ class FaqController extends Controller
     {
         return Inertia::render('admin/faqs/Form', [
             'faq' => $faq,
+            'categories' => FaqCategory::query()
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ]);
     }
 

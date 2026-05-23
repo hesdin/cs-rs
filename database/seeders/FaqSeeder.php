@@ -5,13 +5,25 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Faq;
+use App\Models\FaqCategory;
 use Illuminate\Database\Seeder;
 
 class FaqSeeder extends Seeder
 {
     public function run(): void
     {
+        // Pastikan kategori sudah tersedia.
+        $this->call(FaqCategorySeeder::class);
+
+        $categories = FaqCategory::query()->pluck('id', 'name');
+
         foreach ($this->faqs() as $faq) {
+            $name = $faq['category'];
+            $faq['category_id'] = $categories[$name] ?? FaqCategory::query()
+                ->create(['name' => $name])
+                ->id;
+            unset($faq['category']);
+
             Faq::query()->updateOrCreate(
                 ['question' => $faq['question']],
                 $faq + ['is_active' => true],

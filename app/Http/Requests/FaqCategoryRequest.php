@@ -7,7 +7,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class FaqRequest extends FormRequest
+class FaqCategoryRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -19,14 +19,18 @@ class FaqRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->route('category')?->id;
+
         return [
-            'category_id' => ['required', 'integer', Rule::exists('faq_categories', 'id')],
-            'question' => ['required', 'string', 'max:255'],
-            'answer' => ['required', 'string', 'max:5000'],
-            'keywords' => ['nullable', 'array'],
-            'keywords.*' => ['string', 'max:60'],
+            'name' => [
+                'required', 'string', 'max:80',
+                Rule::unique('faq_categories', 'name')->ignore($id),
+            ],
+            'description' => ['nullable', 'string', 'max:255'],
+            'icon' => ['nullable', 'string', 'max:60'],
+            'color' => ['nullable', 'string', 'max:20'],
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:1000'],
             'is_active' => ['boolean'],
-            'priority' => ['integer', 'min:0', 'max:1000'],
         ];
     }
 
@@ -37,7 +41,7 @@ class FaqRequest extends FormRequest
     {
         $this->merge([
             'is_active' => $this->boolean('is_active', true),
-            'priority' => (int) $this->input('priority', 0),
+            'sort_order' => (int) $this->input('sort_order', 0),
         ]);
 
         return $this->all();

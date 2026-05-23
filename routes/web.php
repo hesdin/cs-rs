@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ChatbotSettingController;
 use App\Http\Controllers\Admin\ConversationController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
+use App\Http\Controllers\Admin\FaqCategoryController;
 use App\Http\Controllers\Admin\FaqController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,10 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
     Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/', DashboardController::class)->name('dashboard');
+
+        Route::resource('categories', FaqCategoryController::class)
+            ->parameters(['categories' => 'category'])
+            ->except('show');
 
         Route::resource('faqs', FaqController::class)->except('show');
         Route::resource('doctors', DoctorController::class)->except('show');
