@@ -208,6 +208,40 @@ it('marks doctor as on leave when current date in range', function (): void {
     expect($doctor->fresh()->isOnLeave())->toBeFalse();
 });
 
+it('strips markdown formatting from LLM reply', function (): void {
+    config()->set('openrouter.api_key', 'test-key');
+
+    Http::fake([
+        'openrouter.ai/*' => Http::response([
+            'model' => 'openai/gpt-4o-mini',
+            'choices' => [[
+                'message' => [
+                    'content' => "Untuk daftar berobat:\n1. **Online** via website [rsss.example/daftar](http://rsss.example/daftar)\n2. *Aplikasi Mobile* unduh di Play Store\n3. `WhatsApp` 0812-3456-7890\n\nDokumen: __KTP__ dan **kartu BPJS**.\n# Catatan\n* opsi 1\n* opsi 2",
+                ],
+            ]],
+        ]),
+    ]);
+
+    $result = app(ChatService::class)->handle([
+        'session_id' => null,
+        'message' => 'Bagaimana cara daftar berobat?',
+        'channel' => 'web',
+        'user_identifier' => '127.0.0.1',
+    ]);
+
+    expect($result['reply'])
+        ->not->toContain('**')
+        ->not->toContain('__')
+        ->not->toContain('`')
+        ->not->toMatch('/\[.+?\]\(.+?\)/')
+        ->not->toMatch('/^#\s/m')
+        ->toContain('Online via website')
+        ->toContain('Aplikasi Mobile unduh di Play Store')
+        ->toContain('WhatsApp 0812-3456-7890')
+        ->toContain('rsss.example/daftar (http://rsss.example/daftar)')
+        ->toContain('• opsi 1');
+});
+
 it('exposes POST /api/chat endpoint that returns structured response', function (): void {
     config()->set('openrouter.api_key', 'test-key');
 

@@ -76,10 +76,39 @@ class OpenRouterService
         }
 
         return [
-            'content' => trim($content),
+            'content' => $this->stripMarkdown(trim($content)),
             'model' => (string) data_get($data, 'model', $model),
             'usage' => (array) data_get($data, 'usage', []),
             'raw' => $data,
         ];
+    }
+
+    /**
+     * Hilangkan formatting markdown yang tidak ter-render di widget chat.
+     * Bersifat best-effort safety net jika LLM masih melanggar instruksi prompt.
+     */
+    private function stripMarkdown(string $text): string
+    {
+        // **bold** dan __bold__ → plain
+        $text = preg_replace('/\*\*(.+?)\*\*/su', '$1', $text) ?? $text;
+        $text = preg_replace('/__(.+?)__/su', '$1', $text) ?? $text;
+
+        // *italic* dan _italic_ (hindari menabrak bullet "* item")
+        $text = preg_replace('/(?<![\*\w])\*(?!\s)([^\*\n]+?)\*(?!\w)/su', '$1', $text) ?? $text;
+        $text = preg_replace('/(?<![_\w])_(?!\s)([^_\n]+?)_(?!\w)/su', '$1', $text) ?? $text;
+
+        // `inline code`
+        $text = preg_replace('/`([^`\n]+)`/su', '$1', $text) ?? $text;
+
+        // Heading "# ", "## ", dst di awal baris
+        $text = preg_replace('/^#{1,6}\s+/m', '', $text) ?? $text;
+
+        // Bullet markdown "* " / "- " / "+ " di awal baris → "• "
+        $text = preg_replace('/^(\s*)[\*\-\+]\s+/m', '$1• ', $text) ?? $text;
+
+        // [text](url) → "text (url)"
+        $text = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/su', '$1 ($2)', $text) ?? $text;
+
+        return $text;
     }
 }

@@ -90,7 +90,11 @@ class BuildPrompt
 
             GAYA JAWABAN:
             - Bahasa Indonesia, ramah, ringkas, profesional.
-            - Gunakan poin/bullet bila menampilkan jadwal atau langkah.
+            - JANGAN gunakan formatting markdown apa pun. Tulis dalam teks polos.
+              JANGAN pakai **bold**, *italic*, __underline__, `code`, atau heading #.
+              Untuk penekanan, cukup gunakan kalimat yang jelas atau HURUF KAPITAL bila perlu.
+            - Untuk daftar/langkah, gunakan penomoran 1. 2. 3. atau bullet "•" / "-",
+              JANGAN bullet markdown "*".
             - Hanya gunakan informasi dari KONTEKS yang diberikan. Jika tidak ada di konteks,
               katakan "informasi tersebut belum tersedia di sistem kami" dan sarankan
               menghubungi customer service.
