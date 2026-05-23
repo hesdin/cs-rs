@@ -2,24 +2,22 @@
 import { Head, Link } from '@inertiajs/vue3';
 import {
     ArrowRight,
-    Award,
-    BadgeCheck,
-    Building2,
+    ArrowLeft,
     Calendar,
-    CheckCircle2,
-    Clock,
-    Heart,
-    HelpCircle,
-    Mail,
+    Check,
+    HeartPulse,
+    Lock,
     MapPin,
+    Mail,
     MessageCircle,
     Phone,
-    Shield,
+    Play,
     ShieldCheck,
+    Star,
     Sparkles,
     Stethoscope,
-    Users,
 } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 import { dashboard, login } from '@/routes';
 
 interface DoctorSummary {
@@ -38,7 +36,22 @@ interface FeaturedFaq {
     answer_preview: string;
 }
 
-defineProps<{
+interface Testimonial {
+    name: string;
+    role: string;
+    message: string;
+    featured?: boolean;
+}
+
+interface Insight {
+    title: string;
+    excerpt: string;
+    date: string;
+    category: string;
+    image: string;
+}
+
+const props = defineProps<{
     hospitalName: string;
     doctors: DoctorSummary[];
     specializations: string[];
@@ -57,698 +70,884 @@ defineProps<{
         email: string;
         website: string;
     };
+    testimonials: Testimonial[];
+    insights: Insight[];
 }>();
 
-const services = [
-    {
-        icon: Stethoscope,
-        title: 'Konsultasi Spesialis',
-        desc: '12+ poliklinik spesialis dengan dokter berpengalaman dan jadwal fleksibel.',
-    },
-    {
-        icon: Shield,
-        title: 'IGD 24 Jam',
-        desc: 'Layanan gawat darurat siap 24 jam dengan tim medis dan ambulans on-call.',
-    },
-    {
-        icon: Heart,
-        title: 'Medical Check-Up',
-        desc: 'Paket MCU lengkap, termasuk khusus haji & umroh, pre-employment, dan pre-marital.',
-    },
-    {
-        icon: Calendar,
-        title: 'Pendaftaran Online',
-        desc: 'Daftar via website, aplikasi mobile, atau WhatsApp. Antrean real-time.',
-    },
-    {
-        icon: ShieldCheck,
-        title: 'BPJS & Asuransi',
-        desc: 'Faskes rujukan tipe B BPJS, terima 10+ asuransi swasta cashless.',
-    },
-    {
-        icon: Building2,
-        title: 'Rawat Inap Lengkap',
-        desc: 'Dari kelas 3 hingga VVIP, ICU, NICU, PICU dengan fasilitas modern.',
-    },
+const values = [
+    'Pelayanan Profesional',
+    'Kolaborasi Tim Medis',
+    'Transparansi Biaya',
+    'Fleksibilitas Layanan',
+    'Keunggulan Klinis',
 ];
-
-const advantages = [
-    'Tim dokter spesialis berpengalaman',
-    'Pelayanan 24/7 untuk gawat darurat',
-    'Faskes rujukan tipe B BPJS',
-    'Apotek 24 jam',
-    'Lab & radiologi lengkap (CT, MRI, USG 4D)',
-    'Asisten virtual cerdas berbahasa Indonesia',
-];
+const activeValue = ref(0);
+const setValue = (i: number) => {
+    activeValue.value = Math.max(0, Math.min(values.length - 1, i));
+};
+const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
 </script>
 
 <template>
     <Head :title="`${hospitalName} — Customer Service Virtual`" />
 
-    <div class="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-        <!-- ============ TOP BAR ============ -->
-        <div
-            class="border-b border-emerald-100 bg-emerald-50/60 py-2 text-xs dark:border-emerald-950 dark:bg-emerald-950/30"
-        >
+    <div class="min-h-screen bg-white text-slate-900">
+        <!-- ========== HERO BLUE BLOCK ========== -->
+        <section class="relative px-3 pt-3 pb-10 sm:px-5 sm:pt-5">
             <div
-                class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4"
+                class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#4F67D8] via-[#5972DC] to-[#7C8EE6] px-6 pt-6 pb-12 text-white sm:px-10 sm:pt-8"
             >
-                <div class="flex items-center gap-4 text-emerald-900 dark:text-emerald-200">
-                    <span class="inline-flex items-center gap-1.5">
-                        <Phone class="size-3" /> CS {{ contact.phone }}
-                    </span>
-                    <span
-                        class="hidden items-center gap-1.5 sm:inline-flex font-medium text-rose-700 dark:text-rose-300"
-                    >
-                        <Heart class="size-3" /> IGD {{ contact.igd }}
-                    </span>
-                </div>
-                <div class="flex items-center gap-3 text-emerald-900 dark:text-emerald-200">
-                    <span class="hidden items-center gap-1.5 md:inline-flex">
-                        <Clock class="size-3" /> Senin–Sabtu 07.30–21.00
-                    </span>
-                    <span class="inline-flex items-center gap-1.5">
-                        <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        AI Online 24/7
-                    </span>
-                </div>
-            </div>
-        </div>
+                <!-- Decorative blobs -->
+                <div
+                    class="pointer-events-none absolute -top-24 -right-24 size-80 rounded-full bg-white/10 blur-3xl"
+                />
+                <div
+                    class="pointer-events-none absolute -bottom-24 -left-24 size-80 rounded-full bg-white/10 blur-3xl"
+                />
 
-        <!-- ============ NAVBAR ============ -->
-        <header
-            class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90"
-        >
-            <div
-                class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4"
-            >
-                <div class="flex items-center gap-3">
-                    <div
-                        class="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="size-5"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                <!-- ----- NAV ----- -->
+                <header class="relative flex items-center justify-between">
+                    <Link href="/" class="flex items-center gap-2">
+                        <div
+                            class="flex size-9 items-center justify-center rounded-xl bg-white text-[#4F67D8] shadow-sm"
                         >
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                        </svg>
-                    </div>
-                    <div class="leading-tight">
-                        <p class="text-base font-semibold tracking-tight">
-                            {{ hospitalName }}
-                        </p>
-                        <p class="text-xs text-slate-500">
-                            Layanan Kesehatan Terpercaya · Makassar
-                        </p>
-                    </div>
-                </div>
-
-                <nav class="flex items-center gap-1 text-sm">
-                    <a
-                        href="#layanan"
-                        class="hidden rounded-md px-3 py-2 text-slate-700 hover:bg-slate-100 sm:inline-block dark:text-slate-300 dark:hover:bg-slate-800"
-                        >Layanan</a
-                    >
-                    <a
-                        href="#dokter"
-                        class="hidden rounded-md px-3 py-2 text-slate-700 hover:bg-slate-100 sm:inline-block dark:text-slate-300 dark:hover:bg-slate-800"
-                        >Dokter</a
-                    >
-                    <a
-                        href="#kontak"
-                        class="hidden rounded-md px-3 py-2 text-slate-700 hover:bg-slate-100 sm:inline-block dark:text-slate-300 dark:hover:bg-slate-800"
-                        >Kontak</a
-                    >
-                    <Link
-                        v-if="$page.props.auth.user"
-                        :href="dashboard()"
-                        class="rounded-md px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-                        >Dashboard</Link
-                    >
-                    <Link
-                        v-else
-                        :href="login()"
-                        class="rounded-md px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-                        >Login Admin</Link
-                    >
-                    <Link
-                        href="/chat"
-                        class="ml-2 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white shadow-sm transition hover:bg-emerald-700"
-                    >
-                        <MessageCircle class="size-4" />
-                        <span class="hidden sm:inline">Chat Sekarang</span>
-                        <span class="sm:hidden">Chat</span>
+                            <HeartPulse class="size-5" stroke-width="2.5" />
+                        </div>
+                        <span class="text-base font-semibold tracking-tight"
+                            >IbnuSinaCare</span
+                        >
                     </Link>
-                </nav>
-            </div>
-        </header>
 
-        <!-- ============ HERO ============ -->
-        <section class="relative overflow-hidden">
-            <!-- decorative blobs -->
-            <div
-                class="pointer-events-none absolute -top-40 -right-40 size-[500px] rounded-full bg-emerald-200/30 blur-3xl dark:bg-emerald-900/20"
-            />
-            <div
-                class="pointer-events-none absolute -bottom-40 -left-40 size-[500px] rounded-full bg-teal-200/30 blur-3xl dark:bg-teal-900/20"
-            />
-
-            <div
-                class="relative mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 lg:grid-cols-2 lg:py-24"
-            >
-                <div>
-                    <span
-                        class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-900"
+                    <nav
+                        class="hidden items-center gap-1 rounded-full bg-white/10 p-1.5 text-sm backdrop-blur lg:flex"
                     >
-                        <Sparkles class="size-3" />
-                        Asisten Virtual Bertenaga AI · Online 24 Jam
-                    </span>
-
-                    <h1
-                        class="mt-5 text-4xl font-semibold leading-tight tracking-tight md:text-5xl lg:text-6xl"
-                    >
-                        Tanya tentang
-                        <span
-                            class="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent"
-                            >layanan rumah sakit</span
+                        <a
+                            href="#beranda"
+                            class="rounded-full bg-white/15 px-4 py-1.5 font-medium"
+                            >Beranda</a
                         >
-                        kami, kapan saja.
-                    </h1>
-
-                    <p
-                        class="mt-5 max-w-xl text-base leading-relaxed text-slate-600 md:text-lg dark:text-slate-400"
-                    >
-                        Jadwal dokter, pendaftaran, BPJS, biaya, hingga prosedur
-                        rawat inap — semua bisa Anda tanyakan ke asisten virtual
-                        kami dalam Bahasa Indonesia. Cepat, akurat, gratis.
-                    </p>
-
-                    <div class="mt-8 flex flex-wrap gap-3">
-                        <Link
-                            href="/chat"
-                            class="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition hover:shadow-emerald-600/30"
+                        <a
+                            href="#tentang"
+                            class="rounded-full px-4 py-1.5 text-white/80 transition hover:text-white"
+                            >Tentang</a
                         >
-                            <MessageCircle class="size-4" />
-                            Mulai Chat Sekarang
-                            <ArrowRight
-                                class="size-4 transition group-hover:translate-x-0.5"
-                            />
-                        </Link>
                         <a
                             href="#layanan"
-                            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                            class="rounded-full px-4 py-1.5 text-white/80 transition hover:text-white"
+                            >Layanan</a
                         >
-                            Lihat Layanan
+                        <a
+                            href="#dokter"
+                            class="rounded-full px-4 py-1.5 text-white/80 transition hover:text-white"
+                            >Dokter</a
+                        >
+                        <a
+                            href="#testimoni"
+                            class="rounded-full px-4 py-1.5 text-white/80 transition hover:text-white"
+                            >Testimoni</a
+                        >
+                        <a
+                            href="#kontak"
+                            class="rounded-full px-4 py-1.5 text-white/80 transition hover:text-white"
+                            >Kontak</a
+                        >
+                    </nav>
+
+                    <div class="flex items-center gap-2">
+                        <Link
+                            v-if="$page.props.auth.user"
+                            :href="dashboard()"
+                            class="hidden rounded-full px-4 py-2 text-sm text-white/90 hover:text-white sm:inline-block"
+                            >Dashboard</Link
+                        >
+                        <Link
+                            v-else
+                            :href="login()"
+                            class="hidden rounded-full px-4 py-2 text-sm text-white/90 hover:text-white sm:inline-block"
+                            >Login Admin</Link
+                        >
+                        <Link
+                            href="/chat"
+                            class="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#4F67D8] shadow-sm transition hover:bg-blue-50"
+                        >
+                            Tanya Sekarang
+                            <span
+                                class="flex size-5 items-center justify-center rounded-full bg-[#4F67D8] text-white"
+                            >
+                                <ArrowRight class="size-3" />
+                            </span>
+                        </Link>
+                    </div>
+                </header>
+
+                <!-- ----- HERO CONTENT ----- -->
+                <div
+                    id="beranda"
+                    class="relative mt-12 grid gap-8 lg:mt-16 lg:grid-cols-2 lg:items-center"
+                >
+                    <div class="relative">
+                        <!-- Trust badge -->
+                        <div
+                            class="mb-6 inline-flex items-center gap-3 rounded-full bg-white/10 py-1.5 pr-4 pl-1.5 text-sm backdrop-blur"
+                        >
+                            <div class="flex -space-x-2">
+                                <span
+                                    v-for="(c, i) in ['#fca5a5', '#86efac', '#fcd34d', '#a5b4fc']"
+                                    :key="i"
+                                    class="flex size-7 items-center justify-center rounded-full ring-2 ring-white/40 text-[10px] font-semibold text-white"
+                                    :style="{ background: c }"
+                                >
+                                    {{ ['H', 'A', 'S', 'M'][i] }}
+                                </span>
+                            </div>
+                            <span class="font-medium"
+                                >Dipercaya oleh 1.500+ pasien</span
+                            >
+                        </div>
+
+                        <h1
+                            class="text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl lg:text-6xl"
+                        >
+                            Mitra Tepercaya
+                            <br />Anda dalam Layanan
+                            <br />Kesehatan Modern
+                        </h1>
+
+                        <a
+                            href="#layanan"
+                            class="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#4F67D8] shadow-md transition hover:shadow-lg"
+                        >
+                            Jelajahi Layanan
+                            <span
+                                class="flex size-6 items-center justify-center rounded-full bg-[#4F67D8] text-white"
+                            >
+                                <ArrowRight class="size-3.5" />
+                            </span>
+                        </a>
+
+                        <!-- Bottom blurb -->
+                        <div class="mt-16 max-w-md">
+                            <p class="text-sm font-semibold tracking-wide">
+                                Layanan Komprehensif
+                            </p>
+                            <p class="mt-2 text-sm leading-relaxed text-white/80">
+                                Layanan kesehatan modern dan terjangkau, di mana
+                                teknologi bertemu kepedulian. Pesan janji temu,
+                                pantau hasil pemeriksaan, dan hidup sehat dari mana saja.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Hero image + floating stat card -->
+                    <div class="relative">
+                        <div
+                            class="overflow-hidden rounded-3xl ring-1 ring-white/20"
+                        >
+                            <img
+                                src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=900&auto=format&fit=crop&q=70"
+                                alt="Tim medis profesional"
+                                class="h-[420px] w-full object-cover lg:h-[480px]"
+                                loading="lazy"
+                            />
+                        </div>
+
+                        <!-- Floating satisfaction card -->
+                        <div
+                            class="absolute -bottom-6 left-4 right-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:left-auto lg:right-4 lg:w-[420px]"
+                        >
+                            <div
+                                class="rounded-2xl bg-white/15 p-4 backdrop-blur-md ring-1 ring-white/20"
+                            >
+                                <p class="text-xs text-white/70">
+                                    Tingkat Kepuasan Pasien
+                                </p>
+                                <p class="mt-1 text-3xl font-semibold">97%</p>
+                                <p class="mt-1 text-[11px] text-white/70 leading-snug">
+                                    Pasien merasa puas dan dipahami
+                                    <br />terhadap pelayanan kami
+                                </p>
+                            </div>
+                            <div
+                                class="space-y-2 rounded-2xl bg-white/15 p-3 backdrop-blur-md ring-1 ring-white/20"
+                            >
+                                <span
+                                    class="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs"
+                                >
+                                    <Check class="size-3" /> Pelayanan
+                                </span>
+                                <span
+                                    class="flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[#4F67D8]"
+                                >
+                                    <Check class="size-3" /> Personal
+                                </span>
+                                <span
+                                    class="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs"
+                                >
+                                    <Check class="size-3" /> Andal
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== ABOUT US ========== -->
+        <section id="tentang" class="px-4 py-20 sm:px-6">
+            <div class="mx-auto max-w-6xl">
+                <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+                    <div>
+                        <span
+                            class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
+                        >
+                            <Sparkles class="size-3.5" /> Tentang Kami
+                        </span>
+                    </div>
+                    <div class="flex items-start gap-5">
+                        <div
+                            class="size-16 flex-shrink-0 overflow-hidden rounded-full ring-4 ring-blue-100"
+                        >
+                            <img
+                                src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=200&auto=format&fit=crop&q=70"
+                                alt=""
+                                class="h-full w-full object-cover"
+                                loading="lazy"
+                            />
+                        </div>
+                        <p class="text-lg leading-relaxed text-slate-700">
+                            {{ hospitalName }} menghubungkan dokter dan pasien
+                            secara mudah, memberikan layanan kesehatan yang
+                            cerdas, aman, dan penuh empati — dari diagnosis
+                            hingga pemulihan.
+                        </p>
+                    </div>
+                </div>
+
+                <div
+                    class="mt-12 grid items-end gap-8 lg:grid-cols-3 lg:gap-10"
+                >
+                    <div class="flex items-center gap-3">
+                        <button
+                            type="button"
+                            class="flex size-10 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition hover:border-[#4F67D8] hover:text-[#4F67D8]"
+                            @click="setValue(activeValue - 1)"
+                        >
+                            <ArrowLeft class="size-4" />
+                        </button>
+                        <button
+                            type="button"
+                            class="flex size-10 items-center justify-center rounded-full bg-[#4F67D8] text-white shadow-md transition hover:bg-[#3d54c4]"
+                            @click="setValue(activeValue + 1)"
+                        >
+                            <ArrowRight class="size-4" />
+                        </button>
+                        <span class="ml-2 text-sm text-slate-500">{{
+                            valueIndex
+                        }}</span>
+                    </div>
+
+                    <div>
+                        <p
+                            class="text-5xl font-semibold tracking-tight text-[#4F67D8]"
+                        >
+                            {{ stats.doctors * 8 }}+
+                        </p>
+                        <p class="mt-2 text-sm text-slate-600">
+                            Tenaga Medis Profesional
+                            <br />Mendukung Hidup Sehat di Sulawesi
+                        </p>
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div
+                            class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5"
+                        >
+                            <div
+                                class="flex size-10 items-center justify-center rounded-xl bg-white text-[#4F67D8] shadow-sm"
+                            >
+                                <HeartPulse class="size-5" />
+                            </div>
+                            <span
+                                class="mt-3 inline-block rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-[#4F67D8]"
+                                >Layanan Terhubung</span
+                            >
+                            <p class="mt-2 font-semibold">Pelayanan Cerdas</p>
+                            <p class="mt-1 text-xs leading-relaxed text-slate-600">
+                                Pelacakan kesehatan digital memberi insight yang
+                                akurat dan keputusan klinis yang lebih baik.
+                            </p>
+                        </div>
+                        <div
+                            class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5"
+                        >
+                            <div
+                                class="flex size-10 items-center justify-center rounded-xl bg-white text-[#4F67D8] shadow-sm"
+                            >
+                                <Lock class="size-5" />
+                            </div>
+                            <span
+                                class="mt-3 inline-block rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-[#4F67D8]"
+                                >Privasi Data</span
+                            >
+                            <p class="mt-2 font-semibold">Data Aman</p>
+                            <p class="mt-1 text-xs leading-relaxed text-slate-600">
+                                Melindungi data pasien dengan sistem aman dan
+                                sesuai standar privasi nasional.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== WHY CHOOSE US ========== -->
+        <section id="layanan" class="px-4 py-20 sm:px-6">
+            <div class="mx-auto max-w-6xl">
+                <div class="mb-12">
+                    <span
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
+                    >
+                        <Sparkles class="size-3.5" /> Mengapa Memilih Kami
+                    </span>
+                    <div
+                        class="mt-3 grid items-end gap-6 lg:grid-cols-2"
+                    >
+                        <h2
+                            class="text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
+                        >
+                            Jalan yang Sederhana Menuju
+                            <br />Layanan Kesehatan Komprehensif
+                        </h2>
+                        <p class="text-sm leading-relaxed text-slate-600">
+                            Memberikan pelayanan yang berpusat pada pasien
+                            melalui bimbingan ahli, perawatan inovatif, dan
+                            dukungan personal di setiap langkah perjalanan
+                            kesehatan Anda.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 lg:grid-cols-3 lg:items-stretch">
+                    <!-- Values list -->
+                    <div
+                        class="rounded-3xl border border-slate-200 bg-white p-6"
+                    >
+                        <div class="mb-5 flex items-center justify-between text-xs">
+                            <span class="font-medium text-slate-500"
+                                >Daftar Nilai</span
+                            >
+                            <span class="text-slate-400">{{ valueIndex }}</span>
+                        </div>
+                        <ul class="space-y-1">
+                            <li
+                                v-for="(v, i) in values"
+                                :key="v"
+                                class="flex cursor-pointer items-center justify-between rounded-xl px-4 py-3 text-sm transition"
+                                :class="
+                                    i === activeValue
+                                        ? 'bg-[#4F67D8] text-white'
+                                        : 'text-slate-700 hover:bg-slate-50'
+                                "
+                                @click="activeValue = i"
+                            >
+                                <span class="font-medium">{{ v }}</span>
+                                <ArrowRight
+                                    class="size-4"
+                                    :class="
+                                        i === activeValue
+                                            ? 'text-white'
+                                            : 'text-slate-300'
+                                    "
+                                />
+                            </li>
+                        </ul>
+                        <a
+                            href="#kontak"
+                            class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                        >
+                            Buat Janji Temu
+                            <span
+                                class="flex size-5 items-center justify-center rounded-full bg-white text-slate-900"
+                            >
+                                <ArrowRight class="size-3" />
+                            </span>
                         </a>
                     </div>
 
-                    <!-- Quick stats -->
+                    <!-- Image card -->
                     <div
-                        class="mt-10 grid max-w-md grid-cols-4 gap-4 border-t border-slate-200 pt-6 dark:border-slate-800"
+                        class="overflow-hidden rounded-3xl ring-1 ring-slate-200"
                     >
-                        <div>
-                            <p
-                                class="text-2xl font-bold text-emerald-600 dark:text-emerald-400"
-                            >
-                                {{ stats.specializations }}+
-                            </p>
-                            <p class="text-xs text-slate-500">Spesialis</p>
-                        </div>
-                        <div>
-                            <p
-                                class="text-2xl font-bold text-emerald-600 dark:text-emerald-400"
-                            >
-                                {{ stats.doctors }}
-                            </p>
-                            <p class="text-xs text-slate-500">Dokter</p>
-                        </div>
-                        <div>
-                            <p
-                                class="text-2xl font-bold text-emerald-600 dark:text-emerald-400"
-                            >
-                                {{ stats.faqs }}+
-                            </p>
-                            <p class="text-xs text-slate-500">Topik FAQ</p>
-                        </div>
-                        <div>
-                            <p
-                                class="text-2xl font-bold text-emerald-600 dark:text-emerald-400"
-                            >
-                                24
-                            </p>
-                            <p class="text-xs text-slate-500">Jam IGD</p>
-                        </div>
+                        <img
+                            src="https://images.unsplash.com/photo-1581056771107-24ca5f033842?w=800&auto=format&fit=crop&q=70"
+                            alt="Tim dokter konsultasi pasien"
+                            class="h-full max-h-[460px] w-full object-cover"
+                            loading="lazy"
+                        />
                     </div>
-                </div>
 
-                <!-- Chat preview card -->
-                <div class="relative">
+                    <!-- Blue commitment card -->
                     <div
-                        class="absolute -inset-6 rounded-3xl bg-gradient-to-br from-emerald-300/40 to-teal-300/40 blur-2xl dark:from-emerald-900/30 dark:to-teal-900/30"
-                    />
-                    <div
-                        class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900"
+                        class="flex flex-col justify-between rounded-3xl bg-gradient-to-br from-[#4F67D8] to-[#5C7AE0] p-7 text-white"
                     >
-                        <div
-                            class="flex items-center gap-3 border-b bg-gradient-to-r from-emerald-50 to-teal-50 px-5 py-4 dark:border-slate-800 dark:from-emerald-950/40 dark:to-teal-950/40"
-                        >
-                            <div
-                                class="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-sm font-semibold text-white"
+                        <div>
+                            <p class="text-xs font-medium text-white/70">
+                                Komitmen Kami
+                            </p>
+                            <h3
+                                class="mt-3 text-2xl leading-snug font-semibold"
                             >
-                                AI
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-semibold">
-                                    Asisten Virtual
-                                </p>
-                                <p class="text-xs text-emerald-600">
-                                    <span
-                                        class="mr-1 inline-block size-1.5 rounded-full bg-emerald-500"
-                                    />Online sekarang
-                                </p>
-                            </div>
-                            <span class="text-xs text-slate-500">Demo</span>
+                                Kami berkomitmen
+                                memberikan standar perawatan
+                                kesehatan tertinggi
+                                dengan empati.
+                            </h3>
                         </div>
-
-                        <div class="space-y-3 px-5 py-5 text-sm">
-                            <div
-                                class="max-w-[85%] rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-2.5 dark:bg-slate-800"
+                        <div class="mt-8 flex flex-wrap gap-2">
+                            <span
+                                v-for="v in values"
+                                :key="v"
+                                class="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-medium backdrop-blur"
                             >
-                                Halo! Saya bantu informasi jadwal dokter,
-                                pendaftaran, BPJS, dan administrasi 🩺
-                            </div>
-                            <div
-                                class="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-emerald-600 px-4 py-2.5 text-white"
-                            >
-                                Jadwal dokter anak hari Senin?
-                            </div>
-                            <div
-                                class="max-w-[88%] rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-2.5 dark:bg-slate-800"
-                            >
-                                <p class="font-medium mb-1">
-                                    Poli Anak Senin:
-                                </p>
-                                <ul class="space-y-1 text-xs text-slate-600 dark:text-slate-300">
-                                    <li>
-                                        • dr. Bunga Citra Pratiwi, Sp.A —
-                                        09:00–13:00 (A-2)
-                                    </li>
-                                </ul>
-                            </div>
-                            <div
-                                class="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-emerald-600 px-4 py-2.5 text-white"
-                            >
-                                Apakah RS terima BPJS?
-                            </div>
-                            <div
-                                class="max-w-[88%] rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-2.5 text-xs dark:bg-slate-800"
-                            >
-                                Ya, RS Ibnu Sina adalah faskes rujukan tipe B
-                                BPJS. Pastikan kartu aktif & bawa rujukan
-                                faskes 1 ✅
-                            </div>
+                                {{ v }}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ============ ADVANTAGES ============ -->
-        <section
-            class="border-y border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50"
-        >
-            <div
-                class="mx-auto grid max-w-7xl gap-3 px-4 py-8 sm:grid-cols-2 lg:grid-cols-3"
-            >
-                <div
-                    v-for="adv in advantages"
-                    :key="adv"
-                    class="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-300"
-                >
-                    <CheckCircle2
-                        class="size-5 flex-shrink-0 text-emerald-600 dark:text-emerald-400"
-                    />
-                    {{ adv }}
-                </div>
-            </div>
-        </section>
-
-        <!-- ============ SERVICES ============ -->
-        <section id="layanan" class="mx-auto max-w-7xl px-4 py-20">
-            <div class="mb-12 text-center">
+        <!-- ========== TOTAL CARE MODEL ========== -->
+        <section class="bg-blue-50/60 px-4 py-20 sm:px-6">
+            <div class="mx-auto max-w-6xl text-center">
                 <span
-                    class="inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                    >Layanan Kami</span
+                    class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
                 >
+                    <Sparkles class="size-3.5" /> Pendekatan Kami
+                </span>
                 <h2
-                    class="mt-3 text-3xl font-semibold tracking-tight md:text-4xl"
+                    class="mt-3 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
                 >
-                    Apa yang bisa AI kami bantu?
+                    Model Total Care RS Ibnu Sina
                 </h2>
-                <p class="mt-3 text-slate-600 dark:text-slate-400">
-                    Dari informasi jadwal hingga prosedur administrasi
-                </p>
-            </div>
-
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div
-                    v-for="s in services"
-                    :key="s.title"
-                    class="group rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-100/50 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-800 dark:hover:shadow-emerald-950/30"
+                <p
+                    class="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-slate-600"
                 >
+                    Pelayanan berpusat pada pasien melalui bimbingan ahli, inovasi
+                    medis, dan dukungan personal di setiap langkah.
+                </p>
+
+                <div
+                    class="relative mt-10 overflow-hidden rounded-3xl ring-1 ring-blue-100"
+                >
+                    <img
+                        src="https://images.unsplash.com/photo-1559757175-5700dde675bc?w=1400&auto=format&fit=crop&q=70"
+                        alt="Tim dokter berdiskusi"
+                        class="h-[360px] w-full object-cover sm:h-[480px]"
+                        loading="lazy"
+                    />
                     <div
-                        class="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 transition group-hover:from-emerald-500 group-hover:to-teal-600 group-hover:text-white dark:from-emerald-950 dark:to-teal-950 dark:text-emerald-400"
+                        class="absolute inset-0 bg-gradient-to-t from-[#4F67D8]/80 via-[#4F67D8]/20 to-transparent"
+                    />
+                    <button
+                        type="button"
+                        class="absolute top-1/2 left-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#4F67D8] backdrop-blur transition hover:bg-white"
                     >
-                        <component :is="s.icon" class="size-6" />
-                    </div>
-                    <h3 class="mt-4 font-semibold text-lg">{{ s.title }}</h3>
+                        <Play class="size-6 fill-current" />
+                    </button>
                     <p
-                        class="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+                        class="absolute right-6 bottom-6 left-6 text-left text-sm text-white sm:max-w-xl"
                     >
-                        {{ s.desc }}
+                        Model layanan kami menyatukan dokter, spesialis, dan
+                        ahli kesehatan dalam satu tempat. Dari diagnosis hingga
+                        pemulihan, kami memastikan penyembuhan menyeluruh dan
+                        kesejahteraan jangka panjang.
                     </p>
                 </div>
             </div>
         </section>
 
-        <!-- ============ SPECIALIZATIONS ============ -->
-        <section
-            class="border-y border-slate-200 bg-gradient-to-b from-slate-50 to-white py-16 dark:border-slate-800 dark:from-slate-900 dark:to-slate-950"
-        >
-            <div class="mx-auto max-w-7xl px-4">
-                <div class="mb-8 text-center">
-                    <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">
-                        Spesialisasi yang Tersedia
+        <!-- ========== DOCTORS ========== -->
+        <section id="dokter" class="px-4 py-20 sm:px-6">
+            <div class="mx-auto max-w-6xl">
+                <div class="mb-10 text-center">
+                    <span
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
+                    >
+                        <Stethoscope class="size-3.5" /> Tim Medis
+                    </span>
+                    <h2
+                        class="mt-3 text-3xl font-semibold tracking-tight md:text-4xl"
+                    >
+                        Dokter Spesialis Berpengalaman
                     </h2>
-                    <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                        {{ specializations.length }} poliklinik spesialis siap melayani
+                    <p class="mt-3 text-sm text-slate-600">
+                        {{ stats.doctors }} dokter ·
+                        {{ stats.specializations }} spesialisasi siap melayani
                     </p>
                 </div>
-                <div class="flex flex-wrap justify-center gap-2">
+
+                <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                    <div
+                        v-for="d in doctors"
+                        :key="d.id"
+                        class="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-lg hover:shadow-blue-100/50"
+                    >
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="flex size-12 items-center justify-center rounded-full bg-blue-100 text-[#4F67D8] font-semibold"
+                            >
+                                {{ d.name.charAt(0) }}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate font-semibold" :title="d.name">
+                                    {{ d.name }}
+                                </p>
+                                <p
+                                    class="text-xs font-medium text-[#4F67D8]"
+                                >
+                                    {{ d.specialization }}
+                                </p>
+                                <p
+                                    v-if="d.polyclinic"
+                                    class="mt-0.5 text-xs text-slate-500"
+                                >
+                                    {{ d.polyclinic }}
+                                </p>
+                            </div>
+                            <span
+                                v-if="d.on_leave"
+                                class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800"
+                                >Cuti</span
+                            >
+                        </div>
+                        <div
+                            v-if="d.schedule_summary"
+                            class="mt-4 flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600"
+                        >
+                            <Calendar class="mt-0.5 size-3.5 flex-shrink-0" />
+                            <span>{{ d.schedule_summary }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-10 flex flex-wrap justify-center gap-2">
                     <span
                         v-for="spec in specializations"
                         :key="spec"
-                        class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-50 dark:border-emerald-900 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-emerald-950/30"
+                        class="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs text-slate-700 transition hover:bg-blue-100"
                     >
-                        <Stethoscope class="size-3.5 text-emerald-600" />
+                        <Stethoscope class="size-3 text-[#4F67D8]" />
                         {{ spec }}
                     </span>
                 </div>
             </div>
         </section>
 
-        <!-- ============ DOCTORS ============ -->
-        <section id="dokter" class="mx-auto max-w-7xl px-4 py-20">
-            <div class="mb-10 flex flex-wrap items-end justify-between gap-4">
-                <div>
+        <!-- ========== TESTIMONIALS ========== -->
+        <section id="testimoni" class="bg-slate-50 px-4 py-20 sm:px-6">
+            <div class="mx-auto max-w-6xl">
+                <div class="mb-12 text-center">
                     <span
-                        class="inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                        >Tim Medis Kami</span
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
                     >
+                        <Star class="size-3.5" /> Testimoni
+                    </span>
                     <h2
-                        class="mt-3 text-3xl font-semibold tracking-tight md:text-4xl"
+                        class="mt-3 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
                     >
-                        Dokter Spesialis Berpengalaman
+                        Cerita Nyata, Penyembuhan Nyata
+                        <br />Dari Komunitas Kami
                     </h2>
-                </div>
-                <Link
-                    href="/chat"
-                    class="hidden items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-700 sm:inline-flex"
-                >
-                    Tanya jadwal lengkap
-                    <ArrowRight class="size-4" />
-                </Link>
-            </div>
-
-            <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                <div
-                    v-for="d in doctors"
-                    :key="d.id"
-                    class="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-emerald-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-800"
-                >
-                    <div class="flex items-start gap-3">
-                        <div
-                            class="flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 dark:from-emerald-950 dark:to-teal-950 dark:text-emerald-400"
-                        >
-                            <Users class="size-5" />
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p
-                                class="truncate font-semibold"
-                                :title="d.name"
-                            >
-                                {{ d.name }}
-                            </p>
-                            <p
-                                class="text-xs text-emerald-600 dark:text-emerald-400 font-medium"
-                            >
-                                {{ d.specialization }}
-                            </p>
-                            <p
-                                v-if="d.polyclinic"
-                                class="mt-0.5 text-xs text-slate-500"
-                            >
-                                {{ d.polyclinic }}
-                            </p>
-                        </div>
-                        <span
-                            v-if="d.on_leave"
-                            class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300"
-                        >Cuti</span>
-                    </div>
-                    <div
-                        v-if="d.schedule_summary"
-                        class="mt-4 flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:bg-slate-800/50 dark:text-slate-400"
-                    >
-                        <Clock class="size-3.5 mt-0.5 flex-shrink-0" />
-                        <span>{{ d.schedule_summary }}</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============ FAQ PEEK ============ -->
-        <section
-            class="border-y border-slate-200 bg-slate-50 py-20 dark:border-slate-800 dark:bg-slate-900/50"
-        >
-            <div class="mx-auto max-w-7xl px-4">
-                <div class="mb-10 text-center">
-                    <span
-                        class="inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                        >Pertanyaan Populer</span
-                    >
-                    <h2
-                        class="mt-3 text-3xl font-semibold tracking-tight md:text-4xl"
-                    >
-                        Pertanyaan yang Sering Ditanyakan
-                    </h2>
-                    <p class="mt-3 text-slate-600 dark:text-slate-400">
-                        Tanyakan langsung ke asisten virtual untuk jawaban
-                        lengkap & terkini.
+                    <p class="mx-auto mt-3 max-w-xl text-sm text-slate-600">
+                        Pelayanan berpusat pada pasien melalui bimbingan ahli,
+                        inovasi, dan dukungan personal di setiap langkah.
                     </p>
                 </div>
 
-                <div class="grid gap-4 md:grid-cols-2">
+                <div class="grid gap-5 md:grid-cols-3">
                     <div
-                        v-for="faq in featuredFaqs"
-                        :key="faq.id"
-                        class="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
+                        v-for="(t, i) in testimonials"
+                        :key="i"
+                        class="rounded-2xl p-6 transition"
+                        :class="
+                            t.featured
+                                ? 'bg-gradient-to-br from-[#4F67D8] to-[#5C7AE0] text-white shadow-lg shadow-blue-200'
+                                : 'border border-slate-200 bg-white'
+                        "
                     >
-                        <div class="flex items-start gap-3">
+                        <p
+                            class="font-semibold"
+                            :class="t.featured ? 'text-white' : 'text-slate-900'"
+                        >
+                            {{ i === 0 ? 'Pelayanan Ramah' : i === 1 ? 'Pengalaman Mudah' : 'Pelayanan Tepat' }}
+                        </p>
+                        <p
+                            class="mt-3 text-sm leading-relaxed"
+                            :class="t.featured ? 'text-white/90' : 'text-slate-600'"
+                        >
+                            "{{ t.message }}"
+                        </p>
+                        <div
+                            class="mt-6 flex items-center gap-3 border-t pt-4"
+                            :class="
+                                t.featured
+                                    ? 'border-white/20'
+                                    : 'border-slate-100'
+                            "
+                        >
                             <div
-                                class="flex size-9 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
+                                class="flex size-9 items-center justify-center rounded-full font-semibold"
+                                :class="
+                                    t.featured
+                                        ? 'bg-white/20 text-white'
+                                        : 'bg-blue-100 text-[#4F67D8]'
+                                "
                             >
-                                <HelpCircle class="size-4" />
+                                {{ t.name.charAt(0) }}
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <span
-                                    class="text-[10px] font-medium uppercase tracking-wide text-emerald-600 dark:text-emerald-400"
-                                    >{{ faq.category }}</span
+                            <div class="text-xs">
+                                <p
+                                    class="font-medium"
+                                    :class="t.featured ? 'text-white' : ''"
                                 >
-                                <p class="mt-1 font-medium leading-snug">
-                                    {{ faq.question }}
+                                    {{ t.name }}
                                 </p>
                                 <p
-                                    class="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+                                    :class="
+                                        t.featured
+                                            ? 'text-white/70'
+                                            : 'text-slate-500'
+                                    "
                                 >
-                                    {{ faq.answer_preview }}
+                                    {{ t.role }}
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="mt-10 text-center">
-                    <Link
-                        href="/chat"
-                        class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-700"
+        <!-- ========== INSIGHTS / BLOG ========== -->
+        <section class="px-4 py-20 sm:px-6">
+            <div class="mx-auto max-w-6xl">
+                <div class="mb-10">
+                    <span
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
                     >
-                        <MessageCircle class="size-4" />
-                        Tanya Pertanyaan Anda Sendiri
-                    </Link>
+                        <Sparkles class="size-3.5" /> Artikel Kesehatan
+                    </span>
+                    <div class="mt-3 grid gap-4 lg:grid-cols-2 lg:items-end">
+                        <h2
+                            class="text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
+                        >
+                            Wawasan Ahli untuk Hidup yang
+                            <br />Lebih Sehat &amp; Bahagia
+                        </h2>
+                        <p class="text-sm leading-relaxed text-slate-600">
+                            Temukan tips kesehatan, panduan kebugaran, dan
+                            informasi medis terbaru dari tim dokter kami untuk
+                            membantu Anda menjalani hidup lebih sehat setiap
+                            hari.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 md:grid-cols-3">
+                    <article
+                        v-for="(post, i) in insights"
+                        :key="i"
+                        class="group rounded-2xl border border-slate-200 bg-white p-3 transition hover:shadow-lg"
+                    >
+                        <div class="overflow-hidden rounded-xl">
+                            <img
+                                :src="post.image"
+                                :alt="post.title"
+                                class="h-44 w-full object-cover transition duration-500 group-hover:scale-105"
+                                loading="lazy"
+                            />
+                        </div>
+                        <div class="px-2 pt-4 pb-2">
+                            <span
+                                class="text-[10px] font-medium tracking-wide text-[#4F67D8] uppercase"
+                                >{{ post.category }}</span
+                            >
+                            <h3
+                                class="mt-2 line-clamp-2 font-semibold leading-snug"
+                            >
+                                {{ post.title }}
+                            </h3>
+                            <p
+                                class="mt-2 line-clamp-2 text-sm text-slate-600"
+                            >
+                                {{ post.excerpt }}
+                            </p>
+                            <div
+                                class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3"
+                            >
+                                <a
+                                    href="#"
+                                    class="inline-flex items-center gap-1 text-xs font-medium text-[#4F67D8]"
+                                >
+                                    Baca Selengkapnya
+                                    <span
+                                        class="flex size-5 items-center justify-center rounded-full bg-[#4F67D8] text-white transition group-hover:translate-x-0.5"
+                                    >
+                                        <ArrowRight class="size-3" />
+                                    </span>
+                                </a>
+                                <span class="text-xs text-slate-400">{{
+                                    post.date
+                                }}</span>
+                            </div>
+                        </div>
+                    </article>
                 </div>
             </div>
         </section>
 
-        <!-- ============ CONTACT ============ -->
-        <section id="kontak" class="mx-auto max-w-7xl px-4 py-20">
-            <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
-                <div>
-                    <span
-                        class="inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                        >Hubungi Kami</span
-                    >
-                    <h2
-                        class="mt-3 text-3xl font-semibold tracking-tight md:text-4xl"
-                    >
-                        Selalu siap melayani, 24 jam.
-                    </h2>
-                    <p class="mt-4 text-slate-600 dark:text-slate-400">
-                        Untuk pertanyaan cepat, gunakan asisten virtual kami.
-                        Untuk kondisi darurat, langsung hubungi IGD.
-                    </p>
+        <!-- ========== DARK FOOTER ========== -->
+        <footer
+            id="kontak"
+            class="bg-gradient-to-br from-[#243766] to-[#2E4576] px-4 pt-16 pb-10 text-white sm:px-6"
+        >
+            <div class="mx-auto max-w-6xl">
+                <div class="grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
+                    <!-- Brand & subscribe -->
+                    <div>
+                        <h3
+                            class="text-3xl leading-tight font-semibold tracking-tight"
+                        >
+                            Tetap perbarui
+                            <br />perjalanan sehat Anda
+                        </h3>
+                        <p class="mt-3 text-sm text-white/70">
+                            Berlangganan tips kesehatan, panduan kebugaran, dan
+                            kabar terbaru dari klinik — langsung ke email Anda.
+                        </p>
+                        <form
+                            class="mt-5 flex max-w-sm items-center gap-2 rounded-full bg-white/10 p-1.5 ring-1 ring-white/15"
+                            @submit.prevent
+                        >
+                            <input
+                                type="email"
+                                placeholder="Alamat email Anda"
+                                class="flex-1 bg-transparent px-3 py-2 text-sm placeholder:text-white/50 focus:outline-none"
+                            />
+                            <button
+                                type="submit"
+                                class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#243766] hover:bg-blue-50"
+                            >
+                                Berlangganan
+                            </button>
+                        </form>
+                    </div>
 
-                    <div class="mt-8 space-y-4">
-                        <div class="flex items-start gap-3">
-                            <div
-                                class="flex size-10 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
+                    <!-- Quick links -->
+                    <div>
+                        <p class="mb-4 text-sm font-semibold">Tautan Cepat</p>
+                        <ul class="space-y-2 text-sm text-white/70">
+                            <li>
+                                <a href="#beranda" class="hover:text-white"
+                                    >Beranda</a
+                                >
+                            </li>
+                            <li>
+                                <a href="#tentang" class="hover:text-white"
+                                    >Tentang Kami</a
+                                >
+                            </li>
+                            <li>
+                                <a href="#layanan" class="hover:text-white"
+                                    >Layanan</a
+                                >
+                            </li>
+                            <li>
+                                <Link href="/chat" class="hover:text-white"
+                                    >Chat AI</Link
+                                >
+                            </li>
+                            <li>
+                                <a href="#kontak" class="hover:text-white"
+                                    >Kontak</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Services -->
+                    <div>
+                        <p class="mb-4 text-sm font-semibold">Layanan Kami</p>
+                        <ul class="space-y-2 text-sm text-white/70">
+                            <li>Pelayanan Umum</li>
+                            <li>Pelayanan Gigi</li>
+                            <li>Anak &amp; Tumbuh Kembang</li>
+                            <li>Kesehatan Wanita</li>
+                            <li>Kardiologi</li>
+                            <li>Fisioterapi</li>
+                        </ul>
+                    </div>
+
+                    <!-- Doctors / contact -->
+                    <div>
+                        <p class="mb-4 text-sm font-semibold">Hubungi Kami</p>
+                        <ul class="space-y-3 text-sm text-white/80">
+                            <li class="flex items-start gap-2">
+                                <MapPin
+                                    class="mt-0.5 size-4 flex-shrink-0 text-white/60"
+                                />
+                                <span>{{ contact.address }}</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <Phone
+                                    class="size-4 flex-shrink-0 text-white/60"
+                                />
+                                <span>CS {{ contact.phone }}</span>
+                            </li>
+                            <li
+                                class="flex items-center gap-2 text-rose-200"
                             >
-                                <MapPin class="size-5" />
-                            </div>
-                            <div>
-                                <p class="text-xs text-slate-500">Alamat</p>
-                                <p class="text-sm font-medium">
-                                    {{ contact.address }}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-3">
-                            <div
-                                class="flex size-10 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
-                            >
-                                <Phone class="size-5" />
-                            </div>
-                            <div>
-                                <p class="text-xs text-slate-500">
-                                    Customer Service
-                                </p>
-                                <p class="text-sm font-medium">
-                                    {{ contact.phone }}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-3">
-                            <div
-                                class="flex size-10 flex-shrink-0 items-center justify-center rounded-lg bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400"
-                            >
-                                <Heart class="size-5" />
-                            </div>
-                            <div>
-                                <p class="text-xs text-slate-500">
-                                    IGD 24 Jam
-                                </p>
-                                <p class="text-sm font-medium text-rose-700 dark:text-rose-300">
-                                    {{ contact.igd }}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-3">
-                            <div
-                                class="flex size-10 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
-                            >
-                                <Mail class="size-5" />
-                            </div>
-                            <div>
-                                <p class="text-xs text-slate-500">Email</p>
-                                <p class="text-sm font-medium">
-                                    {{ contact.email }}
-                                </p>
-                            </div>
-                        </div>
+                                <ShieldCheck
+                                    class="size-4 flex-shrink-0"
+                                />
+                                <span>IGD {{ contact.igd }}</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <Mail
+                                    class="size-4 flex-shrink-0 text-white/60"
+                                />
+                                <span>{{ contact.email }}</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <MessageCircle
+                                    class="size-4 flex-shrink-0 text-white/60"
+                                />
+                                <span>WA {{ contact.whatsapp }}</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
                 <div
-                    class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-700 p-8 text-white shadow-xl"
+                    class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/60 sm:flex-row"
                 >
-                    <div
-                        class="pointer-events-none absolute -top-20 -right-20 size-60 rounded-full bg-white/10 blur-2xl"
-                    />
-                    <div
-                        class="pointer-events-none absolute -bottom-20 -left-20 size-60 rounded-full bg-white/10 blur-2xl"
-                    />
-                    <div class="relative">
-                        <Award class="size-10" />
-                        <h3 class="mt-4 text-2xl font-semibold leading-snug">
-                            Perlu jawaban cepat?
-                        </h3>
-                        <p class="mt-2 text-emerald-50">
-                            Tanya asisten virtual kami. Tersedia 24 jam, gratis,
-                            dalam Bahasa Indonesia.
-                        </p>
-                        <ul class="mt-5 space-y-2 text-sm text-emerald-50">
-                            <li class="flex items-center gap-2">
-                                <BadgeCheck class="size-4" /> Jawaban
-                                berdasarkan data resmi RS
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <BadgeCheck class="size-4" /> Otomatis terhubung
-                                ke petugas jika diperlukan
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <BadgeCheck class="size-4" /> Tidak menggantikan
-                                konsultasi medis
-                            </li>
-                        </ul>
-                        <Link
-                            href="/chat"
-                            class="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-emerald-700 shadow-lg transition hover:bg-emerald-50"
+                    <p class="flex items-center gap-2">
+                        <span
+                            class="flex size-7 items-center justify-center rounded-lg bg-white/10"
                         >
-                            <MessageCircle class="size-4" />
-                            Mulai Chat Sekarang
-                            <ArrowRight class="size-4" />
-                        </Link>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Disclaimer -->
-            <div
-                class="mt-12 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200"
-            >
-                <p class="flex items-start gap-2 font-medium">
-                    <Shield class="size-5 flex-shrink-0" />
-                    Catatan penting
-                </p>
-                <p class="mt-2 leading-relaxed">
-                    Asisten virtual ini tidak menggantikan konsultasi medis. Bot
-                    tidak memberikan diagnosis, saran obat, maupun tindakan
-                    medis. Untuk kondisi darurat, segera hubungi
-                    <strong>IGD {{ contact.igd }}</strong> atau
-                    <strong>119</strong>.
-                </p>
-            </div>
-        </section>
-
-        <!-- ============ FOOTER ============ -->
-        <footer
-            class="border-t border-slate-200 bg-slate-50 py-10 text-sm dark:border-slate-800 dark:bg-slate-900/50"
-        >
-            <div
-                class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 text-slate-600 dark:text-slate-400 md:flex-row"
-            >
-                <p>
-                    © {{ new Date().getFullYear() }} {{ hospitalName }}. Semua
-                    hak dilindungi.
-                </p>
-                <div class="flex items-center gap-4 text-xs">
-                    <span>{{ contact.website }}</span>
+                            <HeartPulse class="size-4" />
+                        </span>
+                        IbnuSinaCare
+                    </p>
+                    <p>
+                        © {{ new Date().getFullYear() }} {{ hospitalName }}.
+                        Hak cipta dilindungi.
+                    </p>
+                    <p>
+                        Asisten virtual ini tidak menggantikan konsultasi
+                        medis.
+                    </p>
                 </div>
             </div>
         </footer>

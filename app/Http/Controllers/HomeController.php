@@ -80,6 +80,47 @@ class HomeController extends Controller
                 'email' => 'cs@rsibnusina-ywumi.co.id',
                 'website' => 'www.rsibnusina-ywumi.co.id',
             ],
+            'testimonials' => [
+                [
+                    'name' => 'Ibu Hasnawati',
+                    'role' => 'Pasien Rawat Jalan',
+                    'message' => 'Pelayanan ramah, dokter komunikatif. Daftar online lewat WhatsApp gampang sekali, tidak perlu antre lama di loket.',
+                ],
+                [
+                    'name' => 'Bapak Andi Tahir',
+                    'role' => 'Keluarga Pasien',
+                    'message' => 'Asisten virtualnya benar-benar membantu. Saya dapat info jadwal dokter & alur BPJS dalam hitungan detik. Terima kasih RS Ibnu Sina.',
+                    'featured' => true,
+                ],
+                [
+                    'name' => 'Ibu Siti Aminah',
+                    'role' => 'Pasien Kebidanan',
+                    'message' => 'Fasilitas USG 4D bagus, perawat sigap. Suami saya bisa pantau jadwal kontrol via aplikasi, sangat memudahkan.',
+                ],
+            ],
+            'insights' => [
+                [
+                    'title' => '5 Kebiasaan Sehat untuk Jantung Anda',
+                    'excerpt' => 'Gaya hidup sederhana yang bisa Anda terapkan setiap hari untuk menjaga kesehatan jantung dan pembuluh darah.',
+                    'date' => '15 Mei 2026',
+                    'category' => 'Tips Kesehatan',
+                    'image' => 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=600&auto=format&fit=crop&q=70',
+                ],
+                [
+                    'title' => 'Manfaat Medical Check-Up Rutin',
+                    'excerpt' => 'Mengapa pemeriksaan kesehatan berkala penting untuk deteksi dini dan pencegahan penyakit serius.',
+                    'date' => '10 Mei 2026',
+                    'category' => 'MCU',
+                    'image' => 'https://images.unsplash.com/photo-1666214280165-1c5bdc58e9b6?w=600&auto=format&fit=crop&q=70',
+                ],
+                [
+                    'title' => 'Mengelola Stres untuk Kesehatan Mental',
+                    'excerpt' => 'Cara sederhana mengelola stres harian untuk menjaga keseimbangan kesehatan mental & fisik.',
+                    'date' => '5 Mei 2026',
+                    'category' => 'Wellness',
+                    'image' => 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=70',
+                ],
+            ],
         ]);
     }
 }
