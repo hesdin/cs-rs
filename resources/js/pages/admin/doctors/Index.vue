@@ -30,6 +30,9 @@ interface Doctor {
     specialization: string;
     polyclinic: string | null;
     is_active: boolean;
+    leave_start_date: string | null;
+    leave_end_date: string | null;
+    leave_reason: string | null;
     schedules: Schedule[];
 }
 
@@ -48,6 +51,16 @@ const props = defineProps<{
 
 const search = ref(props.filters.q ?? '');
 const DAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+const isOnLeave = (d: Doctor): boolean => {
+    if (!d.leave_start_date || !d.leave_end_date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return (
+        today >= new Date(d.leave_start_date) &&
+        today <= new Date(d.leave_end_date)
+    );
+};
 
 const submitSearch = () => {
     router.get(
@@ -139,16 +152,25 @@ const remove = (doctor: Doctor) => {
                                 </div>
                             </td>
                             <td class="px-4 py-3">
-                                <span
-                                    class="rounded-full px-2 py-0.5 text-xs"
-                                    :class="
-                                        d.is_active
-                                            ? 'bg-emerald-100 text-emerald-700'
-                                            : 'bg-slate-100 text-slate-500'
-                                    "
-                                >
-                                    {{ d.is_active ? 'Aktif' : 'Nonaktif' }}
-                                </span>
+                                <div class="flex flex-col gap-1">
+                                    <span
+                                        class="rounded-full px-2 py-0.5 text-xs w-fit"
+                                        :class="
+                                            d.is_active
+                                                ? 'bg-emerald-100 text-emerald-700'
+                                                : 'bg-slate-100 text-slate-500'
+                                        "
+                                    >
+                                        {{ d.is_active ? 'Aktif' : 'Nonaktif' }}
+                                    </span>
+                                    <span
+                                        v-if="isOnLeave(d)"
+                                        class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800 w-fit"
+                                        :title="d.leave_reason ?? ''"
+                                    >
+                                        Cuti s/d {{ d.leave_end_date }}
+                                    </span>
+                                </div>
                             </td>
                             <td class="px-4 py-3 text-right">
                                 <div class="flex justify-end gap-2">

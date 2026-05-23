@@ -22,6 +22,9 @@ interface Doctor {
     bio: string | null;
     photo_url: string | null;
     is_active: boolean;
+    leave_start_date: string | null;
+    leave_end_date: string | null;
+    leave_reason: string | null;
     schedules: Schedule[];
 }
 
@@ -56,6 +59,9 @@ const form = useForm({
     bio: props.doctor?.bio ?? '',
     photo_url: props.doctor?.photo_url ?? '',
     is_active: props.doctor?.is_active ?? true,
+    leave_start_date: props.doctor?.leave_start_date ?? '',
+    leave_end_date: props.doctor?.leave_end_date ?? '',
+    leave_reason: props.doctor?.leave_reason ?? '',
     schedules: (props.doctor?.schedules ?? []).map((s) => ({
         day_of_week: s.day_of_week,
         start_time: s.start_time.slice(0, 5),
@@ -144,6 +150,45 @@ const submit = () => {
                     class="size-4 rounded border"
                 />
                 <Label for="is_active">Aktif</Label>
+            </div>
+        </div>
+
+        <div class="rounded-lg border bg-card p-6">
+            <div class="mb-4">
+                <h2 class="font-medium">Cuti / Tidak Praktik</h2>
+                <p class="text-xs text-muted-foreground">
+                    Isi periode cuti agar chatbot otomatis menjawab "dokter sedang cuti" pada tanggal tersebut.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div class="grid gap-2">
+                    <Label for="leave_start_date" class="text-xs"
+                        >Tanggal mulai</Label
+                    >
+                    <Input
+                        id="leave_start_date"
+                        v-model="form.leave_start_date"
+                        type="date"
+                    />
+                </div>
+                <div class="grid gap-2">
+                    <Label for="leave_end_date" class="text-xs"
+                        >Tanggal selesai</Label
+                    >
+                    <Input
+                        id="leave_end_date"
+                        v-model="form.leave_end_date"
+                        type="date"
+                    />
+                </div>
+                <div class="grid gap-2">
+                    <Label for="leave_reason" class="text-xs">Alasan</Label>
+                    <Input
+                        id="leave_reason"
+                        v-model="form.leave_reason"
+                        placeholder="contoh: Cuti seminar"
+                    />
+                </div>
             </div>
         </div>
 

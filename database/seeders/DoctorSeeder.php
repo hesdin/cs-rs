@@ -72,6 +72,9 @@ class DoctorSeeder extends Seeder
                 'specialization' => 'Saraf',
                 'polyclinic' => 'Poli Saraf',
                 'bio' => 'Spesialis saraf, layanan EEG dan EMG tersedia.',
+                'leave_start_date' => now()->subDay()->toDateString(),
+                'leave_end_date' => now()->addDays(5)->toDateString(),
+                'leave_reason' => 'Cuti seminar internasional',
                 'schedules' => [
                     ['day_of_week' => 2, 'start_time' => '13:00', 'end_time' => '17:00', 'room' => 'S-1'],
                     ['day_of_week' => 4, 'start_time' => '13:00', 'end_time' => '17:00', 'room' => 'S-1'],

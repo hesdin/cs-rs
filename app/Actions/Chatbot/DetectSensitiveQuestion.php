@@ -75,6 +75,7 @@ class DetectSensitiveQuestion
      * @var list<string>
      */
     private const HANDOFF_PHRASES = [
+        // Minta CS / petugas / operator
         'sambungkan ke cs', 'sambungkan ke customer service',
         'sambungkan ke petugas', 'sambungkan ke operator',
         'sambungkan ke manusia', 'sambungkan saya',
@@ -92,6 +93,21 @@ class DetectSensitiveQuestion
         'tidak mau dengan bot', 'jangan dengan bot', 'jangan ai',
         'saya mau cs', 'saya mau customer service',
         'saya mau petugas', 'saya mau operator',
+
+        // Komplain / keluhan / kekecewaan
+        'komplain', 'komplen', 'keluhan', 'mengeluh',
+        'kecewa', 'tidak puas', 'pelayanan buruk',
+        'mau lapor', 'ingin lapor', 'lapor ke',
+        'pengaduan', 'mengadukan', 'aduan',
+
+        // Kendala administrasi spesifik (perlu human)
+        'belum dapat antrean', 'belum dapat antrian',
+        'antrean saya hilang', 'antrian saya hilang',
+        'kendala pembayaran', 'masalah pembayaran',
+        'tidak bisa bayar', 'gagal bayar',
+        'mau ubah jadwal', 'ingin ubah jadwal', 'reschedule',
+        'mau batalkan pendaftaran', 'mau cancel pendaftaran',
+        'batalkan janji', 'cancel appointment',
     ];
 
     public function __invoke(string $message): ChatbotIntent

@@ -144,6 +144,70 @@ it('detects handoff request and skips LLM', function (): void {
         ->and($result['reply'])->toContain('petugas customer service');
 });
 
+it('treats complaints as handoff request', function (): void {
+    Http::preventStrayRequests();
+
+    $result = app(ChatService::class)->handle([
+        'session_id' => null,
+        'message' => 'Saya kecewa dengan pelayanan, mau komplain',
+        'channel' => 'web',
+        'user_identifier' => '127.0.0.1',
+    ]);
+
+    expect($result['intent'])->toBe('request_handoff')
+        ->and($result['handoff'])->toBeTrue()
+        ->and($result['used_llm'])->toBeFalse();
+});
+
+it('injects today and tomorrow date into system prompt', function (): void {
+    config()->set('openrouter.api_key', 'test-key');
+
+    Http::fake([
+        'openrouter.ai/*' => Http::response([
+            'model' => 'openai/gpt-4o-mini',
+            'choices' => [['message' => ['content' => 'OK']]],
+        ]),
+    ]);
+
+    app(ChatService::class)->handle([
+        'session_id' => null,
+        'message' => 'Jadwal dokter hari ini',
+        'channel' => 'web',
+        'user_identifier' => '127.0.0.1',
+    ]);
+
+    Http::assertSent(function ($request): bool {
+        $systemMessages = collect($request->data()['messages'])
+            ->where('role', 'system')
+            ->pluck('content')
+            ->implode("\n");
+
+        return str_contains($systemMessages, 'Hari ini:')
+            && str_contains($systemMessages, 'Besok:');
+    });
+});
+
+it('marks doctor as on leave when current date in range', function (): void {
+    $doctor = Doctor::create([
+        'name' => 'dr. Test Cuti, Sp.PD',
+        'specialization' => 'Penyakit Dalam',
+        'polyclinic' => 'Poli PD',
+        'is_active' => true,
+        'leave_start_date' => now()->subDay()->toDateString(),
+        'leave_end_date' => now()->addDays(3)->toDateString(),
+        'leave_reason' => 'Cuti tahunan',
+    ]);
+
+    expect($doctor->isOnLeave())->toBeTrue();
+
+    $doctor->update([
+        'leave_start_date' => now()->addDays(7)->toDateString(),
+        'leave_end_date' => now()->addDays(10)->toDateString(),
+    ]);
+
+    expect($doctor->fresh()->isOnLeave())->toBeFalse();
+});
+
 it('exposes POST /api/chat endpoint that returns structured response', function (): void {
     config()->set('openrouter.api_key', 'test-key');
 

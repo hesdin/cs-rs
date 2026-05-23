@@ -18,6 +18,9 @@ use Illuminate\Database\Eloquent\Builder;
  *     name:string,
  *     specialization:string,
  *     polyclinic:?string,
+ *     on_leave:bool,
+ *     leave_period:?string,
+ *     leave_reason:?string,
  *     schedules: list<array{day:string, start:string, end:string, room:?string}>
  * }
  */
@@ -124,6 +127,11 @@ class RetrieveKnowledge
             'name' => $d->name,
             'specialization' => $d->specialization,
             'polyclinic' => $d->polyclinic,
+            'on_leave' => $d->isOnLeave(),
+            'leave_period' => ($d->leave_start_date && $d->leave_end_date)
+                ? $d->leave_start_date->isoFormat('D MMM YYYY').' – '.$d->leave_end_date->isoFormat('D MMM YYYY')
+                : null,
+            'leave_reason' => $d->leave_reason,
             'schedules' => $d->schedules->map(fn ($s): array => [
                 'day' => $s->dayName(),
                 'start' => substr((string) $s->start_time, 0, 5),

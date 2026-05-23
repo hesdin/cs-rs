@@ -26,6 +26,10 @@ class DoctorRequest extends FormRequest
             'photo_url' => ['nullable', 'url', 'max:500'],
             'is_active' => ['boolean'],
 
+            'leave_start_date' => ['nullable', 'date'],
+            'leave_end_date' => ['nullable', 'date', 'after_or_equal:leave_start_date'],
+            'leave_reason' => ['nullable', 'string', 'max:255'],
+
             'schedules' => ['array'],
             'schedules.*.day_of_week' => ['required_with:schedules', 'integer', 'between:0,6'],
             'schedules.*.start_time' => ['required_with:schedules', 'date_format:H:i'],

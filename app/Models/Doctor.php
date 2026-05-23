@@ -8,6 +8,7 @@ use Database\Factories\DoctorFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 class Doctor extends Model
 {
@@ -21,6 +22,9 @@ class Doctor extends Model
         'bio',
         'photo_url',
         'is_active',
+        'leave_start_date',
+        'leave_end_date',
+        'leave_reason',
     ];
 
     /**
@@ -30,7 +34,23 @@ class Doctor extends Model
     {
         return [
             'is_active' => 'boolean',
+            'leave_start_date' => 'date',
+            'leave_end_date' => 'date',
         ];
+    }
+
+    /**
+     * Apakah dokter sedang cuti pada tanggal tertentu (default: hari ini).
+     */
+    public function isOnLeave(?Carbon $date = null): bool
+    {
+        $date ??= now()->startOfDay();
+
+        if ($this->leave_start_date === null || $this->leave_end_date === null) {
+            return false;
+        }
+
+        return $date->between($this->leave_start_date, $this->leave_end_date);
     }
 
     /**
