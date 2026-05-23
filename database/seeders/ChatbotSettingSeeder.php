@@ -14,13 +14,13 @@ class ChatbotSettingSeeder extends Seeder
         $defaults = [
             [
                 'key' => 'hospital_name',
-                'value' => 'Rumah Sakit Sehat Sentosa',
+                'value' => 'Rumah Sakit Ibnu Sina YW-UMI Makassar',
                 'group' => 'general',
                 'label' => 'Nama Rumah Sakit',
             ],
             [
                 'key' => 'welcome_message',
-                'value' => 'Halo, saya asisten virtual RS Sehat Sentosa. Saya bisa bantu informasi jadwal dokter, pendaftaran, BPJS, dan administrasi rumah sakit. Ada yang bisa saya bantu?',
+                'value' => 'Assalamualaikum, saya asisten virtual RS Ibnu Sina Makassar. Saya bisa bantu informasi jadwal dokter, pendaftaran, BPJS, dan administrasi rumah sakit. Ada yang bisa saya bantu?',
                 'group' => 'general',
                 'label' => 'Welcome Message',
             ],
@@ -32,13 +32,13 @@ class ChatbotSettingSeeder extends Seeder
             ],
             [
                 'key' => 'fallback_message',
-                'value' => 'Maaf, layanan saya sedang gangguan. Silakan coba beberapa saat lagi atau hubungi customer service kami di (021) 555-1234.',
+                'value' => 'Mohon maaf, layanan saya sedang gangguan. Silakan coba beberapa saat lagi atau hubungi customer service kami di (0411) 452917.',
                 'group' => 'safety',
                 'label' => 'Fallback Message',
             ],
             [
                 'key' => 'emergency_message',
-                'value' => 'Pertanyaan Anda terdengar darurat. Mohon segera hubungi IGD kami di (021) 555-9119 atau layanan darurat 119. Jika kondisi mengancam nyawa, datang langsung ke IGD terdekat. Saya akan menghubungkan Anda dengan petugas customer service.',
+                'value' => 'Pertanyaan Anda terdengar darurat. Mohon segera hubungi IGD RS Ibnu Sina di (0411) 452-917 ext. 119 atau layanan darurat 119. Jika kondisi mengancam nyawa, datang langsung ke IGD kami di Jl. Urip Sumoharjo Km. 5, Makassar. Saya akan menghubungkan Anda dengan petugas customer service.',
                 'group' => 'safety',
                 'label' => 'Emergency Message',
             ],
@@ -50,7 +50,7 @@ class ChatbotSettingSeeder extends Seeder
             ],
             [
                 'key' => 'handoff_message',
-                'value' => "Tentu, saya akan menghubungkan Anda dengan petugas customer service kami.\n\nSilakan hubungi (021) 555-1234 (Senin-Sabtu 08.00-20.00) atau tunggu sebentar, percakapan ini akan diteruskan ke petugas.",
+                'value' => "Tentu, saya akan menghubungkan Anda dengan petugas customer service kami.\n\nSilakan hubungi (0411) 452917 (Senin-Sabtu 07.30-21.00) atau tunggu sebentar, percakapan ini akan diteruskan ke petugas.",
                 'group' => 'general',
                 'label' => 'Handoff Message',
             ],

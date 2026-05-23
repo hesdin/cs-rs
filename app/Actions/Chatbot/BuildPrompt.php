@@ -46,7 +46,7 @@ class BuildPrompt
 
     private function systemPrompt(): string
     {
-        $hospitalName = ChatbotSetting::get('hospital_name', 'Rumah Sakit Sehat Sentosa');
+        $hospitalName = ChatbotSetting::get('hospital_name', 'Rumah Sakit Ibnu Sina YW-UMI Makassar');
         $disclaimer = ChatbotSetting::get(
             'disclaimer',
             'Saya bukan tenaga medis dan tidak dapat memberikan diagnosis, saran obat, atau tindakan medis.'

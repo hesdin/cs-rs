@@ -49,7 +49,7 @@ onMounted(() => {
         role: 'assistant',
         content:
             props.welcomeMessage ??
-            `Halo, saya asisten virtual ${props.hospitalName ?? 'RS Sehat Sentosa'}. Saya bisa bantu informasi jadwal dokter, pendaftaran, BPJS, dan administrasi rumah sakit. Ada yang bisa saya bantu?`,
+            `Assalamualaikum, saya asisten virtual ${props.hospitalName ?? 'RS Ibnu Sina YW-UMI Makassar'}. Saya bisa bantu informasi jadwal dokter, pendaftaran, BPJS, dan administrasi rumah sakit. Ada yang bisa saya bantu?`,
     });
 });
 
@@ -150,7 +150,7 @@ const send = async (text?: string) => {
                 </div>
                 <div>
                     <p class="text-sm font-semibold">
-                        {{ hospitalName ?? 'RS Sehat Sentosa' }}
+                        {{ hospitalName ?? 'RS Ibnu Sina YW-UMI Makassar' }}
                     </p>
                     <p class="text-xs text-slate-500">
                         Asisten Customer Service

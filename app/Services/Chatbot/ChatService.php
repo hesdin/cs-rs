@@ -205,7 +205,7 @@ class ChatService
             ChatbotIntent::RequestHandoff => ChatbotSetting::get(
                 'handoff_message',
                 "Tentu, saya akan menghubungkan Anda dengan petugas customer service kami.\n\n".
-                'Silakan hubungi (021) 555-1234 (Senin-Sabtu 08.00-20.00) atau tunggu sebentar, percakapan ini akan diteruskan ke petugas.'
+                'Silakan hubungi (0411) 452917 (Senin-Sabtu 07.30-21.00) atau tunggu sebentar, percakapan ini akan diteruskan ke petugas.'
             ) ?? '',
             default => throw new RuntimeException('safeReplyFor dipanggil untuk intent yang seharusnya boleh ke LLM.'),
         };

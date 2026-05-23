@@ -60,7 +60,7 @@ const features = [
                 </div>
                 <div class="leading-tight">
                     <p class="text-sm font-semibold">
-                        {{ hospitalName ?? 'RS Sehat Sentosa' }}
+                        {{ hospitalName ?? 'RS Ibnu Sina YW-UMI Makassar' }}
                     </p>
                     <p class="text-xs text-slate-500">
                         Asisten Customer Service
@@ -162,7 +162,7 @@ const features = [
                             <div
                                 class="max-w-[80%] rounded-2xl bg-slate-100 px-3 py-2 dark:bg-slate-800"
                             >
-                                Halo, saya asisten virtual RS Sehat Sentosa. Ada
+                                Halo, saya asisten virtual RS Ibnu Sina Makassar. Ada
                                 yang bisa saya bantu?
                             </div>
                             <div
@@ -207,7 +207,7 @@ const features = [
                     Asisten virtual ini tidak menggantikan konsultasi medis. Bot
                     tidak memberikan diagnosis, saran obat, maupun tindakan
                     medis. Untuk kondisi darurat, segera hubungi
-                    <strong>IGD (021) 555-9119</strong> atau
+                    <strong>IGD (0411) 452-917 ext. 119</strong> atau
                     <strong>119</strong>.
                 </p>
             </section>
@@ -217,7 +217,7 @@ const features = [
             class="border-t border-slate-200 py-6 text-center text-xs text-slate-500 dark:border-slate-800"
         >
             © {{ new Date().getFullYear() }}
-            {{ hospitalName ?? 'RS Sehat Sentosa' }} — Customer Service Virtual.
+            {{ hospitalName ?? 'RS Ibnu Sina YW-UMI Makassar' }} — Customer Service Virtual.
         </footer>
     </div>
 </template>
