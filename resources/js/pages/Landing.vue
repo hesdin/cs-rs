@@ -75,11 +75,11 @@ const props = defineProps<{
 }>();
 
 const values = [
-    'Pelayanan Profesional',
-    'Kolaborasi Tim Medis',
+    'Pelayanan Bermutu',
+    'Kolaborasi Multidisipliner',
     'Transparansi Biaya',
-    'Fleksibilitas Layanan',
-    'Keunggulan Klinis',
+    'Aksesibilitas Layanan',
+    'Profesionalisme Klinis',
 ];
 const activeValue = ref(0);
 const setValue = (i: number) => {
@@ -129,7 +129,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                         <a
                             href="#tentang"
                             class="rounded-full px-4 py-1.5 text-white/80 transition hover:text-white"
-                            >Tentang</a
+                            >Profil RS</a
                         >
                         <a
                             href="#layanan"
@@ -170,7 +170,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             href="/chat"
                             class="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#4F67D8] shadow-sm transition hover:bg-blue-50"
                         >
-                            Tanya Sekarang
+                            Tanya Asisten Virtual
                             <span
                                 class="flex size-5 items-center justify-center rounded-full bg-[#4F67D8] text-white"
                             >
@@ -201,23 +201,23 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                                 </span>
                             </div>
                             <span class="font-medium"
-                                >Dipercaya oleh 1.500+ pasien</span
+                                >Telah dipercaya ribuan pasien sejak 1988</span
                             >
                         </div>
 
                         <h1
                             class="text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl lg:text-6xl"
                         >
-                            Mitra Tepercaya
-                            <br />Anda dalam Layanan
-                            <br />Kesehatan Modern
+                            Sahabat Sehat
+                            <br />Keluarga di Sulawesi
+                            <br />Selatan
                         </h1>
 
                         <a
                             href="#layanan"
                             class="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#4F67D8] shadow-md transition hover:shadow-lg"
                         >
-                            Jelajahi Layanan
+                            Lihat Layanan Kami
                             <span
                                 class="flex size-6 items-center justify-center rounded-full bg-[#4F67D8] text-white"
                             >
@@ -228,12 +228,14 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                         <!-- Bottom blurb -->
                         <div class="mt-16 max-w-md">
                             <p class="text-sm font-semibold tracking-wide">
-                                Layanan Komprehensif
+                                Pelayanan Komprehensif &amp; Islami
                             </p>
                             <p class="mt-2 text-sm leading-relaxed text-white/80">
-                                Layanan kesehatan modern dan terjangkau, di mana
-                                teknologi bertemu kepedulian. Pesan janji temu,
-                                pantau hasil pemeriksaan, dan hidup sehat dari mana saja.
+                                Rumah sakit umum tipe B yang memadukan
+                                pelayanan medis modern dengan nilai-nilai
+                                Islami. Pendaftaran online, jadwal dokter,
+                                hingga konsultasi BPJS — semua bisa Anda akses
+                                dengan mudah, kapan saja.
                             </p>
                         </div>
                     </div>
@@ -259,12 +261,12 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                                 class="rounded-2xl bg-white/15 p-4 backdrop-blur-md ring-1 ring-white/20"
                             >
                                 <p class="text-xs text-white/70">
-                                    Tingkat Kepuasan Pasien
+                                    Indeks Kepuasan Pasien
                                 </p>
                                 <p class="mt-1 text-3xl font-semibold">97%</p>
                                 <p class="mt-1 text-[11px] text-white/70 leading-snug">
-                                    Pasien merasa puas dan dipahami
-                                    <br />terhadap pelayanan kami
+                                    Berdasarkan survei rutin
+                                    <br />kepuasan pasien rawat jalan
                                 </p>
                             </div>
                             <div
@@ -273,17 +275,17 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                                 <span
                                     class="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs"
                                 >
-                                    <Check class="size-3" /> Pelayanan
+                                    <Check class="size-3" /> Ramah
                                 </span>
                                 <span
                                     class="flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[#4F67D8]"
                                 >
-                                    <Check class="size-3" /> Personal
+                                    <Check class="size-3" /> Islami
                                 </span>
                                 <span
                                     class="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs"
                                 >
-                                    <Check class="size-3" /> Andal
+                                    <Check class="size-3" /> Tepercaya
                                 </span>
                             </div>
                         </div>
@@ -300,7 +302,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                         <span
                             class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
                         >
-                            <Sparkles class="size-3.5" /> Tentang Kami
+                            <Sparkles class="size-3.5" /> Profil Rumah Sakit
                         </span>
                     </div>
                     <div class="flex items-start gap-5">
@@ -315,10 +317,11 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             />
                         </div>
                         <p class="text-lg leading-relaxed text-slate-700">
-                            {{ hospitalName }} menghubungkan dokter dan pasien
-                            secara mudah, memberikan layanan kesehatan yang
-                            cerdas, aman, dan penuh empati — dari diagnosis
-                            hingga pemulihan.
+                            {{ hospitalName }} adalah rumah sakit umum tipe B
+                            di bawah Yayasan Wakaf UMI yang melayani masyarakat
+                            Sulawesi Selatan dengan pelayanan medis paripurna,
+                            ramah, dan bernuansa Islami — dari rawat jalan,
+                            rawat inap, hingga gawat darurat 24 jam.
                         </p>
                     </div>
                 </div>
@@ -353,8 +356,8 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             {{ stats.doctors * 8 }}+
                         </p>
                         <p class="mt-2 text-sm text-slate-600">
-                            Tenaga Medis Profesional
-                            <br />Mendukung Hidup Sehat di Sulawesi
+                            Tenaga medis &amp; staf profesional
+                            <br />siap melayani 24 jam di Makassar
                         </p>
                     </div>
 
@@ -369,12 +372,12 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             </div>
                             <span
                                 class="mt-3 inline-block rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-[#4F67D8]"
-                                >Layanan Terhubung</span
+                                >Akreditasi Paripurna</span
                             >
-                            <p class="mt-2 font-semibold">Pelayanan Cerdas</p>
+                            <p class="mt-2 font-semibold">Mutu Terjamin</p>
                             <p class="mt-1 text-xs leading-relaxed text-slate-600">
-                                Pelacakan kesehatan digital memberi insight yang
-                                akurat dan keputusan klinis yang lebih baik.
+                                Terakreditasi paripurna oleh KARS dan menjadi
+                                faskes rujukan tipe B BPJS Kesehatan.
                             </p>
                         </div>
                         <div
@@ -387,12 +390,12 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             </div>
                             <span
                                 class="mt-3 inline-block rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-[#4F67D8]"
-                                >Privasi Data</span
+                                >Rekam Medis Aman</span
                             >
-                            <p class="mt-2 font-semibold">Data Aman</p>
+                            <p class="mt-2 font-semibold">Data Rahasia</p>
                             <p class="mt-1 text-xs leading-relaxed text-slate-600">
-                                Melindungi data pasien dengan sistem aman dan
-                                sesuai standar privasi nasional.
+                                Rekam medis pasien dijaga sesuai standar
+                                privasi dan kerahasiaan dokter–pasien.
                             </p>
                         </div>
                     </div>
@@ -407,7 +410,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                     <span
                         class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
                     >
-                        <Sparkles class="size-3.5" /> Mengapa Memilih Kami
+                        <Sparkles class="size-3.5" /> Mengapa RS Ibnu Sina
                     </span>
                     <div
                         class="mt-3 grid items-end gap-6 lg:grid-cols-2"
@@ -415,14 +418,14 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                         <h2
                             class="text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
                         >
-                            Jalan yang Sederhana Menuju
-                            <br />Layanan Kesehatan Komprehensif
+                            Pelayanan Paripurna untuk
+                            <br />Setiap Pasien &amp; Keluarga
                         </h2>
                         <p class="text-sm leading-relaxed text-slate-600">
-                            Memberikan pelayanan yang berpusat pada pasien
-                            melalui bimbingan ahli, perawatan inovatif, dan
-                            dukungan personal di setiap langkah perjalanan
-                            kesehatan Anda.
+                            Kami melayani dengan sepenuh hati — memadukan
+                            keahlian dokter spesialis, fasilitas medis modern,
+                            dan nilai-nilai Islami untuk kenyamanan dan
+                            kesembuhan Anda.
                         </p>
                     </div>
                 </div>
@@ -434,7 +437,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                     >
                         <div class="mb-5 flex items-center justify-between text-xs">
                             <span class="font-medium text-slate-500"
-                                >Daftar Nilai</span
+                                >Nilai Pelayanan</span
                             >
                             <span class="text-slate-400">{{ valueIndex }}</span>
                         </div>
@@ -461,17 +464,17 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                                 />
                             </li>
                         </ul>
-                        <a
-                            href="#kontak"
+                        <Link
+                            href="/chat"
                             class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
                         >
-                            Buat Janji Temu
+                            Daftar Berobat
                             <span
                                 class="flex size-5 items-center justify-center rounded-full bg-white text-slate-900"
                             >
                                 <ArrowRight class="size-3" />
                             </span>
-                        </a>
+                        </Link>
                     </div>
 
                     <!-- Image card -->
@@ -480,7 +483,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                     >
                         <img
                             src="https://images.unsplash.com/photo-1581056771107-24ca5f033842?w=800&auto=format&fit=crop&q=70"
-                            alt="Tim dokter konsultasi pasien"
+                            alt="Dokter sedang berkonsultasi dengan pasien"
                             class="h-full max-h-[460px] w-full object-cover"
                             loading="lazy"
                         />
@@ -497,10 +500,10 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             <h3
                                 class="mt-3 text-2xl leading-snug font-semibold"
                             >
-                                Kami berkomitmen
-                                memberikan standar perawatan
-                                kesehatan tertinggi
-                                dengan empati.
+                                Memberikan pelayanan
+                                kesehatan paripurna
+                                dengan empati &amp; akhlak
+                                Islami untuk setiap pasien.
                             </h3>
                         </div>
                         <div class="mt-8 flex flex-wrap gap-2">
@@ -523,18 +526,19 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                 <span
                     class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
                 >
-                    <Sparkles class="size-3.5" /> Pendekatan Kami
+                    <Sparkles class="size-3.5" /> Pendekatan Pelayanan
                 </span>
                 <h2
                     class="mt-3 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
                 >
-                    Model Total Care RS Ibnu Sina
+                    Pelayanan Terpadu RS Ibnu Sina
                 </h2>
                 <p
                     class="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-slate-600"
                 >
-                    Pelayanan berpusat pada pasien melalui bimbingan ahli, inovasi
-                    medis, dan dukungan personal di setiap langkah.
+                    Mulai dari pendaftaran, pemeriksaan, hingga rawat inap —
+                    semua proses dirancang agar pasien dan keluarga merasa
+                    nyaman, aman, dan dilayani sepenuh hati.
                 </p>
 
                 <div
@@ -542,7 +546,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                 >
                     <img
                         src="https://images.unsplash.com/photo-1559757175-5700dde675bc?w=1400&auto=format&fit=crop&q=70"
-                        alt="Tim dokter berdiskusi"
+                        alt="Tim dokter sedang melakukan visite pasien"
                         class="h-[360px] w-full object-cover sm:h-[480px]"
                         loading="lazy"
                     />
@@ -558,10 +562,10 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                     <p
                         class="absolute right-6 bottom-6 left-6 text-left text-sm text-white sm:max-w-xl"
                     >
-                        Model layanan kami menyatukan dokter, spesialis, dan
-                        ahli kesehatan dalam satu tempat. Dari diagnosis hingga
-                        pemulihan, kami memastikan penyembuhan menyeluruh dan
-                        kesejahteraan jangka panjang.
+                        Dokter umum, spesialis, perawat, hingga apoteker
+                        bekerja sama dalam satu rangkaian pelayanan. Setiap
+                        pasien didampingi dari awal kunjungan hingga pemulihan,
+                        dengan informasi yang transparan dan ramah.
                     </p>
                 </div>
             </div>
@@ -574,16 +578,17 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                     <span
                         class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
                     >
-                        <Stethoscope class="size-3.5" /> Tim Medis
+                        <Stethoscope class="size-3.5" /> Tim Dokter
                     </span>
                     <h2
                         class="mt-3 text-3xl font-semibold tracking-tight md:text-4xl"
                     >
-                        Dokter Spesialis Berpengalaman
+                        Dokter Spesialis Kami
                     </h2>
                     <p class="mt-3 text-sm text-slate-600">
-                        {{ stats.doctors }} dokter ·
-                        {{ stats.specializations }} spesialisasi siap melayani
+                        {{ stats.doctors }} dokter dengan
+                        {{ stats.specializations }} bidang spesialisasi siap
+                        melayani Anda
                     </p>
                 </div>
 
@@ -651,17 +656,17 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                     <span
                         class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
                     >
-                        <Star class="size-3.5" /> Testimoni
+                        <Star class="size-3.5" /> Testimoni Pasien
                     </span>
                     <h2
                         class="mt-3 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
                     >
-                        Cerita Nyata, Penyembuhan Nyata
-                        <br />Dari Komunitas Kami
+                        Cerita Pasien &amp; Keluarga
+                        <br />yang Pernah Berobat di Sini
                     </h2>
                     <p class="mx-auto mt-3 max-w-xl text-sm text-slate-600">
-                        Pelayanan berpusat pada pasien melalui bimbingan ahli,
-                        inovasi, dan dukungan personal di setiap langkah.
+                        Pengalaman nyata dari pasien dan keluarga yang
+                        mempercayakan kesehatan mereka kepada RS Ibnu Sina.
                     </p>
                 </div>
 
@@ -680,7 +685,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             class="font-semibold"
                             :class="t.featured ? 'text-white' : 'text-slate-900'"
                         >
-                            {{ i === 0 ? 'Pelayanan Ramah' : i === 1 ? 'Pengalaman Mudah' : 'Pelayanan Tepat' }}
+                            {{ i === 0 ? 'Perawat Ramah, Dokter Sabar' : i === 1 ? 'Daftar Online Praktis' : 'Pelayanan Kebidanan Memuaskan' }}
                         </p>
                         <p
                             class="mt-3 text-sm leading-relaxed"
@@ -736,20 +741,19 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                     <span
                         class="inline-flex items-center gap-1.5 text-sm font-medium text-[#4F67D8]"
                     >
-                        <Sparkles class="size-3.5" /> Artikel Kesehatan
+                        <Sparkles class="size-3.5" /> Edukasi Kesehatan
                     </span>
                     <div class="mt-3 grid gap-4 lg:grid-cols-2 lg:items-end">
                         <h2
                             class="text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
                         >
-                            Wawasan Ahli untuk Hidup yang
-                            <br />Lebih Sehat &amp; Bahagia
+                            Informasi Kesehatan untuk
+                            <br />Anda &amp; Keluarga
                         </h2>
                         <p class="text-sm leading-relaxed text-slate-600">
-                            Temukan tips kesehatan, panduan kebugaran, dan
-                            informasi medis terbaru dari tim dokter kami untuk
-                            membantu Anda menjalani hidup lebih sehat setiap
-                            hari.
+                            Panduan kesehatan, tips pencegahan penyakit, dan
+                            edukasi medis dari tim dokter RS Ibnu Sina untuk
+                            membantu Anda hidup lebih sehat.
                         </p>
                     </div>
                 </div>
@@ -819,12 +823,13 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                         <h3
                             class="text-3xl leading-tight font-semibold tracking-tight"
                         >
-                            Tetap perbarui
-                            <br />perjalanan sehat Anda
+                            Kabar terbaru &amp;
+                            <br />tips kesehatan
                         </h3>
                         <p class="mt-3 text-sm text-white/70">
-                            Berlangganan tips kesehatan, panduan kebugaran, dan
-                            kabar terbaru dari klinik — langsung ke email Anda.
+                            Berlangganan untuk menerima informasi jadwal dokter,
+                            promo MCU, dan tips kesehatan keluarga langsung ke
+                            email Anda.
                         </p>
                         <form
                             class="mt-5 flex max-w-sm items-center gap-2 rounded-full bg-white/10 p-1.5 ring-1 ring-white/15"
@@ -855,7 +860,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             </li>
                             <li>
                                 <a href="#tentang" class="hover:text-white"
-                                    >Tentang Kami</a
+                                    >Profil RS</a
                                 >
                             </li>
                             <li>
@@ -865,7 +870,7 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                             </li>
                             <li>
                                 <Link href="/chat" class="hover:text-white"
-                                    >Chat AI</Link
+                                    >Tanya AI</Link
                                 >
                             </li>
                             <li>
@@ -878,14 +883,14 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
 
                     <!-- Services -->
                     <div>
-                        <p class="mb-4 text-sm font-semibold">Layanan Kami</p>
+                        <p class="mb-4 text-sm font-semibold">Layanan Unggulan</p>
                         <ul class="space-y-2 text-sm text-white/70">
-                            <li>Pelayanan Umum</li>
-                            <li>Pelayanan Gigi</li>
-                            <li>Anak &amp; Tumbuh Kembang</li>
-                            <li>Kesehatan Wanita</li>
-                            <li>Kardiologi</li>
-                            <li>Fisioterapi</li>
+                            <li>IGD 24 Jam</li>
+                            <li>Rawat Inap &amp; ICU</li>
+                            <li>Poliklinik Spesialis</li>
+                            <li>Persalinan &amp; Kebidanan</li>
+                            <li>Medical Check-Up</li>
+                            <li>MCU Haji &amp; Umroh</li>
                         </ul>
                     </div>
 
