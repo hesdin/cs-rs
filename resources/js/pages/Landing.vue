@@ -2,12 +2,13 @@
 import { Head, Link } from '@inertiajs/vue3';
 import {
     ArrowRight,
-    ArrowLeft,
+    ArrowUp,
     Calendar,
     Check,
     HeartPulse,
     MapPin,
     Mail,
+    Menu,
     MessageCircle,
     Phone,
     Play,
@@ -15,6 +16,7 @@ import {
     Sparkles,
     Star,
     Stethoscope,
+    X,
 } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { dashboard, login } from '@/routes';
@@ -39,6 +41,7 @@ interface Testimonial {
     name: string;
     role: string;
     message: string;
+    rating: number;
     featured?: boolean;
 }
 
@@ -48,9 +51,11 @@ interface Insight {
     date: string;
     category: string;
     image: string;
+    reading_time: number;
+    author: string;
 }
 
-const props = defineProps<{
+defineProps<{
     hospitalName: string;
     doctors: DoctorSummary[];
     specializations: string[];
@@ -73,23 +78,49 @@ const props = defineProps<{
     insights: Insight[];
 }>();
 
-const values = [
-    'Pelayanan Bermutu',
-    'Kolaborasi Multidisipliner',
-    'Transparansi Biaya',
-    'Aksesibilitas Layanan',
-    'Profesionalisme Klinis',
+// ========== Why Choose Us values ==========
+interface ValueItem {
+    title: string;
+    description: string;
+}
+
+const values: ValueItem[] = [
+    {
+        title: 'Pelayanan Bermutu',
+        description:
+            'Standar pelayanan paripurna terakreditasi KARS dengan protokol medis terkini.',
+    },
+    {
+        title: 'Kolaborasi Multidisipliner',
+        description:
+            'Dokter umum, spesialis, perawat, dan apoteker bekerja terpadu untuk hasil terbaik.',
+    },
+    {
+        title: 'Transparansi Biaya',
+        description:
+            'Estimasi biaya jelas sebelum tindakan. Tidak ada biaya tersembunyi.',
+    },
+    {
+        title: 'Aksesibilitas Layanan',
+        description:
+            'Daftar online via website, aplikasi, atau WhatsApp. IGD buka 24 jam.',
+    },
+    {
+        title: 'Profesionalisme Klinis',
+        description:
+            'Tim medis berpengalaman dengan pelatihan berkelanjutan dan akhlak Islami.',
+    },
 ];
 const activeValue = ref(0);
 const setValue = (i: number) => {
-    activeValue.value = Math.max(0, Math.min(values.length - 1, i));
+    activeValue.value = (i + values.length) % values.length;
 };
 const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
 
 // ========== Hero slider ==========
 interface Slide {
     eyebrow: string;
-    title: string[]; // baris-baris judul
+    title: string[];
     desc: string;
     cta: { label: string; href: string };
     image: string;
@@ -110,7 +141,7 @@ const slides: Slide[] = [
     {
         eyebrow: 'Siap Sedia 24 Jam · 7 Hari',
         title: ['IGD Buka', '24 Jam, Langsung', 'Tangani Anda'],
-        desc: 'Tim dokter, perawat, dan ambulans siap melayani kondisi gawat darurat kapan saja. Pasien BPJS bisa langsung masuk IGD tanpa perlu rujukan faskes 1.',
+        desc: 'Tim dokter, perawat, dan ambulans siap melayani kondisi gawat darurat kapan saja. Pasien BPJS dapat langsung masuk IGD tanpa rujukan faskes 1.',
         cta: { label: 'Hubungi IGD Sekarang', href: '#kontak' },
         image: 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=900&auto=format&fit=crop&q=70',
         imageAlt: 'Tim IGD rumah sakit',
@@ -119,7 +150,7 @@ const slides: Slide[] = [
     {
         eyebrow: 'Asisten Virtual Berbasis AI',
         title: ['Tanya Apa Saja', 'tentang Layanan', 'RS Ibnu Sina'],
-        desc: 'Jadwal dokter, biaya, BPJS, prosedur rawat inap — tanyakan langsung ke asisten virtual kami dalam Bahasa Indonesia. Cepat, gratis, dan tersedia 24 jam.',
+        desc: 'Jadwal dokter, biaya, BPJS, prosedur rawat inap — tanyakan langsung ke asisten virtual kami dalam Bahasa Indonesia. Cepat, gratis, tersedia 24 jam.',
         cta: { label: 'Mulai Chat Sekarang', href: '/chat' },
         image: 'https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=900&auto=format&fit=crop&q=70',
         imageAlt: 'Pasien menggunakan asisten virtual',
@@ -149,15 +180,40 @@ const stopAutoplay = () => {
     }
 };
 
-onMounted(() => startAutoplay());
-onBeforeUnmount(() => stopAutoplay());
+// ========== Mobile menu & scroll state ==========
+const mobileMenuOpen = ref(false);
+const scrolled = ref(false);
+const showScrollTop = ref(false);
+
+const onScroll = () => {
+    scrolled.value = window.scrollY > 80;
+    showScrollTop.value = window.scrollY > 600;
+};
+
+const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+const closeMobileMenu = () => {
+    mobileMenuOpen.value = false;
+};
+
+// ========== Lifecycle ==========
+onMounted(() => {
+    startAutoplay();
+    window.addEventListener('scroll', onScroll, { passive: true });
+});
+onBeforeUnmount(() => {
+    stopAutoplay();
+    window.removeEventListener('scroll', onScroll);
+});
 </script>
 
 <template>
     <Head :title="`${hospitalName} — Customer Service Virtual`" />
 
     <div class="min-h-screen bg-white text-slate-900">
-        <!-- ========== HERO BLUE BLOCK ========== -->
+        <!-- ========== HERO BLOCK ========== -->
         <section class="relative px-3 pt-3 pb-10 sm:px-5 sm:pt-5">
             <div
                 class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#059669] via-[#10b981] to-[#34d399] px-6 pt-6 pb-12 text-white sm:px-10 sm:pt-8"
@@ -233,17 +289,76 @@ onBeforeUnmount(() => stopAutoplay());
                         >
                         <Link
                             href="/chat"
-                            class="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#059669] shadow-sm transition hover:bg-emerald-50"
+                            class="hidden items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#059669] shadow-sm transition hover:bg-emerald-50 sm:inline-flex"
                         >
-                            Tanya Asisten Virtual
+                            Tanya AI
                             <span
                                 class="flex size-5 items-center justify-center rounded-full bg-[#059669] text-white"
                             >
                                 <ArrowRight class="size-3" />
                             </span>
                         </Link>
+
+                        <!-- Mobile menu trigger -->
+                        <button
+                            type="button"
+                            class="flex size-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25 lg:hidden"
+                            :aria-label="
+                                mobileMenuOpen
+                                    ? 'Tutup menu'
+                                    : 'Buka menu'
+                            "
+                            @click="mobileMenuOpen = !mobileMenuOpen"
+                        >
+                            <Menu v-if="!mobileMenuOpen" class="size-5" />
+                            <X v-else class="size-5" />
+                        </button>
                     </div>
                 </header>
+
+                <!-- Mobile drawer -->
+                <Transition
+                    enter-from-class="opacity-0 -translate-y-2"
+                    enter-active-class="transition duration-200 ease-out"
+                    leave-active-class="transition duration-150 ease-in"
+                    leave-to-class="opacity-0 -translate-y-2"
+                >
+                    <div
+                        v-if="mobileMenuOpen"
+                        class="absolute inset-x-6 top-20 z-50 rounded-2xl bg-white p-4 shadow-2xl ring-1 ring-black/5 lg:hidden"
+                    >
+                        <ul class="flex flex-col text-sm text-slate-700">
+                            <li
+                                v-for="item in [
+                                    { href: '#beranda', label: 'Beranda' },
+                                    { href: '#tentang', label: 'Profil RS' },
+                                    { href: '#layanan', label: 'Layanan' },
+                                    { href: '#dokter', label: 'Dokter' },
+                                    { href: '#testimoni', label: 'Testimoni' },
+                                    { href: '#kontak', label: 'Kontak' },
+                                ]"
+                                :key="item.href"
+                            >
+                                <a
+                                    :href="item.href"
+                                    class="block rounded-lg px-4 py-2.5 transition hover:bg-emerald-50 hover:text-[#059669]"
+                                    @click="closeMobileMenu"
+                                    >{{ item.label }}</a
+                                >
+                            </li>
+                            <li class="mt-2 border-t pt-2">
+                                <Link
+                                    href="/chat"
+                                    class="flex items-center justify-between rounded-lg bg-emerald-600 px-4 py-2.5 font-semibold text-white"
+                                    @click="closeMobileMenu"
+                                >
+                                    Tanya Asisten AI
+                                    <ArrowRight class="size-4" />
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+                </Transition>
 
                 <!-- ----- HERO SLIDER ----- -->
                 <div
@@ -267,15 +382,19 @@ onBeforeUnmount(() => stopAutoplay());
                         "
                     >
                         <div class="relative">
-                            <!-- Eyebrow / trust badge -->
                             <div
                                 class="mb-6 inline-flex items-center gap-3 rounded-full bg-white/10 py-1.5 pr-4 pl-1.5 text-sm backdrop-blur"
                             >
                                 <div class="flex -space-x-2">
                                     <span
-                                        v-for="(c, i) in ['#fca5a5', '#86efac', '#fcd34d', '#a5b4fc']"
+                                        v-for="(c, i) in [
+                                            '#fca5a5',
+                                            '#86efac',
+                                            '#fcd34d',
+                                            '#a5b4fc',
+                                        ]"
                                         :key="i"
-                                        class="flex size-7 items-center justify-center rounded-full ring-2 ring-white/40 text-[10px] font-semibold text-white"
+                                        class="flex size-7 items-center justify-center rounded-full text-[10px] font-semibold text-white ring-2 ring-white/40"
                                         :style="{ background: c }"
                                     >
                                         {{ ['H', 'A', 'S', 'M'][i] }}
@@ -294,8 +413,8 @@ onBeforeUnmount(() => stopAutoplay());
                                     :key="li"
                                 >
                                     {{ line
-                                    }}<br v-if="li < slide.title.length - 1" />
-                                </template>
+                                    }}<br v-if="li < slide.title.length - 1"
+                                /></template>
                             </h1>
 
                             <component
@@ -329,7 +448,6 @@ onBeforeUnmount(() => stopAutoplay());
                             </div>
                         </div>
 
-                        <!-- Hero image + floating cards -->
                         <div class="relative">
                             <div
                                 class="overflow-hidden rounded-3xl ring-1 ring-white/20"
@@ -341,8 +459,6 @@ onBeforeUnmount(() => stopAutoplay());
                                     loading="lazy"
                                 />
                             </div>
-
-                            <!-- Floating slide-specific badge -->
                             <div
                                 class="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-md backdrop-blur"
                             >
@@ -355,26 +471,26 @@ onBeforeUnmount(() => stopAutoplay());
                         </div>
                     </div>
 
-                    <!-- Floating satisfaction card (persistent across slides) -->
+                    <!-- Floating cards (persistent) -->
                     <div
-                        class="absolute -bottom-6 left-4 right-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:left-auto lg:right-4 lg:w-[420px]"
+                        class="absolute right-4 -bottom-6 left-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:right-4 lg:left-auto lg:w-[420px]"
                     >
                         <div
-                            class="rounded-2xl bg-white/15 p-4 backdrop-blur-md ring-1 ring-white/20"
+                            class="rounded-2xl bg-white/15 p-4 ring-1 ring-white/20 backdrop-blur-md"
                         >
                             <p class="text-xs text-white/70">
                                 Indeks Kepuasan Pasien
                             </p>
                             <p class="mt-1 text-3xl font-semibold">97%</p>
                             <p
-                                class="mt-1 text-[11px] text-white/70 leading-snug"
+                                class="mt-1 text-[11px] leading-snug text-white/70"
                             >
                                 Berdasarkan survei rutin
-                                <br />kepuasan pasien rawat jalan
+                                <br />pasien rawat jalan
                             </p>
                         </div>
                         <div
-                            class="space-y-2 rounded-2xl bg-white/15 p-3 backdrop-blur-md ring-1 ring-white/20"
+                            class="space-y-2 rounded-2xl bg-white/15 p-3 ring-1 ring-white/20 backdrop-blur-md"
                         >
                             <span
                                 class="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs"
@@ -395,11 +511,10 @@ onBeforeUnmount(() => stopAutoplay());
                     </div>
                 </div>
 
-                <!-- ----- SLIDER CONTROLS ----- -->
+                <!-- Slider controls -->
                 <div
                     class="relative mt-10 flex items-center justify-between"
                 >
-                    <!-- Dots -->
                     <div class="flex items-center gap-2">
                         <button
                             v-for="(s, i) in slides"
@@ -424,7 +539,6 @@ onBeforeUnmount(() => stopAutoplay());
                         </span>
                     </div>
 
-                    <!-- Arrows -->
                     <div class="flex items-center gap-2">
                         <button
                             type="button"
@@ -432,7 +546,10 @@ onBeforeUnmount(() => stopAutoplay());
                             class="flex size-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25"
                             @click="prevSlide"
                         >
-                            <ArrowLeft class="size-4" />
+                            <ArrowRight
+                                class="size-4 rotate-180"
+                                aria-hidden="true"
+                            />
                         </button>
                         <button
                             type="button"
@@ -451,7 +568,6 @@ onBeforeUnmount(() => stopAutoplay());
         <section id="tentang" class="px-4 py-20 sm:px-6">
             <div class="mx-auto max-w-6xl">
                 <div class="grid gap-12 lg:grid-cols-2 lg:items-center">
-                    <!-- Foto + floating stat cards -->
                     <div class="relative">
                         <div
                             class="overflow-hidden rounded-3xl ring-1 ring-emerald-100"
@@ -464,7 +580,6 @@ onBeforeUnmount(() => stopAutoplay());
                             />
                         </div>
 
-                        <!-- Floating card kanan atas: tahun berdiri -->
                         <div
                             class="absolute -top-4 -right-4 rounded-2xl bg-white p-4 shadow-lg ring-1 ring-emerald-100 sm:-top-6 sm:-right-6"
                         >
@@ -477,7 +592,6 @@ onBeforeUnmount(() => stopAutoplay());
                             </p>
                         </div>
 
-                        <!-- Floating card kiri bawah: akreditasi -->
                         <div
                             class="absolute -bottom-4 -left-4 max-w-[220px] rounded-2xl bg-[#064e3b] p-4 text-white shadow-lg sm:-bottom-6 sm:-left-6"
                         >
@@ -495,7 +609,6 @@ onBeforeUnmount(() => stopAutoplay());
                         </div>
                     </div>
 
-                    <!-- Konten kanan -->
                     <div>
                         <span
                             class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
@@ -508,23 +621,24 @@ onBeforeUnmount(() => stopAutoplay());
                             Pelayanan Kesehatan Paripurna
                             <br />Bernuansa Islami di Makassar
                         </h2>
-                        <p class="mt-5 text-base leading-relaxed text-slate-600">
+                        <p
+                            class="mt-5 text-base leading-relaxed text-slate-600"
+                        >
                             {{ hospitalName }} adalah rumah sakit umum tipe B
                             di bawah Yayasan Wakaf Universitas Muslim Indonesia
-                            (YW-UMI). Sejak 1988, kami melayani masyarakat
+                            (YW-UMI). Sejak 1988, kami merawat masyarakat
                             Sulawesi Selatan dengan pelayanan medis paripurna,
                             ramah, dan menjunjung nilai-nilai Islami — dari
                             rawat jalan, rawat inap, hingga gawat darurat 24
                             jam.
                         </p>
 
-                        <!-- Bullet keunggulan -->
                         <ul class="mt-6 space-y-3">
                             <li
                                 v-for="point in [
                                     'Faskes rujukan tipe B BPJS Kesehatan',
                                     'Tim dokter spesialis berpengalaman',
-                                    'Fasilitas IGD, ICU, NICU, & PICU 24 jam',
+                                    'Fasilitas IGD, ICU, NICU, &amp; PICU 24 jam',
                                     'Asisten virtual cerdas berbahasa Indonesia',
                                 ]"
                                 :key="point"
@@ -535,7 +649,7 @@ onBeforeUnmount(() => stopAutoplay());
                                 >
                                     <Check class="size-3" stroke-width="3" />
                                 </span>
-                                {{ point }}
+                                <span v-html="point" />
                             </li>
                         </ul>
 
@@ -553,7 +667,6 @@ onBeforeUnmount(() => stopAutoplay());
                     </div>
                 </div>
 
-                <!-- Stat strip -->
                 <div
                     class="mt-16 grid gap-4 rounded-3xl border border-emerald-100 bg-emerald-50/40 p-6 sm:grid-cols-2 lg:grid-cols-4"
                 >
@@ -610,9 +723,7 @@ onBeforeUnmount(() => stopAutoplay());
                     >
                         <Sparkles class="size-3.5" /> Mengapa RS Ibnu Sina
                     </span>
-                    <div
-                        class="mt-3 grid items-end gap-6 lg:grid-cols-2"
-                    >
+                    <div class="mt-3 grid items-end gap-6 lg:grid-cols-2">
                         <h2
                             class="text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
                         >
@@ -633,7 +744,9 @@ onBeforeUnmount(() => stopAutoplay());
                     <div
                         class="rounded-3xl border border-slate-200 bg-white p-6"
                     >
-                        <div class="mb-5 flex items-center justify-between text-xs">
+                        <div
+                            class="mb-5 flex items-center justify-between text-xs"
+                        >
                             <span class="font-medium text-slate-500"
                                 >Nilai Pelayanan</span
                             >
@@ -642,7 +755,7 @@ onBeforeUnmount(() => stopAutoplay());
                         <ul class="space-y-1">
                             <li
                                 v-for="(v, i) in values"
-                                :key="v"
+                                :key="v.title"
                                 class="flex cursor-pointer items-center justify-between rounded-xl px-4 py-3 text-sm transition"
                                 :class="
                                     i === activeValue
@@ -651,7 +764,7 @@ onBeforeUnmount(() => stopAutoplay());
                                 "
                                 @click="activeValue = i"
                             >
-                                <span class="font-medium">{{ v }}</span>
+                                <span class="font-medium">{{ v.title }}</span>
                                 <ArrowRight
                                     class="size-4"
                                     :class="
@@ -675,9 +788,9 @@ onBeforeUnmount(() => stopAutoplay());
                         </Link>
                     </div>
 
-                    <!-- Image card -->
+                    <!-- Image card with active value description overlay -->
                     <div
-                        class="overflow-hidden rounded-3xl ring-1 ring-slate-200"
+                        class="relative overflow-hidden rounded-3xl ring-1 ring-slate-200"
                     >
                         <img
                             src="https://images.unsplash.com/photo-1581056771107-24ca5f033842?w=800&auto=format&fit=crop&q=70"
@@ -685,9 +798,34 @@ onBeforeUnmount(() => stopAutoplay());
                             class="h-full max-h-[460px] w-full object-cover"
                             loading="lazy"
                         />
+                        <div
+                            class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent p-6 text-white"
+                        >
+                            <Transition
+                                mode="out-in"
+                                enter-active-class="transition duration-300 ease-out"
+                                leave-active-class="transition duration-150 ease-in"
+                                enter-from-class="opacity-0 translate-y-2"
+                                leave-to-class="opacity-0 -translate-y-2"
+                            >
+                                <div :key="activeValue">
+                                    <p
+                                        class="text-xs font-medium tracking-wide uppercase text-emerald-200"
+                                    >
+                                        {{ valueIndex }} ·
+                                        {{ values[activeValue].title }}
+                                    </p>
+                                    <p
+                                        class="mt-2 text-sm leading-relaxed"
+                                    >
+                                        {{ values[activeValue].description }}
+                                    </p>
+                                </div>
+                            </Transition>
+                        </div>
                     </div>
 
-                    <!-- Blue commitment card -->
+                    <!-- Commitment card -->
                     <div
                         class="flex flex-col justify-between rounded-3xl bg-gradient-to-br from-[#059669] to-[#0d9488] p-7 text-white"
                     >
@@ -698,19 +836,17 @@ onBeforeUnmount(() => stopAutoplay());
                             <h3
                                 class="mt-3 text-2xl leading-snug font-semibold"
                             >
-                                Memberikan pelayanan
-                                kesehatan paripurna
-                                dengan empati &amp; akhlak
-                                Islami untuk setiap pasien.
+                                Memberikan pelayanan kesehatan paripurna dengan
+                                empati &amp; akhlak Islami untuk setiap pasien.
                             </h3>
                         </div>
                         <div class="mt-8 flex flex-wrap gap-2">
                             <span
                                 v-for="v in values"
-                                :key="v"
+                                :key="v.title"
                                 class="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-medium backdrop-blur"
                             >
-                                {{ v }}
+                                {{ v.title }}
                             </span>
                         </div>
                     </div>
@@ -718,7 +854,7 @@ onBeforeUnmount(() => stopAutoplay());
             </div>
         </section>
 
-        <!-- ========== TOTAL CARE MODEL ========== -->
+        <!-- ========== PELAYANAN TERPADU ========== -->
         <section class="bg-emerald-50/60 px-4 py-20 sm:px-6">
             <div class="mx-auto max-w-6xl text-center">
                 <span
@@ -729,13 +865,14 @@ onBeforeUnmount(() => stopAutoplay());
                 <h2
                     class="mt-3 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
                 >
-                    Pelayanan Terpadu RS Ibnu Sina
+                    Satu Tim, Satu Tujuan:
+                    <br />Kesembuhan Anda
                 </h2>
                 <p
                     class="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-slate-600"
                 >
                     Mulai dari pendaftaran, pemeriksaan, hingga rawat inap —
-                    semua proses dirancang agar pasien dan keluarga merasa
+                    setiap langkah dirancang agar pasien dan keluarga merasa
                     nyaman, aman, dan dilayani sepenuh hati.
                 </p>
 
@@ -753,7 +890,7 @@ onBeforeUnmount(() => stopAutoplay());
                     />
                     <button
                         type="button"
-                        class="absolute top-1/2 left-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#059669] backdrop-blur transition hover:bg-white"
+                        class="group absolute top-1/2 left-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#059669] backdrop-blur transition hover:size-20 hover:bg-white"
                     >
                         <Play class="size-6 fill-current" />
                     </button>
@@ -794,21 +931,22 @@ onBeforeUnmount(() => stopAutoplay());
                     <div
                         v-for="d in doctors"
                         :key="d.id"
-                        class="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-100/50"
+                        class="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-100/50"
                     >
                         <div class="flex items-start gap-3">
                             <div
-                                class="flex size-12 items-center justify-center rounded-full bg-emerald-100 text-[#059669] font-semibold"
+                                class="flex size-12 items-center justify-center rounded-full bg-emerald-100 font-semibold text-[#059669] transition group-hover:bg-[#059669] group-hover:text-white"
                             >
                                 {{ d.name.charAt(0) }}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <p class="truncate font-semibold" :title="d.name">
+                                <p
+                                    class="truncate font-semibold"
+                                    :title="d.name"
+                                >
                                     {{ d.name }}
                                 </p>
-                                <p
-                                    class="text-xs font-medium text-[#059669]"
-                                >
+                                <p class="text-xs font-medium text-[#059669]">
                                     {{ d.specialization }}
                                 </p>
                                 <p
@@ -831,6 +969,13 @@ onBeforeUnmount(() => stopAutoplay());
                             <Calendar class="mt-0.5 size-3.5 flex-shrink-0" />
                             <span>{{ d.schedule_summary }}</span>
                         </div>
+                        <Link
+                            href="/chat"
+                            class="mt-4 inline-flex items-center gap-1 text-xs font-medium text-[#059669] opacity-0 transition group-hover:opacity-100"
+                        >
+                            Tanya jadwal lengkap
+                            <ArrowRight class="size-3" />
+                        </Link>
                     </div>
                 </div>
 
@@ -838,7 +983,7 @@ onBeforeUnmount(() => stopAutoplay());
                     <span
                         v-for="spec in specializations"
                         :key="spec"
-                        class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs text-slate-700 transition hover:bg-emerald-100"
+                        class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs text-slate-700 transition hover:border-emerald-400 hover:bg-emerald-100"
                     >
                         <Stethoscope class="size-3 text-[#059669]" />
                         {{ spec }}
@@ -859,11 +1004,11 @@ onBeforeUnmount(() => stopAutoplay());
                     <h2
                         class="mt-3 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
                     >
-                        Cerita Pasien &amp; Keluarga
-                        <br />yang Pernah Berobat di Sini
+                        Yang Mereka Rasakan
+                        <br />Setelah Berobat di Sini
                     </h2>
                     <p class="mx-auto mt-3 max-w-xl text-sm text-slate-600">
-                        Pengalaman nyata dari pasien dan keluarga yang
+                        Pengalaman jujur dari pasien dan keluarga yang
                         mempercayakan kesehatan mereka kepada RS Ibnu Sina.
                     </p>
                 </div>
@@ -872,24 +1017,35 @@ onBeforeUnmount(() => stopAutoplay());
                     <div
                         v-for="(t, i) in testimonials"
                         :key="i"
-                        class="rounded-2xl p-6 transition"
+                        class="rounded-2xl p-6 transition hover:-translate-y-0.5"
                         :class="
                             t.featured
                                 ? 'bg-gradient-to-br from-[#059669] to-[#0d9488] text-white shadow-lg shadow-emerald-200'
-                                : 'border border-slate-200 bg-white'
+                                : 'border border-slate-200 bg-white hover:shadow-md'
                         "
                     >
+                        <!-- Star rating -->
+                        <div class="mb-3 flex gap-0.5">
+                            <Star
+                                v-for="n in 5"
+                                :key="n"
+                                class="size-4"
+                                :class="
+                                    n <= t.rating
+                                        ? t.featured
+                                            ? 'fill-amber-300 text-amber-300'
+                                            : 'fill-amber-400 text-amber-400'
+                                        : t.featured
+                                          ? 'text-white/30'
+                                          : 'text-slate-300'
+                                "
+                            />
+                        </div>
                         <p
-                            class="font-semibold"
-                            :class="t.featured ? 'text-white' : 'text-slate-900'"
+                            class="text-base leading-relaxed"
+                            :class="t.featured ? 'text-white' : 'text-slate-800'"
                         >
-                            {{ i === 0 ? 'Perawat Ramah, Dokter Sabar' : i === 1 ? 'Daftar Online Praktis' : 'Pelayanan Kebidanan Memuaskan' }}
-                        </p>
-                        <p
-                            class="mt-3 text-sm leading-relaxed"
-                            :class="t.featured ? 'text-white/90' : 'text-slate-600'"
-                        >
-                            "{{ t.message }}"
+                            “{{ t.message }}”
                         </p>
                         <div
                             class="mt-6 flex items-center gap-3 border-t pt-4"
@@ -960,23 +1116,24 @@ onBeforeUnmount(() => stopAutoplay());
                     <article
                         v-for="(post, i) in insights"
                         :key="i"
-                        class="group rounded-2xl border border-slate-200 bg-white p-3 transition hover:shadow-lg"
+                        class="group rounded-2xl border border-slate-200 bg-white p-3 transition hover:-translate-y-1 hover:shadow-lg"
                     >
-                        <div class="overflow-hidden rounded-xl">
+                        <div class="relative overflow-hidden rounded-xl">
                             <img
                                 :src="post.image"
                                 :alt="post.title"
                                 class="h-44 w-full object-cover transition duration-500 group-hover:scale-105"
                                 loading="lazy"
                             />
+                            <span
+                                class="absolute top-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-[#059669] backdrop-blur"
+                            >
+                                {{ post.category }}
+                            </span>
                         </div>
                         <div class="px-2 pt-4 pb-2">
-                            <span
-                                class="text-[10px] font-medium tracking-wide text-[#059669] uppercase"
-                                >{{ post.category }}</span
-                            >
                             <h3
-                                class="mt-2 line-clamp-2 font-semibold leading-snug"
+                                class="line-clamp-2 font-semibold leading-snug"
                             >
                                 {{ post.title }}
                             </h3>
@@ -985,6 +1142,20 @@ onBeforeUnmount(() => stopAutoplay());
                             >
                                 {{ post.excerpt }}
                             </p>
+                            <div
+                                class="mt-4 flex items-center justify-between text-xs text-slate-500"
+                            >
+                                <span class="flex items-center gap-1">
+                                    <span
+                                        class="flex size-5 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-semibold text-[#059669]"
+                                        >{{
+                                            post.author.charAt(0)
+                                        }}</span
+                                    >
+                                    {{ post.author }}
+                                </span>
+                                <span>{{ post.reading_time }} mnt baca</span>
+                            </div>
                             <div
                                 class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3"
                             >
@@ -1009,6 +1180,89 @@ onBeforeUnmount(() => stopAutoplay());
             </div>
         </section>
 
+        <!-- ========== CTA BANNER ========== -->
+        <section class="px-4 py-12 sm:px-6">
+            <div class="mx-auto max-w-6xl">
+                <div
+                    class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#059669] via-[#10b981] to-[#0d9488] p-8 text-white sm:p-12"
+                >
+                    <div
+                        class="pointer-events-none absolute -top-20 -right-20 size-72 rounded-full bg-white/10 blur-3xl"
+                    />
+                    <div
+                        class="pointer-events-none absolute -bottom-20 -left-20 size-72 rounded-full bg-white/10 blur-3xl"
+                    />
+
+                    <div
+                        class="relative grid items-center gap-8 lg:grid-cols-[1.4fr_1fr]"
+                    >
+                        <div>
+                            <span
+                                class="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur"
+                            >
+                                <Sparkles class="size-3" /> Mulai Sekarang
+                            </span>
+                            <h2
+                                class="mt-4 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
+                            >
+                                Punya pertanyaan?
+                                <br />Asisten kami siap menjawab.
+                            </h2>
+                            <p
+                                class="mt-3 max-w-xl text-sm leading-relaxed text-white/85"
+                            >
+                                Tanyakan jadwal dokter, prosedur BPJS, biaya,
+                                atau apa pun seputar layanan rumah sakit. Bot
+                                tidak memberikan diagnosis medis dan akan
+                                otomatis menghubungkan Anda ke petugas bila
+                                diperlukan.
+                            </p>
+                            <div class="mt-6 flex flex-wrap gap-3">
+                                <Link
+                                    href="/chat"
+                                    class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#059669] shadow-md transition hover:shadow-lg"
+                                >
+                                    <MessageCircle class="size-4" />
+                                    Mulai Chat Sekarang
+                                </Link>
+                                <a
+                                    :href="`tel:${contact.phone}`"
+                                    class="inline-flex items-center gap-2 rounded-full bg-white/15 px-6 py-3 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur transition hover:bg-white/25"
+                                >
+                                    <Phone class="size-4" />
+                                    {{ contact.phone }}
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="hidden lg:block">
+                            <div
+                                class="space-y-3 rounded-2xl bg-white/15 p-5 ring-1 ring-white/20 backdrop-blur"
+                            >
+                                <p class="text-xs text-white/70">
+                                    Pertanyaan paling sering ditanyakan
+                                </p>
+                                <ul class="space-y-2 text-sm">
+                                    <li
+                                        v-for="faq in featuredFaqs.slice(0, 4)"
+                                        :key="faq.id"
+                                        class="flex items-start gap-2"
+                                    >
+                                        <Check
+                                            class="mt-0.5 size-4 flex-shrink-0 text-emerald-200"
+                                        />
+                                        <span class="line-clamp-1">{{
+                                            faq.question
+                                        }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- ========== DARK FOOTER ========== -->
         <footer
             id="kontak"
@@ -1016,18 +1270,17 @@ onBeforeUnmount(() => stopAutoplay());
         >
             <div class="mx-auto max-w-6xl">
                 <div class="grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
-                    <!-- Brand & subscribe -->
                     <div>
                         <h3
                             class="text-3xl leading-tight font-semibold tracking-tight"
                         >
-                            Kabar terbaru &amp;
-                            <br />tips kesehatan
+                            Tetap terhubung
+                            <br />dengan kami
                         </h3>
                         <p class="mt-3 text-sm text-white/70">
-                            Berlangganan untuk menerima informasi jadwal dokter,
-                            promo MCU, dan tips kesehatan keluarga langsung ke
-                            email Anda.
+                            Berlangganan untuk mendapatkan informasi jadwal
+                            dokter, promo MCU, dan tips kesehatan keluarga
+                            langsung ke email Anda.
                         </p>
                         <form
                             class="mt-5 flex max-w-sm items-center gap-2 rounded-full bg-white/10 p-1.5 ring-1 ring-white/15"
@@ -1047,41 +1300,51 @@ onBeforeUnmount(() => stopAutoplay());
                         </form>
                     </div>
 
-                    <!-- Quick links -->
                     <div>
                         <p class="mb-4 text-sm font-semibold">Tautan Cepat</p>
                         <ul class="space-y-2 text-sm text-white/70">
                             <li>
-                                <a href="#beranda" class="hover:text-white"
+                                <a
+                                    href="#beranda"
+                                    class="transition hover:text-white"
                                     >Beranda</a
                                 >
                             </li>
                             <li>
-                                <a href="#tentang" class="hover:text-white"
+                                <a
+                                    href="#tentang"
+                                    class="transition hover:text-white"
                                     >Profil RS</a
                                 >
                             </li>
                             <li>
-                                <a href="#layanan" class="hover:text-white"
+                                <a
+                                    href="#layanan"
+                                    class="transition hover:text-white"
                                     >Layanan</a
                                 >
                             </li>
                             <li>
-                                <Link href="/chat" class="hover:text-white"
+                                <Link
+                                    href="/chat"
+                                    class="transition hover:text-white"
                                     >Tanya AI</Link
                                 >
                             </li>
                             <li>
-                                <a href="#kontak" class="hover:text-white"
+                                <a
+                                    href="#kontak"
+                                    class="transition hover:text-white"
                                     >Kontak</a
                                 >
                             </li>
                         </ul>
                     </div>
 
-                    <!-- Services -->
                     <div>
-                        <p class="mb-4 text-sm font-semibold">Layanan Unggulan</p>
+                        <p class="mb-4 text-sm font-semibold">
+                            Layanan Unggulan
+                        </p>
                         <ul class="space-y-2 text-sm text-white/70">
                             <li>IGD 24 Jam</li>
                             <li>Rawat Inap &amp; ICU</li>
@@ -1092,7 +1355,6 @@ onBeforeUnmount(() => stopAutoplay());
                         </ul>
                     </div>
 
-                    <!-- Doctors / contact -->
                     <div>
                         <p class="mb-4 text-sm font-semibold">Hubungi Kami</p>
                         <ul class="space-y-3 text-sm text-white/80">
@@ -1102,31 +1364,44 @@ onBeforeUnmount(() => stopAutoplay());
                                 />
                                 <span>{{ contact.address }}</span>
                             </li>
-                            <li class="flex items-center gap-2">
-                                <Phone
-                                    class="size-4 flex-shrink-0 text-white/60"
-                                />
-                                <span>CS {{ contact.phone }}</span>
+                            <li>
+                                <a
+                                    :href="`tel:${contact.phone}`"
+                                    class="flex items-center gap-2 transition hover:text-white"
+                                >
+                                    <Phone
+                                        class="size-4 flex-shrink-0 text-white/60"
+                                    />
+                                    <span>CS {{ contact.phone }}</span>
+                                </a>
                             </li>
-                            <li
-                                class="flex items-center gap-2 text-rose-200"
-                            >
-                                <ShieldCheck
-                                    class="size-4 flex-shrink-0"
-                                />
+                            <li class="flex items-center gap-2 text-rose-200">
+                                <ShieldCheck class="size-4 flex-shrink-0" />
                                 <span>IGD {{ contact.igd }}</span>
                             </li>
-                            <li class="flex items-center gap-2">
-                                <Mail
-                                    class="size-4 flex-shrink-0 text-white/60"
-                                />
-                                <span>{{ contact.email }}</span>
+                            <li>
+                                <a
+                                    :href="`mailto:${contact.email}`"
+                                    class="flex items-center gap-2 transition hover:text-white"
+                                >
+                                    <Mail
+                                        class="size-4 flex-shrink-0 text-white/60"
+                                    />
+                                    <span>{{ contact.email }}</span>
+                                </a>
                             </li>
-                            <li class="flex items-center gap-2">
-                                <MessageCircle
-                                    class="size-4 flex-shrink-0 text-white/60"
-                                />
-                                <span>WA {{ contact.whatsapp }}</span>
+                            <li>
+                                <a
+                                    :href="`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}`"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="flex items-center gap-2 transition hover:text-white"
+                                >
+                                    <MessageCircle
+                                        class="size-4 flex-shrink-0 text-white/60"
+                                    />
+                                    <span>WA {{ contact.whatsapp }}</span>
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -1154,5 +1429,55 @@ onBeforeUnmount(() => stopAutoplay());
                 </div>
             </div>
         </footer>
+
+        <!-- ========== FLOATING ACTION BUTTONS ========== -->
+        <div
+            class="fixed right-4 bottom-4 z-40 flex flex-col items-end gap-3 sm:right-6 sm:bottom-6"
+        >
+            <Transition
+                enter-from-class="opacity-0 translate-y-2"
+                enter-active-class="transition duration-200 ease-out"
+                leave-active-class="transition duration-150 ease-in"
+                leave-to-class="opacity-0 translate-y-2"
+            >
+                <button
+                    v-if="showScrollTop"
+                    type="button"
+                    aria-label="Kembali ke atas"
+                    class="flex size-11 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:bg-slate-800"
+                    @click="scrollToTop"
+                >
+                    <ArrowUp class="size-5" />
+                </button>
+            </Transition>
+
+            <a
+                :href="`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}?text=Halo%20RS%20Ibnu%20Sina%2C%20saya%20ingin%20bertanya...`"
+                target="_blank"
+                rel="noopener"
+                aria-label="Chat WhatsApp"
+                class="group relative flex size-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl ring-4 ring-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-emerald-600"
+            >
+                <span
+                    class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-30"
+                />
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="relative size-7"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M19.05 4.91A9.82 9.82 0 0 0 12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.91-7.02ZM12.04 20.15h-.01a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.12.82.83-3.04-.2-.31a8.21 8.21 0 0 1-1.26-4.39c0-4.54 3.7-8.24 8.25-8.24a8.18 8.18 0 0 1 5.83 2.42 8.19 8.19 0 0 1 2.41 5.82c0 4.54-3.7 8.24-8.25 8.24Zm4.52-6.16c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06a6.79 6.79 0 0 1-2-1.23 7.51 7.51 0 0 1-1.39-1.72c-.14-.25-.02-.39.11-.51.11-.11.25-.29.38-.43.13-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.13-.56-1.34-.76-1.84-.2-.48-.4-.41-.56-.42h-.48c-.17 0-.43.06-.66.31-.23.25-.86.84-.86 2.05 0 1.21.88 2.38 1 2.55.13.17 1.74 2.66 4.21 3.73.59.25 1.05.4 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.3Z"
+                    />
+                </svg>
+                <span
+                    class="pointer-events-none absolute right-full mr-3 hidden whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-lg sm:group-hover:block"
+                >
+                    Chat WhatsApp
+                </span>
+            </a>
+        </div>
     </div>
 </template>

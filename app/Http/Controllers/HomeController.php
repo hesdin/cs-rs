@@ -85,17 +85,20 @@ class HomeController extends Controller
                     'name' => 'Ibu Hasnawati',
                     'role' => 'Pasien Poli Penyakit Dalam',
                     'message' => 'Perawat ramah, dokter sabar menjelaskan kondisi saya. Suasana rumah sakit nyaman dan bersih, mushola juga tersedia di setiap lantai.',
+                    'rating' => 5,
                 ],
                 [
                     'name' => 'Bapak Andi Tahir',
                     'role' => 'Keluarga Pasien Rawat Inap',
                     'message' => 'Daftar lewat WhatsApp gampang sekali, tinggal kirim KTP & rujukan BPJS. Antrean rapi, panggilan via aplikasi memudahkan kami yang menunggu.',
+                    'rating' => 5,
                     'featured' => true,
                 ],
                 [
                     'name' => 'Ibu Siti Aminah',
                     'role' => 'Pasien Poli Kebidanan',
                     'message' => 'Persalinan saya dibantu dengan baik. Kamar VIP bersih, perawat sigap. Suami bisa pantau jadwal kontrol bayi via aplikasi, sangat membantu.',
+                    'rating' => 5,
                 ],
             ],
             'insights' => [
@@ -105,6 +108,8 @@ class HomeController extends Controller
                     'date' => '15 Mei 2026',
                     'category' => 'Tips Kesehatan',
                     'image' => 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=600&auto=format&fit=crop&q=70',
+                    'reading_time' => 5,
+                    'author' => 'Tim Medis',
                 ],
                 [
                     'title' => 'Manfaat Medical Check-Up Berkala bagi Keluarga',
@@ -112,6 +117,8 @@ class HomeController extends Controller
                     'date' => '10 Mei 2026',
                     'category' => 'Medical Check-Up',
                     'image' => 'https://images.unsplash.com/photo-1666214280165-1c5bdc58e9b6?w=600&auto=format&fit=crop&q=70',
+                    'reading_time' => 4,
+                    'author' => 'Dr. Andi Mappangara',
                 ],
                 [
                     'title' => 'Persiapan Sebelum Berangkat Haji & Umroh',
@@ -119,6 +126,8 @@ class HomeController extends Controller
                     'date' => '5 Mei 2026',
                     'category' => 'Haji & Umroh',
                     'image' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?w=600&auto=format&fit=crop&q=70',
+                    'reading_time' => 6,
+                    'author' => 'Tim Poli Vaksinasi',
                 ],
             ],
         ]);
