@@ -13,11 +13,12 @@ import {
     Phone,
     Play,
     ShieldCheck,
-    Star,
+    Siren,
     Sparkles,
+    Star,
     Stethoscope,
 } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { dashboard, login } from '@/routes';
 
 interface DoctorSummary {
@@ -86,6 +87,72 @@ const setValue = (i: number) => {
     activeValue.value = Math.max(0, Math.min(values.length - 1, i));
 };
 const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
+
+// ========== Hero slider ==========
+interface Slide {
+    eyebrow: string;
+    title: string[]; // baris-baris judul
+    desc: string;
+    cta: { label: string; href: string };
+    image: string;
+    imageAlt: string;
+    badge: { color: string; label: string };
+}
+
+const slides: Slide[] = [
+    {
+        eyebrow: 'Telah dipercaya ribuan pasien sejak 1988',
+        title: ['Sahabat Sehat', 'Keluarga di Sulawesi', 'Selatan'],
+        desc: 'Rumah sakit umum tipe B yang memadukan pelayanan medis modern dengan nilai-nilai Islami. Pendaftaran online, jadwal dokter, hingga konsultasi BPJS — semua bisa Anda akses dengan mudah, kapan saja.',
+        cta: { label: 'Lihat Layanan Kami', href: '#layanan' },
+        image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=900&auto=format&fit=crop&q=70',
+        imageAlt: 'Tim medis profesional RS Ibnu Sina',
+        badge: { color: 'bg-emerald-500', label: 'Akreditasi Paripurna KARS' },
+    },
+    {
+        eyebrow: 'Siap Sedia 24 Jam · 7 Hari',
+        title: ['IGD Buka', '24 Jam, Langsung', 'Tangani Anda'],
+        desc: 'Tim dokter, perawat, dan ambulans siap melayani kondisi gawat darurat kapan saja. Pasien BPJS bisa langsung masuk IGD tanpa perlu rujukan faskes 1.',
+        cta: { label: 'Hubungi IGD Sekarang', href: '#kontak' },
+        image: 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=900&auto=format&fit=crop&q=70',
+        imageAlt: 'Tim IGD rumah sakit',
+        badge: { color: 'bg-rose-500', label: 'IGD 24 Jam' },
+    },
+    {
+        eyebrow: 'Asisten Virtual Berbasis AI',
+        title: ['Tanya Apa Saja', 'tentang Layanan', 'RS Ibnu Sina'],
+        desc: 'Jadwal dokter, biaya, BPJS, prosedur rawat inap — tanyakan langsung ke asisten virtual kami dalam Bahasa Indonesia. Cepat, gratis, dan tersedia 24 jam.',
+        cta: { label: 'Mulai Chat Sekarang', href: '/chat' },
+        image: 'https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=900&auto=format&fit=crop&q=70',
+        imageAlt: 'Pasien menggunakan asisten virtual',
+        badge: { color: 'bg-amber-400', label: 'Online 24 Jam' },
+    },
+];
+
+const currentSlide = ref(0);
+const slideDirection = ref<'left' | 'right'>('right');
+let autoplayTimer: ReturnType<typeof setInterval> | null = null;
+
+const goToSlide = (idx: number, direction: 'left' | 'right' = 'right') => {
+    slideDirection.value = direction;
+    currentSlide.value = (idx + slides.length) % slides.length;
+};
+const nextSlide = () => goToSlide(currentSlide.value + 1, 'right');
+const prevSlide = () => goToSlide(currentSlide.value - 1, 'left');
+
+const startAutoplay = () => {
+    stopAutoplay();
+    autoplayTimer = setInterval(nextSlide, 6000);
+};
+const stopAutoplay = () => {
+    if (autoplayTimer) {
+        clearInterval(autoplayTimer);
+        autoplayTimer = null;
+    }
+};
+
+onMounted(() => startAutoplay());
+onBeforeUnmount(() => stopAutoplay());
 </script>
 
 <template>
@@ -180,115 +247,203 @@ const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
                     </div>
                 </header>
 
-                <!-- ----- HERO CONTENT ----- -->
+                <!-- ----- HERO SLIDER ----- -->
                 <div
                     id="beranda"
-                    class="relative mt-12 grid gap-8 lg:mt-16 lg:grid-cols-2 lg:items-center"
+                    class="relative mt-12 lg:mt-16"
+                    @mouseenter="stopAutoplay"
+                    @mouseleave="startAutoplay"
                 >
-                    <div class="relative">
-                        <!-- Trust badge -->
-                        <div
-                            class="mb-6 inline-flex items-center gap-3 rounded-full bg-white/10 py-1.5 pr-4 pl-1.5 text-sm backdrop-blur"
-                        >
-                            <div class="flex -space-x-2">
-                                <span
-                                    v-for="(c, i) in ['#fca5a5', '#86efac', '#fcd34d', '#a5b4fc']"
-                                    :key="i"
-                                    class="flex size-7 items-center justify-center rounded-full ring-2 ring-white/40 text-[10px] font-semibold text-white"
-                                    :style="{ background: c }"
-                                >
-                                    {{ ['H', 'A', 'S', 'M'][i] }}
-                                </span>
-                            </div>
-                            <span class="font-medium"
-                                >Telah dipercaya ribuan pasien sejak 1988</span
+                    <div
+                        v-for="(slide, idx) in slides"
+                        :key="idx"
+                        :aria-hidden="idx !== currentSlide"
+                        class="grid gap-8 transition-all duration-700 ease-out lg:grid-cols-2 lg:items-center"
+                        :class="
+                            idx === currentSlide
+                                ? 'opacity-100 translate-x-0'
+                                : 'pointer-events-none absolute inset-0 opacity-0 ' +
+                                  (slideDirection === 'right'
+                                      ? '-translate-x-8'
+                                      : 'translate-x-8')
+                        "
+                    >
+                        <div class="relative">
+                            <!-- Eyebrow / trust badge -->
+                            <div
+                                class="mb-6 inline-flex items-center gap-3 rounded-full bg-white/10 py-1.5 pr-4 pl-1.5 text-sm backdrop-blur"
                             >
+                                <div class="flex -space-x-2">
+                                    <span
+                                        v-for="(c, i) in ['#fca5a5', '#86efac', '#fcd34d', '#a5b4fc']"
+                                        :key="i"
+                                        class="flex size-7 items-center justify-center rounded-full ring-2 ring-white/40 text-[10px] font-semibold text-white"
+                                        :style="{ background: c }"
+                                    >
+                                        {{ ['H', 'A', 'S', 'M'][i] }}
+                                    </span>
+                                </div>
+                                <span class="font-medium">{{
+                                    slide.eyebrow
+                                }}</span>
+                            </div>
+
+                            <h1
+                                class="text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl lg:text-6xl"
+                            >
+                                <template
+                                    v-for="(line, li) in slide.title"
+                                    :key="li"
+                                >
+                                    {{ line
+                                    }}<br v-if="li < slide.title.length - 1" />
+                                </template>
+                            </h1>
+
+                            <component
+                                :is="
+                                    slide.cta.href.startsWith('/')
+                                        ? Link
+                                        : 'a'
+                                "
+                                :href="slide.cta.href"
+                                class="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#059669] shadow-md transition hover:shadow-lg"
+                            >
+                                {{ slide.cta.label }}
+                                <span
+                                    class="flex size-6 items-center justify-center rounded-full bg-[#059669] text-white"
+                                >
+                                    <ArrowRight class="size-3.5" />
+                                </span>
+                            </component>
+
+                            <div class="mt-16 max-w-md">
+                                <p
+                                    class="text-sm font-semibold tracking-wide"
+                                >
+                                    Pelayanan Komprehensif &amp; Islami
+                                </p>
+                                <p
+                                    class="mt-2 text-sm leading-relaxed text-white/80"
+                                >
+                                    {{ slide.desc }}
+                                </p>
+                            </div>
                         </div>
 
-                        <h1
-                            class="text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl lg:text-6xl"
-                        >
-                            Sahabat Sehat
-                            <br />Keluarga di Sulawesi
-                            <br />Selatan
-                        </h1>
-
-                        <a
-                            href="#layanan"
-                            class="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#059669] shadow-md transition hover:shadow-lg"
-                        >
-                            Lihat Layanan Kami
-                            <span
-                                class="flex size-6 items-center justify-center rounded-full bg-[#059669] text-white"
+                        <!-- Hero image + floating cards -->
+                        <div class="relative">
+                            <div
+                                class="overflow-hidden rounded-3xl ring-1 ring-white/20"
                             >
-                                <ArrowRight class="size-3.5" />
-                            </span>
-                        </a>
+                                <img
+                                    :src="slide.image"
+                                    :alt="slide.imageAlt"
+                                    class="h-[420px] w-full object-cover lg:h-[480px]"
+                                    loading="lazy"
+                                />
+                            </div>
 
-                        <!-- Bottom blurb -->
-                        <div class="mt-16 max-w-md">
-                            <p class="text-sm font-semibold tracking-wide">
-                                Pelayanan Komprehensif &amp; Islami
-                            </p>
-                            <p class="mt-2 text-sm leading-relaxed text-white/80">
-                                Rumah sakit umum tipe B yang memadukan
-                                pelayanan medis modern dengan nilai-nilai
-                                Islami. Pendaftaran online, jadwal dokter,
-                                hingga konsultasi BPJS — semua bisa Anda akses
-                                dengan mudah, kapan saja.
-                            </p>
+                            <!-- Floating slide-specific badge -->
+                            <div
+                                class="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-md backdrop-blur"
+                            >
+                                <span
+                                    class="size-2 rounded-full"
+                                    :class="slide.badge.color"
+                                />
+                                {{ slide.badge.label }}
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Hero image + floating stat card -->
-                    <div class="relative">
+                    <!-- Floating satisfaction card (persistent across slides) -->
+                    <div
+                        class="absolute -bottom-6 left-4 right-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:left-auto lg:right-4 lg:w-[420px]"
+                    >
                         <div
-                            class="overflow-hidden rounded-3xl ring-1 ring-white/20"
+                            class="rounded-2xl bg-white/15 p-4 backdrop-blur-md ring-1 ring-white/20"
                         >
-                            <img
-                                src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=900&auto=format&fit=crop&q=70"
-                                alt="Tim medis profesional"
-                                class="h-[420px] w-full object-cover lg:h-[480px]"
-                                loading="lazy"
-                            />
+                            <p class="text-xs text-white/70">
+                                Indeks Kepuasan Pasien
+                            </p>
+                            <p class="mt-1 text-3xl font-semibold">97%</p>
+                            <p
+                                class="mt-1 text-[11px] text-white/70 leading-snug"
+                            >
+                                Berdasarkan survei rutin
+                                <br />kepuasan pasien rawat jalan
+                            </p>
                         </div>
+                        <div
+                            class="space-y-2 rounded-2xl bg-white/15 p-3 backdrop-blur-md ring-1 ring-white/20"
+                        >
+                            <span
+                                class="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs"
+                            >
+                                <Check class="size-3" /> Ramah
+                            </span>
+                            <span
+                                class="flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[#059669]"
+                            >
+                                <Check class="size-3" /> Islami
+                            </span>
+                            <span
+                                class="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs"
+                            >
+                                <Check class="size-3" /> Tepercaya
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-                        <!-- Floating satisfaction card -->
-                        <div
-                            class="absolute -bottom-6 left-4 right-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:left-auto lg:right-4 lg:w-[420px]"
+                <!-- ----- SLIDER CONTROLS ----- -->
+                <div
+                    class="relative mt-10 flex items-center justify-between"
+                >
+                    <!-- Dots -->
+                    <div class="flex items-center gap-2">
+                        <button
+                            v-for="(s, i) in slides"
+                            :key="i"
+                            type="button"
+                            :aria-label="`Slide ${i + 1}`"
+                            class="h-1.5 rounded-full transition-all duration-300"
+                            :class="
+                                i === currentSlide
+                                    ? 'w-8 bg-white'
+                                    : 'w-4 bg-white/30 hover:bg-white/50'
+                            "
+                            @click="
+                                goToSlide(
+                                    i,
+                                    i > currentSlide ? 'right' : 'left',
+                                )
+                            "
+                        />
+                        <span class="ml-3 text-xs text-white/70">
+                            {{ currentSlide + 1 }} / {{ slides.length }}
+                        </span>
+                    </div>
+
+                    <!-- Arrows -->
+                    <div class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            aria-label="Slide sebelumnya"
+                            class="flex size-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25"
+                            @click="prevSlide"
                         >
-                            <div
-                                class="rounded-2xl bg-white/15 p-4 backdrop-blur-md ring-1 ring-white/20"
-                            >
-                                <p class="text-xs text-white/70">
-                                    Indeks Kepuasan Pasien
-                                </p>
-                                <p class="mt-1 text-3xl font-semibold">97%</p>
-                                <p class="mt-1 text-[11px] text-white/70 leading-snug">
-                                    Berdasarkan survei rutin
-                                    <br />kepuasan pasien rawat jalan
-                                </p>
-                            </div>
-                            <div
-                                class="space-y-2 rounded-2xl bg-white/15 p-3 backdrop-blur-md ring-1 ring-white/20"
-                            >
-                                <span
-                                    class="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs"
-                                >
-                                    <Check class="size-3" /> Ramah
-                                </span>
-                                <span
-                                    class="flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[#059669]"
-                                >
-                                    <Check class="size-3" /> Islami
-                                </span>
-                                <span
-                                    class="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs"
-                                >
-                                    <Check class="size-3" /> Tepercaya
-                                </span>
-                            </div>
-                        </div>
+                            <ArrowLeft class="size-4" />
+                        </button>
+                        <button
+                            type="button"
+                            aria-label="Slide berikutnya"
+                            class="flex size-10 items-center justify-center rounded-full bg-white text-[#059669] shadow-md transition hover:shadow-lg"
+                            @click="nextSlide"
+                        >
+                            <ArrowRight class="size-4" />
+                        </button>
                     </div>
                 </div>
             </div>
