@@ -6,14 +6,12 @@ import {
     Calendar,
     Check,
     HeartPulse,
-    Lock,
     MapPin,
     Mail,
     MessageCircle,
     Phone,
     Play,
     ShieldCheck,
-    Siren,
     Sparkles,
     Star,
     Stethoscope,
@@ -449,110 +447,155 @@ onBeforeUnmount(() => stopAutoplay());
             </div>
         </section>
 
-        <!-- ========== ABOUT US ========== -->
+        <!-- ========== PROFIL RUMAH SAKIT ========== -->
         <section id="tentang" class="px-4 py-20 sm:px-6">
             <div class="mx-auto max-w-6xl">
-                <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+                <div class="grid gap-12 lg:grid-cols-2 lg:items-center">
+                    <!-- Foto + floating stat cards -->
+                    <div class="relative">
+                        <div
+                            class="overflow-hidden rounded-3xl ring-1 ring-emerald-100"
+                        >
+                            <img
+                                src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=900&auto=format&fit=crop&q=70"
+                                alt="Gedung RS Ibnu Sina"
+                                class="h-[460px] w-full object-cover"
+                                loading="lazy"
+                            />
+                        </div>
+
+                        <!-- Floating card kanan atas: tahun berdiri -->
+                        <div
+                            class="absolute -top-4 -right-4 rounded-2xl bg-white p-4 shadow-lg ring-1 ring-emerald-100 sm:-top-6 sm:-right-6"
+                        >
+                            <p class="text-xs text-slate-500">Berdiri Sejak</p>
+                            <p class="text-2xl font-semibold text-[#059669]">
+                                1988
+                            </p>
+                            <p class="text-[10px] text-slate-500">
+                                37+ tahun melayani
+                            </p>
+                        </div>
+
+                        <!-- Floating card kiri bawah: akreditasi -->
+                        <div
+                            class="absolute -bottom-4 -left-4 max-w-[220px] rounded-2xl bg-[#064e3b] p-4 text-white shadow-lg sm:-bottom-6 sm:-left-6"
+                        >
+                            <div
+                                class="flex size-9 items-center justify-center rounded-lg bg-white/15"
+                            >
+                                <ShieldCheck class="size-5" />
+                            </div>
+                            <p class="mt-3 text-sm font-semibold">
+                                Akreditasi Paripurna
+                            </p>
+                            <p class="mt-1 text-xs text-white/70">
+                                KARS · Faskes Rujukan Tipe B BPJS
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Konten kanan -->
                     <div>
                         <span
                             class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
                         >
                             <Sparkles class="size-3.5" /> Profil Rumah Sakit
                         </span>
-                    </div>
-                    <div class="flex items-start gap-5">
-                        <div
-                            class="size-16 flex-shrink-0 overflow-hidden rounded-full ring-4 ring-emerald-100"
+                        <h2
+                            class="mt-3 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
                         >
-                            <img
-                                src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=200&auto=format&fit=crop&q=70"
-                                alt=""
-                                class="h-full w-full object-cover"
-                                loading="lazy"
-                            />
-                        </div>
-                        <p class="text-lg leading-relaxed text-slate-700">
+                            Pelayanan Kesehatan Paripurna
+                            <br />Bernuansa Islami di Makassar
+                        </h2>
+                        <p class="mt-5 text-base leading-relaxed text-slate-600">
                             {{ hospitalName }} adalah rumah sakit umum tipe B
-                            di bawah Yayasan Wakaf UMI yang melayani masyarakat
+                            di bawah Yayasan Wakaf Universitas Muslim Indonesia
+                            (YW-UMI). Sejak 1988, kami melayani masyarakat
                             Sulawesi Selatan dengan pelayanan medis paripurna,
-                            ramah, dan bernuansa Islami — dari rawat jalan,
-                            rawat inap, hingga gawat darurat 24 jam.
+                            ramah, dan menjunjung nilai-nilai Islami — dari
+                            rawat jalan, rawat inap, hingga gawat darurat 24
+                            jam.
                         </p>
+
+                        <!-- Bullet keunggulan -->
+                        <ul class="mt-6 space-y-3">
+                            <li
+                                v-for="point in [
+                                    'Faskes rujukan tipe B BPJS Kesehatan',
+                                    'Tim dokter spesialis berpengalaman',
+                                    'Fasilitas IGD, ICU, NICU, & PICU 24 jam',
+                                    'Asisten virtual cerdas berbahasa Indonesia',
+                                ]"
+                                :key="point"
+                                class="flex items-start gap-3 text-sm text-slate-700"
+                            >
+                                <span
+                                    class="mt-0.5 flex size-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[#059669]"
+                                >
+                                    <Check class="size-3" stroke-width="3" />
+                                </span>
+                                {{ point }}
+                            </li>
+                        </ul>
+
+                        <a
+                            href="#layanan"
+                            class="mt-8 inline-flex items-center gap-2 rounded-full bg-[#059669] px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#047857]"
+                        >
+                            Lihat Layanan Kami
+                            <span
+                                class="flex size-5 items-center justify-center rounded-full bg-white text-[#059669]"
+                            >
+                                <ArrowRight class="size-3" />
+                            </span>
+                        </a>
                     </div>
                 </div>
 
+                <!-- Stat strip -->
                 <div
-                    class="mt-12 grid items-end gap-8 lg:grid-cols-3 lg:gap-10"
+                    class="mt-16 grid gap-4 rounded-3xl border border-emerald-100 bg-emerald-50/40 p-6 sm:grid-cols-2 lg:grid-cols-4"
                 >
-                    <div class="flex items-center gap-3">
-                        <button
-                            type="button"
-                            class="flex size-10 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition hover:border-[#059669] hover:text-[#059669]"
-                            @click="setValue(activeValue - 1)"
-                        >
-                            <ArrowLeft class="size-4" />
-                        </button>
-                        <button
-                            type="button"
-                            class="flex size-10 items-center justify-center rounded-full bg-[#059669] text-white shadow-md transition hover:bg-[#047857]"
-                            @click="setValue(activeValue + 1)"
-                        >
-                            <ArrowRight class="size-4" />
-                        </button>
-                        <span class="ml-2 text-sm text-slate-500">{{
-                            valueIndex
-                        }}</span>
-                    </div>
-
-                    <div>
+                    <div class="text-center">
                         <p
-                            class="text-5xl font-semibold tracking-tight text-[#059669]"
+                            class="text-4xl font-semibold tracking-tight text-[#059669]"
                         >
-                            {{ stats.doctors * 8 }}+
+                            37+
                         </p>
-                        <p class="mt-2 text-sm text-slate-600">
-                            Tenaga medis &amp; staf profesional
-                            <br />siap melayani 24 jam di Makassar
+                        <p class="mt-1 text-xs text-slate-600">
+                            Tahun melayani masyarakat
                         </p>
                     </div>
-
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div
-                            class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5"
+                    <div class="text-center">
+                        <p
+                            class="text-4xl font-semibold tracking-tight text-[#059669]"
                         >
-                            <div
-                                class="flex size-10 items-center justify-center rounded-xl bg-white text-[#059669] shadow-sm"
-                            >
-                                <HeartPulse class="size-5" />
-                            </div>
-                            <span
-                                class="mt-3 inline-block rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-[#059669]"
-                                >Akreditasi Paripurna</span
-                            >
-                            <p class="mt-2 font-semibold">Mutu Terjamin</p>
-                            <p class="mt-1 text-xs leading-relaxed text-slate-600">
-                                Terakreditasi paripurna oleh KARS dan menjadi
-                                faskes rujukan tipe B BPJS Kesehatan.
-                            </p>
-                        </div>
-                        <div
-                            class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5"
+                            {{ stats.specializations }}
+                        </p>
+                        <p class="mt-1 text-xs text-slate-600">
+                            Bidang spesialisasi
+                        </p>
+                    </div>
+                    <div class="text-center">
+                        <p
+                            class="text-4xl font-semibold tracking-tight text-[#059669]"
                         >
-                            <div
-                                class="flex size-10 items-center justify-center rounded-xl bg-white text-[#059669] shadow-sm"
-                            >
-                                <Lock class="size-5" />
-                            </div>
-                            <span
-                                class="mt-3 inline-block rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-[#059669]"
-                                >Rekam Medis Aman</span
-                            >
-                            <p class="mt-2 font-semibold">Data Rahasia</p>
-                            <p class="mt-1 text-xs leading-relaxed text-slate-600">
-                                Rekam medis pasien dijaga sesuai standar
-                                privasi dan kerahasiaan dokter–pasien.
-                            </p>
-                        </div>
+                            150+
+                        </p>
+                        <p class="mt-1 text-xs text-slate-600">
+                            Tempat tidur rawat inap
+                        </p>
+                    </div>
+                    <div class="text-center">
+                        <p
+                            class="text-4xl font-semibold tracking-tight text-[#059669]"
+                        >
+                            24/7
+                        </p>
+                        <p class="mt-1 text-xs text-slate-600">
+                            Layanan IGD &amp; farmasi
+                        </p>
                     </div>
                 </div>
             </div>
