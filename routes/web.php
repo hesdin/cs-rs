@@ -8,12 +8,13 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\FaqCategoryController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\ChatPageController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 
-Route::inertia('/chat', 'Chat')->name('chat');
+Route::get('/chat', ChatPageController::class)->name('chat');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
