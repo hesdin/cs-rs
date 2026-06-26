@@ -1,7 +1,7 @@
 # ============================================================
 # Stage 1: Install PHP dependencies
 # ============================================================
-FROM php:8.4-cli AS composer
+FROM php:8.4-cli-alpine AS composer
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
