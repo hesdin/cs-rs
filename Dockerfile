@@ -1,5 +1,5 @@
 # ============================================================
-# Stage 1: Install PHP dependencies
+# Stage 1: Install PHP dependencies + generate Wayfinder types
 # ============================================================
 FROM php:8.4-cli-alpine AS composer
 
@@ -25,13 +25,37 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader --prefer-dist
 
 # ============================================================
-# Stage 2: Build frontend assets
+# Stage 2: Build frontend assets (with PHP for Wayfinder)
 # ============================================================
 FROM node:22-alpine AS frontend
 
+# Install PHP for Wayfinder type generation
+RUN apk add --no-cache \
+    php84 \
+    php84-cli \
+    php84-pdo \
+    php84-pgsql \
+    php84-mbstring \
+    php84-xml \
+    php84-curl \
+    php84-zip \
+    php84-gd \
+    php84-intl \
+    php84-opcache \
+    php84-dom \
+    php84-tokenizer \
+    php84-fileinfo \
+    php84-phar \
+    && ln -sf /usr/bin/php84 /usr/bin/php
+
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 WORKDIR /app
 
+# Copy PHP dependencies from composer stage
 COPY --from=composer /app/vendor ./vendor
+COPY --from=composer /app/bootstrap ./bootstrap
 
 COPY package.json package-lock.json ./
 COPY scripts/ ./scripts/
