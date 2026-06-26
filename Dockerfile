@@ -24,38 +24,18 @@ RUN composer install --no-dev --no-autoloader --no-scripts --prefer-dist
 COPY . .
 RUN composer install --no-dev --optimize-autoloader --prefer-dist
 
+# Generate Wayfinder types (needs full app context + autoloader)
+RUN php artisan key:generate --force && php artisan wayfinder:generate --with-form
+
 # ============================================================
-# Stage 2: Build frontend assets (with PHP for Wayfinder)
+# Stage 2: Build frontend assets (skip Wayfinder - already done)
 # ============================================================
 FROM node:22-alpine AS frontend
 
-# Install PHP for Wayfinder type generation
-RUN apk add --no-cache \
-    php83 \
-    php83-cli \
-    php83-pdo \
-    php83-pgsql \
-    php83-mbstring \
-    php83-xml \
-    php83-curl \
-    php83-zip \
-    php83-gd \
-    php83-intl \
-    php83-opcache \
-    php83-dom \
-    php83-tokenizer \
-    php83-fileinfo \
-    php83-phar \
-    && ln -sf /usr/bin/php83 /usr/bin/php
-
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
 WORKDIR /app
 
-# Copy PHP dependencies from composer stage
+# Copy vendor from composer stage (includes generated Wayfinder types)
 COPY --from=composer /app/vendor ./vendor
-COPY --from=composer /app/bootstrap ./bootstrap
 
 COPY package.json package-lock.json ./
 COPY scripts/ ./scripts/
@@ -64,6 +44,8 @@ RUN npm ci --ignore-scripts && npm run postinstall
 
 COPY . .
 
+# Skip Wayfinder generation (already generated in composer stage)
+ENV VITE_WAYFINDER_SKIP=true
 RUN npm run build
 
 # ============================================================
