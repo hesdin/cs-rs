@@ -16,7 +16,7 @@ class ChatbotSettingController extends Controller
     /**
      * Daftar setting yang dikelola via UI. Sumber kebenaran tunggal.
      *
-     * @var list<array{key:string, label:string, group:string, description:string, type:string}>
+     * @var list<array{key:string, label:string, group:string, description:string, type:string, sensitive?:bool}>
      */
     private const KNOWN_SETTINGS = [
         ['key' => 'hospital_name', 'label' => 'Nama Rumah Sakit', 'group' => 'general', 'description' => 'Ditampilkan di prompt sistem.', 'type' => 'text'],
@@ -26,6 +26,13 @@ class ChatbotSettingController extends Controller
         ['key' => 'medical_advice_message', 'label' => 'Medical Advice Message', 'group' => 'safety', 'description' => 'Pesan untuk pertanyaan diagnosis/obat/gejala.', 'type' => 'textarea'],
         ['key' => 'handoff_message', 'label' => 'Handoff Message', 'group' => 'general', 'description' => 'Pesan ketika user minta disambungkan ke petugas/CS.', 'type' => 'textarea'],
         ['key' => 'welcome_message', 'label' => 'Welcome Message', 'group' => 'general', 'description' => 'Sapaan pembuka chatbot.', 'type' => 'textarea'],
+
+        // OpenRouter / LLM
+        ['key' => 'openrouter_api_key', 'label' => 'API Key', 'group' => 'openrouter', 'description' => 'OpenRouter API key. Kosongkan untuk pakai nilai dari .env.', 'type' => 'password', 'sensitive' => true],
+        ['key' => 'openrouter_model', 'label' => 'Model', 'group' => 'openrouter', 'description' => 'ID model OpenRouter (contoh: openai/gpt-4o-mini).', 'type' => 'text'],
+        ['key' => 'openrouter_temperature', 'label' => 'Temperature', 'group' => 'openrouter', 'description' => 'Nilai 0.0 - 2.0. Semakin tinggi semakin kreatif.', 'type' => 'text'],
+        ['key' => 'openrouter_max_tokens', 'label' => 'Max Tokens', 'group' => 'openrouter', 'description' => 'Maksimum token respons (1-4096).', 'type' => 'text'],
+        ['key' => 'openrouter_timeout', 'label' => 'Timeout (detik)', 'group' => 'openrouter', 'description' => 'Timeout request HTTP dalam detik.', 'type' => 'text'],
     ];
 
     public function edit(): Response
@@ -37,13 +44,15 @@ class ChatbotSettingController extends Controller
             'value' => $values->get($def['key'], ''),
         ], self::KNOWN_SETTINGS);
 
+        $modelInfo = [
+            'model' => $this->modelValue('openrouter_model', config('openrouter.model')),
+            'temperature' => $this->modelValue('openrouter_temperature', (string) config('openrouter.temperature')),
+            'configured' => filled($this->modelValue('openrouter_api_key', config('openrouter.api_key'))),
+        ];
+
         return Inertia::render('admin/settings/Index', [
             'settings' => $items,
-            'modelInfo' => [
-                'model' => config('openrouter.model'),
-                'temperature' => config('openrouter.temperature'),
-                'configured' => filled(config('openrouter.api_key')),
-            ],
+            'modelInfo' => $modelInfo,
         ]);
     }
 
@@ -60,11 +69,30 @@ class ChatbotSettingController extends Controller
             if (! in_array($key, $known, true)) {
                 continue;
             }
-            ChatbotSetting::set((string) $key, is_string($value) ? $value : null);
+
+            $stringValue = is_string($value) ? trim($value) : null;
+
+            // Skip API key update if empty (preserve existing value)
+            if ($key === 'openrouter_api_key' && ($stringValue === null || $stringValue === '')) {
+                continue;
+            }
+
+            ChatbotSetting::set((string) $key, $stringValue);
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Pengaturan disimpan.']);
 
         return back();
+    }
+
+    private function modelValue(string $settingKey, ?string $default = null): ?string
+    {
+        $dbValue = ChatbotSetting::get($settingKey);
+
+        if ($dbValue !== null && $dbValue !== '') {
+            return $dbValue;
+        }
+
+        return $default;
     }
 }

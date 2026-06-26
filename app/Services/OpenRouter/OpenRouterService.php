@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\OpenRouter;
 
+use App\Models\ChatbotSetting;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as Http;
 use Illuminate\Http\Client\RequestException;
@@ -17,6 +18,20 @@ class OpenRouterService
     ) {}
 
     /**
+     * Ambil nilai setting dari database jika ada, fallback ke config .env.
+     */
+    private function setting(string $key, mixed $default = ''): string
+    {
+        $dbValue = ChatbotSetting::get("openrouter_{$key}");
+
+        if ($dbValue !== null && $dbValue !== '') {
+            return $dbValue;
+        }
+
+        return (string) ($default !== '' ? $default : config("openrouter.{$key}", ''));
+    }
+
+    /**
      * Kirim chat completion ke OpenRouter dan kembalikan teks jawaban + metadata.
      *
      * @param  list<array{role:string, content:string}>  $messages
@@ -26,19 +41,22 @@ class OpenRouterService
      */
     public function chat(array $messages): array
     {
-        $apiKey = (string) config('openrouter.api_key', '');
+        $apiKey = $this->setting('api_key', config('openrouter.api_key', ''));
 
         if ($apiKey === '') {
             throw new RuntimeException('OPENROUTER_API_KEY belum diset. Lengkapi .env Anda.');
         }
 
-        $model = (string) config('openrouter.model');
+        $model = $this->setting('model', config('openrouter.model'));
+        $temperature = (float) ($this->setting('temperature', config('openrouter.temperature', '0.3')) ?: '0.3');
+        $maxTokens = (int) ($this->setting('max_tokens', config('openrouter.max_tokens', '800')) ?: '800');
+        $timeout = (int) ($this->setting('timeout', config('openrouter.timeout', '30')) ?: '30');
 
         $payload = [
             'model' => $model,
             'messages' => $messages,
-            'temperature' => (float) config('openrouter.temperature', 0.3),
-            'max_tokens' => (int) config('openrouter.max_tokens', 800),
+            'temperature' => $temperature,
+            'max_tokens' => $maxTokens,
         ];
 
         try {
@@ -49,7 +67,7 @@ class OpenRouterService
                     'X-Title' => (string) config('openrouter.site_title'),
                     'Content-Type' => 'application/json',
                 ])
-                ->timeout((int) config('openrouter.timeout', 30))
+                ->timeout($timeout)
                 ->acceptJson()
                 ->post(rtrim((string) config('openrouter.base_url'), '/').'/chat/completions', $payload)
                 ->throw();

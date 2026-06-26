@@ -23,7 +23,15 @@ class ChatbotSetting extends Model
         'group',
         'label',
         'description',
+        'is_sensitive',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_sensitive' => 'boolean',
+        ];
+    }
 
     protected static function booted(): void
     {

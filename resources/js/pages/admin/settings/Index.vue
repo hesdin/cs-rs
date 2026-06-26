@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import { ShieldCheck } from 'lucide-vue-next';
+import { ShieldCheck, Sparkles } from 'lucide-vue-next';
 import ChatbotSettingController from '@/actions/App/Http/Controllers/Admin/ChatbotSettingController';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,14 +22,28 @@ interface SettingItem {
     label: string;
     group: string;
     description: string;
-    type: 'text' | 'textarea';
+    type: 'text' | 'textarea' | 'password';
     value: string;
+    sensitive?: boolean;
 }
 
 defineProps<{
     settings: SettingItem[];
-    modelInfo: { model: string; temperature: number; configured: boolean };
+    modelInfo: { model: string; temperature: string; configured: boolean };
 }>();
+
+const openrouterSettings = (items: SettingItem[]) =>
+    items.filter((i) => i.group === 'openrouter');
+
+const nonOpenrouterSettings = (items: SettingItem[]) =>
+    items.filter((i) => i.group !== 'openrouter');
+
+function maskApiKey(value: string): string {
+    if (!value || value.length < 12) {
+        return value;
+    }
+    return value.slice(0, 12) + '••••••';
+}
 </script>
 
 <template>
@@ -43,22 +57,24 @@ defineProps<{
             </p>
         </div>
 
+        <!-- LLM Config Card -->
         <Card>
             <CardHeader>
                 <CardTitle class="flex items-center gap-2 text-base">
-                    <ShieldCheck class="size-4" /> Konfigurasi LLM
+                    <Sparkles class="size-4" /> Konfigurasi LLM (OpenRouter)
                 </CardTitle>
-                <CardDescription
-                    >Diatur dari <code>config/openrouter.php</code> & .env.</CardDescription>
+                <CardDescription>
+                    {{ modelInfo.configured ? 'Menggunakan API key dari database atau .env.' : 'API key belum dikonfigurasi.' }}
+                </CardDescription>
             </CardHeader>
             <CardContent class="grid grid-cols-3 gap-4 text-sm">
                 <div>
                     <p class="text-xs text-muted-foreground">Model aktif</p>
-                    <p class="font-mono">{{ modelInfo.model }}</p>
+                    <p class="font-mono">{{ modelInfo.model || '-' }}</p>
                 </div>
                 <div>
                     <p class="text-xs text-muted-foreground">Temperature</p>
-                    <p>{{ modelInfo.temperature }}</p>
+                    <p>{{ modelInfo.temperature || '-' }}</p>
                 </div>
                 <div>
                     <p class="text-xs text-muted-foreground">API Key</p>
@@ -86,12 +102,23 @@ defineProps<{
                     <CardDescription>{{ item.description }}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <input
-                        v-if="item.type === 'text'"
+                    <!-- Password input for sensitive fields (API key) -->
+                    <Input
+                        v-if="item.type === 'password'"
                         :name="`settings[${item.key}]`"
-                        :default-value="item.value"
-                        class="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                        type="password"
+                        autocomplete="off"
+                        :placeholder="item.value ? '•••••••• (kosongkan jika tidak ingin mengubah)' : 'Masukkan API key'"
                     />
+                    <!-- Text input -->
+                    <Input
+                        v-else-if="item.type === 'text'"
+                        :name="`settings[${item.key}]`"
+                        type="text"
+                        :placeholder="`Masukkan ${item.label}`"
+                        :default-value="item.value"
+                    />
+                    <!-- Textarea -->
                     <textarea
                         v-else
                         :name="`settings[${item.key}]`"
