@@ -17,6 +17,10 @@ class HomeController extends Controller
     public function __invoke(): Response
     {
         $hospitalName = ChatbotSetting::get('hospital_name', 'Rumah Sakit Ibnu Sina YW-UMI Makassar');
+        $welcomeMessage = ChatbotSetting::get(
+            'welcome_message',
+            'Assalamualaikum, saya asisten virtual RS Ibnu Sina Makassar. Saya bisa bantu informasi jadwal dokter, pendaftaran, BPJS, dan administrasi rumah sakit. Ada yang bisa saya bantu?'
+        );
 
         $doctors = Doctor::query()
             ->with(['schedules' => fn ($q) => $q->where('is_active', true)
@@ -66,11 +70,34 @@ class HomeController extends Controller
             'categories' => FaqCategory::query()->where('is_active', true)->count(),
         ];
 
+        $chatCategories = FaqCategory::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get(['name', 'description'])
+            ->map(fn (FaqCategory $category): array => [
+                'name' => $category->name,
+                'description' => $category->description,
+            ])
+            ->all();
+
+        $chatSuggestions = [
+            ['icon' => 'calendar', 'label' => 'Jadwal dokter spesialis anak hari ini'],
+            ['icon' => 'clipboard', 'label' => 'Bagaimana cara mendaftar berobat?'],
+            ['icon' => 'shield', 'label' => 'Apakah RS menerima BPJS?'],
+            ['icon' => 'wallet', 'label' => 'Berapa biaya konsultasi dokter?'],
+            ['icon' => 'bed', 'label' => 'Kelas kamar rawat inap apa saja?'],
+            ['icon' => 'file', 'label' => 'Cara meminta surat keterangan sakit'],
+        ];
+
         return Inertia::render('Landing', [
             'hospitalName' => $hospitalName,
+            'welcomeMessage' => $welcomeMessage,
             'doctors' => $doctors,
             'specializations' => $specializations,
             'featuredFaqs' => $featuredFaqs,
+            'chatCategories' => $chatCategories,
+            'chatSuggestions' => $chatSuggestions,
             'stats' => $stats,
             'contact' => [
                 'address' => 'Jl. Urip Sumoharjo Km. 5 No. 264, Panaikang, Panakkukang, Makassar 90231',
