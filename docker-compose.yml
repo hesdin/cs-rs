@@ -1,0 +1,65 @@
+services:
+  # -------------------------------------------------------
+  # Nginx - Web Server
+  # -------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: cs-rs-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+    networks:
+      - cs-rs-network
+
+  # -------------------------------------------------------
+  # PHP-FPM - Application Server
+  # -------------------------------------------------------
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: cs-rs-php
+    restart: unless-stopped
+    volumes:
+      - .:/var/www
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/app.ini:ro
+      - ./docker/php/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
+    depends_on:
+      - postgres
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    networks:
+      - cs-rs-network
+
+  # -------------------------------------------------------
+  # PostgreSQL - Database
+  # -------------------------------------------------------
+  postgres:
+    image: postgres:17-alpine
+    container_name: cs-rs-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-cs_rs}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    networks:
+      - cs-rs-network
+
+networks:
+  cs-rs-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
