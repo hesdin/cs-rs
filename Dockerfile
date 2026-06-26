@@ -24,8 +24,8 @@ RUN composer install --no-dev --no-autoloader --no-scripts --prefer-dist
 COPY . .
 RUN composer install --no-dev --optimize-autoloader --prefer-dist
 
-# Generate Wayfinder types (needs full app context + autoloader)
-RUN php artisan key:generate --force && php artisan wayfinder:generate --with-form
+# Generate Wayfinder types (needs autoloader + .env for artisan boot)
+RUN cp .env.example .env && php artisan key:generate --force && php artisan wayfinder:generate --with-form
 
 # ============================================================
 # Stage 2: Build frontend assets (skip Wayfinder - already done)
