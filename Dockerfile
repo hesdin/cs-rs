@@ -1,9 +1,37 @@
 # ============================================================
-# Stage 1: Build frontend assets
+# Stage 1: Install PHP dependencies
+# ============================================================
+FROM php:8.4-cli AS composer
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+RUN apk add --no-cache \
+    libpq-dev \
+    oniguruma-dev \
+    libzip-dev \
+    icu-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_pgsql pgsql bcmath mbstring zip intl gd
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-autoloader --no-scripts --prefer-dist
+
+COPY . .
+RUN composer install --no-dev --optimize-autoloader --prefer-dist
+
+# ============================================================
+# Stage 2: Build frontend assets
 # ============================================================
 FROM node:22-alpine AS frontend
 
 WORKDIR /app
+
+COPY --from=composer /app/vendor ./vendor
 
 COPY package.json package-lock.json ./
 COPY scripts/ ./scripts/
@@ -15,7 +43,7 @@ COPY . .
 RUN npm run build
 
 # ============================================================
-# Stage 2: PHP-FPM Application
+# Stage 3: PHP-FPM Application
 # ============================================================
 FROM php:8.4-fpm-alpine AS production
 
@@ -60,8 +88,8 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy application files
-COPY --from=frontend /app/vendor ./vendor
+# Copy application files from stages
+COPY --from=composer /app/vendor ./vendor
 COPY --from=frontend /app/node_modules ./node_modules
 COPY --from=frontend /app/public/build ./public/build
 COPY . .
