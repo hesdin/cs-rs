@@ -31,22 +31,22 @@ FROM node:22-alpine AS frontend
 
 # Install PHP for Wayfinder type generation
 RUN apk add --no-cache \
-    php84 \
-    php84-cli \
-    php84-pdo \
-    php84-pgsql \
-    php84-mbstring \
-    php84-xml \
-    php84-curl \
-    php84-zip \
-    php84-gd \
-    php84-intl \
-    php84-opcache \
-    php84-dom \
-    php84-tokenizer \
-    php84-fileinfo \
-    php84-phar \
-    && ln -sf /usr/bin/php84 /usr/bin/php
+    php83 \
+    php83-cli \
+    php83-pdo \
+    php83-pgsql \
+    php83-mbstring \
+    php83-xml \
+    php83-curl \
+    php83-zip \
+    php83-gd \
+    php83-intl \
+    php83-opcache \
+    php83-dom \
+    php83-tokenizer \
+    php83-fileinfo \
+    php83-phar \
+    && ln -sf /usr/bin/php83 /usr/bin/php
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
