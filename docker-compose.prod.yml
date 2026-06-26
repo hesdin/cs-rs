@@ -1,0 +1,39 @@
+services:
+  # -------------------------------------------------------
+  # Nginx - Production overrides
+  # -------------------------------------------------------
+  nginx:
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # -------------------------------------------------------
+  # PHP-FPM - Production overrides
+  # -------------------------------------------------------
+  php:
+    restart: always
+    command: /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # -------------------------------------------------------
+  # PostgreSQL - Production overrides
+  # -------------------------------------------------------
+  postgres:
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

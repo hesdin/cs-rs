@@ -1,0 +1,48 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    uses: ./.github/workflows/tests.yml
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /var/www/cs-rs
+
+            # Pull latest code
+            git pull origin main
+
+            # Build and restart containers
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+            # Run Laravel optimizations inside php container
+            docker compose exec -T php php artisan config:cache
+            docker compose exec -T php php artisan route:cache
+            docker compose exec -T php php artisan view:cache
+            docker compose exec -T php php artisan event:cache
+
+            # Run database migrations
+            docker compose exec -T php php artisan migrate --force
+
+            # Restart queue workers
+            docker compose exec -T php php artisan queue:restart
+
+            # Verify health
+            docker compose exec -T php php artisan up
+
+            echo "Deployment completed successfully!"
