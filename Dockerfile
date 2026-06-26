@@ -6,6 +6,7 @@ FROM node:22-alpine AS frontend
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+COPY scripts/ ./scripts/
 
 RUN npm ci --ignore-scripts && npm run postinstall
 
@@ -77,8 +78,11 @@ COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 # Copy Supervisor configuration
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Create log directories
+RUN mkdir -p /var/log/supervisor /var/log/php
+
 # Expose port
 EXPOSE 9000
 
-# Start PHP-FPM
-CMD ["/usr/sbin/php-fpm", "--nodaemonize"]
+# Start Supervisor (manages PHP-FPM + queue worker)
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
