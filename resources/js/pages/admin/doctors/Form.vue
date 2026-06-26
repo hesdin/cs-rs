@@ -14,6 +14,15 @@ interface Schedule {
     room: string | null;
     is_active: boolean;
 }
+
+interface FormSchedule {
+    day_of_week: number;
+    start_time: string;
+    end_time: string;
+    room: string;
+    is_active: boolean;
+}
+
 interface Doctor {
     id: number;
     name: string;
@@ -68,7 +77,7 @@ const form = useForm({
         end_time: s.end_time.slice(0, 5),
         room: s.room ?? '',
         is_active: s.is_active ?? true,
-    })) as Schedule[],
+    })) as FormSchedule[],
 });
 
 const addSchedule = () =>

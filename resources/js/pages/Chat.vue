@@ -108,6 +108,11 @@ const pushMessage = (msg: Omit<ChatMessage, 'id' | 'timestamp'>) => {
 
 const initialMessageCount = computed(() => messages.value.length);
 const hasConversation = computed(() => messages.value.length > 1);
+const visibleMessages = computed(() =>
+    messages.value.length > 1
+        ? messages.value.filter((message, index) => index !== 0)
+        : messages.value,
+);
 
 const showWelcome = () => {
     messages.value = [];
@@ -116,11 +121,16 @@ const showWelcome = () => {
 };
 
 const playBeep = () => {
-    if (muted.value) return;
+    if (muted.value) {
+        return;
+    }
+
     try {
-        const ctx = new (window.AudioContext ||
+        const ctx = new (
+            window.AudioContext ||
             (window as unknown as { webkitAudioContext: typeof AudioContext })
-                .webkitAudioContext)();
+                .webkitAudioContext
+        )();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
@@ -128,10 +138,7 @@ const playBeep = () => {
         osc.frequency.value = 880;
         gain.gain.setValueAtTime(0.0001, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.05, ctx.currentTime + 0.01);
-        gain.gain.exponentialRampToValueAtTime(
-            0.0001,
-            ctx.currentTime + 0.18,
-        );
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
         osc.start();
         osc.stop(ctx.currentTime + 0.2);
     } catch {
@@ -141,6 +148,7 @@ const playBeep = () => {
 
 const scrollToBottom = async (smooth = true) => {
     await nextTick();
+
     if (scrollContainer.value) {
         scrollContainer.value.scrollTo({
             top: scrollContainer.value.scrollHeight,
@@ -155,7 +163,11 @@ const csrfToken = (): string =>
 
 const autoResize = () => {
     const el = inputRef.value;
-    if (!el) return;
+
+    if (!el) {
+        return;
+    }
+
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 140) + 'px';
 };
@@ -163,6 +175,7 @@ const autoResize = () => {
 const onInputKeydown = (e: KeyboardEvent) => {
     // Di mobile (touch), Enter membuat baris baru. Di desktop, Enter mengirim.
     const isMobile = window.matchMedia('(pointer: coarse)').matches;
+
     if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
         e.preventDefault();
         send();
@@ -171,6 +184,7 @@ const onInputKeydown = (e: KeyboardEvent) => {
 
 const send = async (text?: string) => {
     const content = (text ?? input.value).trim();
+
     if (!content || sending.value) {
         return;
     }
@@ -202,6 +216,7 @@ const send = async (text?: string) => {
 
         const json: ChatResponse = await res.json();
         sessionId.value = json.data.session_id;
+
         try {
             localStorage.setItem(STORAGE_KEY, json.data.session_id);
         } catch {
@@ -237,12 +252,15 @@ const startNewSession = () => {
     ) {
         return;
     }
+
     sessionId.value = null;
+
     try {
         localStorage.removeItem(STORAGE_KEY);
     } catch {
         // ignore
     }
+
     showWelcome();
 };
 
@@ -258,6 +276,7 @@ onMounted(() => {
     } catch {
         // ignore
     }
+
     showWelcome();
 });
 </script>
@@ -306,8 +325,8 @@ onMounted(() => {
                             Asisten Virtual
                         </p>
                         <p class="truncate text-[11px] text-slate-500">
-                            <span class="text-emerald-600">●</span> Online ·
-                            RS Ibnu Sina
+                            <span class="text-emerald-600">●</span> Online · RS
+                            Ibnu Sina
                         </p>
                     </div>
                 </div>
@@ -344,7 +363,7 @@ onMounted(() => {
 
         <!-- ========== BODY ========== -->
         <div
-            class="mx-auto grid w-full min-h-0 max-w-6xl flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[1fr_320px]"
+            class="mx-auto grid min-h-0 w-full max-w-6xl flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[1fr_320px]"
         >
             <!-- ========== CHAT AREA ========== -->
             <div class="flex min-h-0 min-w-0 flex-col">
@@ -367,8 +386,7 @@ onMounted(() => {
                             <p
                                 class="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400"
                             >
-                                Pilih salah satu, atau ketik sendiri di
-                                bawah.
+                                Pilih salah satu, atau ketik sendiri di bawah.
                             </p>
                             <div class="mt-3 flex flex-col gap-2">
                                 <button
@@ -405,7 +423,7 @@ onMounted(() => {
                             move-class="transition duration-300 ease-out"
                         >
                             <div
-                                v-for="m in messages"
+                                v-for="m in visibleMessages"
                                 :key="m.id"
                                 class="flex gap-2 sm:gap-3"
                                 :class="
@@ -421,9 +439,7 @@ onMounted(() => {
                                     <HeartPulse class="size-4" />
                                 </div>
 
-                                <div
-                                    class="min-w-0 max-w-[82%] sm:max-w-[78%]"
-                                >
+                                <div class="max-w-[82%] min-w-0 sm:max-w-[78%]">
                                     <div
                                         class="rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap shadow-sm sm:px-4"
                                         :class="
@@ -451,9 +467,7 @@ onMounted(() => {
                                         <p class="leading-relaxed">
                                             Hubungi langsung petugas kami:
                                         </p>
-                                        <div
-                                            class="flex flex-wrap gap-2 pt-1"
-                                        >
+                                        <div class="flex flex-wrap gap-2 pt-1">
                                             <a
                                                 :href="`tel:${cleanPhone}`"
                                                 class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1.5 font-medium hover:bg-amber-200 active:scale-95"
@@ -467,9 +481,7 @@ onMounted(() => {
                                                 rel="noopener"
                                                 class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 font-medium text-emerald-800 hover:bg-emerald-200 active:scale-95"
                                             >
-                                                <MessageCircle
-                                                    class="size-3"
-                                                />
+                                                <MessageCircle class="size-3" />
                                                 WhatsApp
                                             </a>
                                         </div>
@@ -536,8 +548,7 @@ onMounted(() => {
                                 <span
                                     class="size-2 animate-bounce rounded-full bg-emerald-500"
                                 />
-                                <span
-                                    class="ml-1 text-xs text-slate-500"
+                                <span class="ml-1 text-xs text-slate-500"
                                     >mengetik...</span
                                 >
                             </div>
@@ -548,14 +559,19 @@ onMounted(() => {
                 <!-- ========== INPUT BAR ========== -->
                 <footer
                     class="flex-shrink-0 border-t border-slate-200 bg-white px-3 py-2.5 sm:px-4 sm:py-3 dark:border-slate-800 dark:bg-slate-900"
-                    style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom))"
+                    style="
+                        padding-bottom: max(
+                            0.5rem,
+                            env(safe-area-inset-bottom)
+                        );
+                    "
                 >
                     <form
-                        class="mx-auto flex w-full max-w-2xl items-end gap-2"
+                        class="mx-auto flex w-full max-w-2xl items-end gap-3 px-1"
                         @submit.prevent="send()"
                     >
                         <div
-                            class="flex flex-1 items-end rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-1.5 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100 sm:px-4 sm:py-2 dark:border-slate-700 dark:bg-slate-800 dark:focus-within:border-emerald-500 dark:focus-within:ring-emerald-900/30"
+                            class="flex flex-1 items-end rounded-3xl border border-slate-200 bg-slate-50 px-3 py-1 transition focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100 sm:px-4 sm:py-1.5 dark:border-slate-700 dark:bg-slate-800 dark:focus-within:border-emerald-500 dark:focus-within:ring-emerald-900/30"
                         >
                             <textarea
                                 ref="inputRef"
@@ -563,7 +579,7 @@ onMounted(() => {
                                 rows="1"
                                 placeholder="Tulis pertanyaan Anda..."
                                 :disabled="sending"
-                                class="max-h-36 flex-1 resize-none border-0 bg-transparent py-1.5 text-base placeholder:text-slate-400 focus:outline-none disabled:opacity-60 sm:text-sm"
+                                class="max-h-36 flex-1 resize-none border-0 bg-transparent py-1 text-base placeholder:text-slate-400 focus:outline-none disabled:opacity-60 sm:text-sm"
                                 inputmode="text"
                                 enterkeyhint="send"
                                 @keydown="onInputKeydown"
@@ -572,14 +588,14 @@ onMounted(() => {
                         <button
                             type="submit"
                             :disabled="sending || !input.trim()"
-                            class="flex size-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md transition active:scale-95 sm:hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                            class="flex size-10 flex-shrink-0 items-center justify-center rounded-2xl bg-[#339966] text-white transition hover:bg-[#2b8055] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                             aria-label="Kirim pesan"
                         >
                             <Loader2
                                 v-if="sending"
-                                class="size-5 animate-spin"
+                                class="size-4 animate-spin"
                             />
-                            <Send v-else class="size-5" />
+                            <Send v-else class="size-4" />
                         </button>
                     </form>
                     <p
@@ -611,7 +627,7 @@ onMounted(() => {
                         class="overflow-hidden rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 p-5 text-white"
                     >
                         <p
-                            class="text-xs font-medium uppercase tracking-wide text-white/70"
+                            class="text-xs font-medium tracking-wide text-white/70 uppercase"
                         >
                             Kondisi Darurat?
                         </p>
@@ -630,7 +646,7 @@ onMounted(() => {
                     <!-- Contact list -->
                     <div>
                         <p
-                            class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500"
+                            class="mb-3 text-xs font-semibold tracking-wide text-slate-500 uppercase"
                         >
                             Hubungi Kami
                         </p>
@@ -683,7 +699,7 @@ onMounted(() => {
                     <!-- Topics -->
                     <div v-if="categories.length > 0">
                         <p
-                            class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500"
+                            class="mb-3 text-xs font-semibold tracking-wide text-slate-500 uppercase"
                         >
                             Topik yang Bisa Saya Bantu
                         </p>
@@ -770,7 +786,7 @@ onMounted(() => {
                     >
                         <div>
                             <p
-                                class="text-[11px] font-medium uppercase tracking-wide text-white/70"
+                                class="text-[11px] font-medium tracking-wide text-white/70 uppercase"
                             >
                                 Kondisi Darurat
                             </p>
@@ -825,7 +841,7 @@ onMounted(() => {
                     <!-- Topics -->
                     <div v-if="categories.length > 0">
                         <p
-                            class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                            class="mb-2 text-[11px] font-semibold tracking-wide text-slate-500 uppercase"
                         >
                             Topik yang Bisa Saya Bantu
                         </p>
@@ -835,9 +851,7 @@ onMounted(() => {
                                 :key="cat.name"
                                 class="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs text-slate-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-slate-300"
                             >
-                                <CheckCircle2
-                                    class="size-3 text-emerald-500"
-                                />
+                                <CheckCircle2 class="size-3 text-emerald-500" />
                                 {{ cat.name }}
                             </span>
                         </div>
@@ -852,8 +866,8 @@ onMounted(() => {
                             Catatan
                         </p>
                         <p class="mt-1 leading-relaxed">
-                            Asisten ini tidak memberikan diagnosis, saran
-                            obat, atau interpretasi hasil pemeriksaan.
+                            Asisten ini tidak memberikan diagnosis, saran obat,
+                            atau interpretasi hasil pemeriksaan.
                         </p>
                     </div>
                 </div>

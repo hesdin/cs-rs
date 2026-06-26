@@ -2,70 +2,73 @@
 import { Head, Link } from '@inertiajs/vue3';
 import {
     ArrowRight,
-    ArrowUp,
-    Calendar,
-    Check,
+    Baby,
+    Bone,
+    CheckCircle2,
+    ChevronLeft,
+    ChevronRight,
+    Hand,
     HeartPulse,
-    MapPin,
     Mail,
     Menu,
     MessageCircle,
     Phone,
     Play,
-    ShieldCheck,
+    Quote,
     Sparkles,
     Star,
     Stethoscope,
     X,
 } from 'lucide-vue-next';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { dashboard, login } from '@/routes';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import type { Component } from 'vue';
+import AssistantChatPanel from '@/components/AssistantChatPanel.vue';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { dashboard } from '@/routes';
 
-interface DoctorSummary {
-    id: number;
+interface ChatCategory {
+    name: string;
+    description: string | null;
+}
+
+interface ChatSuggestion {
+    icon: string;
+    label: string;
+}
+
+interface ServiceCard {
+    title: string;
+    description: string;
+    icon: Component;
+}
+
+interface DoctorCard {
     name: string;
     specialization: string;
-    polyclinic: string | null;
-    on_leave: boolean;
-    schedule_summary: string;
+    image: string;
 }
 
-interface FeaturedFaq {
-    id: number;
-    category: string;
-    question: string;
-    answer_preview: string;
-}
-
-interface Testimonial {
+interface TestimonialCard {
     name: string;
     role: string;
     message: string;
     rating: number;
-    featured?: boolean;
 }
 
-interface Insight {
+interface ArticleCard {
+    category: string;
     title: string;
     excerpt: string;
-    date: string;
-    category: string;
     image: string;
-    reading_time: number;
+    date: string;
     author: string;
 }
 
-defineProps<{
+const props = defineProps<{
     hospitalName: string;
-    doctors: DoctorSummary[];
-    specializations: string[];
-    featuredFaqs: FeaturedFaq[];
-    stats: {
-        doctors: number;
-        specializations: number;
-        faqs: number;
-        categories: number;
-    };
+    welcomeMessage: string;
+    chatCategories: ChatCategory[];
+    chatSuggestions: ChatSuggestion[];
     contact: {
         address: string;
         phone: string;
@@ -74,249 +77,381 @@ defineProps<{
         email: string;
         website: string;
     };
-    testimonials: Testimonial[];
-    insights: Insight[];
 }>();
 
-// ========== Why Choose Us values ==========
-interface ValueItem {
-    title: string;
-    description: string;
-}
-
-const values: ValueItem[] = [
+const serviceCards: ServiceCard[] = [
     {
-        title: 'Pelayanan Bermutu',
+        title: 'Dokter Umum',
         description:
-            'Standar pelayanan paripurna terakreditasi KARS dengan protokol medis terkini.',
+            'Pemeriksaan awal, konsultasi keluhan ringan, dan rujukan cepat ke layanan yang tepat.',
+        icon: Stethoscope,
     },
     {
-        title: 'Kolaborasi Multidisipliner',
+        title: 'Pediatri',
         description:
-            'Dokter umum, spesialis, perawat, dan apoteker bekerja terpadu untuk hasil terbaik.',
+            'Imunisasi, tumbuh kembang, dan konsultasi kesehatan anak dalam suasana yang ramah.',
+        icon: Baby,
     },
     {
-        title: 'Transparansi Biaya',
+        title: 'Kardiologi',
         description:
-            'Estimasi biaya jelas sebelum tindakan. Tidak ada biaya tersembunyi.',
+            'Deteksi dini dan pemantauan kondisi jantung dengan pendekatan medis yang terukur.',
+        icon: HeartPulse,
     },
     {
-        title: 'Aksesibilitas Layanan',
+        title: 'Dermatologi',
         description:
-            'Daftar online via website, aplikasi, atau WhatsApp. IGD buka 24 jam.',
+            'Perawatan kulit, alergi, jerawat, dan keluhan kulit yang membutuhkan penanganan spesialis.',
+        icon: Hand,
     },
     {
-        title: 'Profesionalisme Klinis',
+        title: 'Ginekologi',
         description:
-            'Tim medis berpengalaman dengan pelatihan berkelanjutan dan akhlak Islami.',
-    },
-];
-const activeValue = ref(0);
-const setValue = (i: number) => {
-    activeValue.value = (i + values.length) % values.length;
-};
-const valueIndex = computed(() => `${activeValue.value + 1}/${values.length}`);
-
-// ========== Hero slider ==========
-interface Slide {
-    eyebrow: string;
-    title: string[];
-    desc: string;
-    cta: { label: string; href: string };
-    image: string;
-    imageAlt: string;
-    badge: { color: string; label: string };
-}
-
-const slides: Slide[] = [
-    {
-        eyebrow: 'Telah dipercaya ribuan pasien sejak 1988',
-        title: ['Sahabat Sehat', 'Keluarga di Sulawesi', 'Selatan'],
-        desc: 'Rumah sakit umum tipe B yang memadukan pelayanan medis modern dengan nilai-nilai Islami. Pendaftaran online, jadwal dokter, hingga konsultasi BPJS — semua bisa Anda akses dengan mudah, kapan saja.',
-        cta: { label: 'Lihat Layanan Kami', href: '#layanan' },
-        image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=900&auto=format&fit=crop&q=70',
-        imageAlt: 'Tim medis profesional RS Ibnu Sina',
-        badge: { color: 'bg-emerald-500', label: 'Akreditasi Paripurna KARS' },
+            'Konsultasi kesehatan wanita, pemeriksaan rutin, dan layanan pendampingan yang nyaman.',
+        icon: Sparkles,
     },
     {
-        eyebrow: 'Siap Sedia 24 Jam · 7 Hari',
-        title: ['IGD Buka', '24 Jam, Langsung', 'Tangani Anda'],
-        desc: 'Tim dokter, perawat, dan ambulans siap melayani kondisi gawat darurat kapan saja. Pasien BPJS dapat langsung masuk IGD tanpa rujukan faskes 1.',
-        cta: { label: 'Hubungi IGD Sekarang', href: '#kontak' },
-        image: 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=900&auto=format&fit=crop&q=70',
-        imageAlt: 'Tim IGD rumah sakit',
-        badge: { color: 'bg-rose-500', label: 'IGD 24 Jam' },
-    },
-    {
-        eyebrow: 'Asisten Virtual Berbasis AI',
-        title: ['Tanya Apa Saja', 'tentang Layanan', 'RS Ibnu Sina'],
-        desc: 'Jadwal dokter, biaya, BPJS, prosedur rawat inap — tanyakan langsung ke asisten virtual kami dalam Bahasa Indonesia. Cepat, gratis, tersedia 24 jam.',
-        cta: { label: 'Mulai Chat Sekarang', href: '/chat' },
-        image: 'https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=900&auto=format&fit=crop&q=70',
-        imageAlt: 'Pasien menggunakan asisten virtual',
-        badge: { color: 'bg-amber-400', label: 'Online 24 Jam' },
+        title: 'Ortopedi',
+        description:
+            'Penanganan tulang, sendi, cedera olahraga, dan pemulihan gerak secara menyeluruh.',
+        icon: Bone,
     },
 ];
 
-const currentSlide = ref(0);
-const slideDirection = ref<'left' | 'right'>('right');
-let autoplayTimer: ReturnType<typeof setInterval> | null = null;
+const aboutFeatures = [
+    'Layanan Terintegrasi',
+    'Perawatan Berpusat pada Pasien',
+    'Lingkungan Ramah dan Nyaman',
+    'Pendekatan Personal',
+    'Perawatan Menyeluruh',
+    'Teknologi Medis Modern',
+    'Dokter Berpengalaman',
+    'Ulasan Positif Pasien',
+];
 
-const goToSlide = (idx: number, direction: 'left' | 'right' = 'right') => {
-    slideDirection.value = direction;
-    currentSlide.value = (idx + slides.length) % slides.length;
-};
-const nextSlide = () => goToSlide(currentSlide.value + 1, 'right');
-const prevSlide = () => goToSlide(currentSlide.value - 1, 'left');
+const doctorTeam: DoctorCard[] = [
+    {
+        name: 'dr. Fiona Wood',
+        specialization: 'Kardiologi',
+        image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=900&auto=format&fit=crop&q=80',
+    },
+    {
+        name: 'dr. Fiona Woods',
+        specialization: 'Dokter Gigi',
+        image: 'https://images.unsplash.com/photo-1559839734-7d3d2d6d2f3a?w=900&auto=format&fit=crop&q=80',
+    },
+    {
+        name: 'dr. Fiona West',
+        specialization: 'Neurologi',
+        image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=900&auto=format&fit=crop&q=80',
+    },
+    {
+        name: 'Dr. Charlie Tao',
+        specialization: 'Kardiolog',
+        image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=900&auto=format&fit=crop&q=80',
+    },
+];
+const doctorMarqueeCards = computed(() => [...doctorTeam, ...doctorTeam]);
 
-const startAutoplay = () => {
-    stopAutoplay();
-    autoplayTimer = setInterval(nextSlide, 6000);
-};
-const stopAutoplay = () => {
-    if (autoplayTimer) {
-        clearInterval(autoplayTimer);
-        autoplayTimer = null;
-    }
-};
+const emergencyCards = [
+    {
+        title: 'Nomor Telepon',
+        value: props.contact.phone,
+        icon: Phone,
+    },
+    {
+        title: 'Alamat Email',
+        value: props.contact.email,
+        icon: Mail,
+    },
+];
 
-// ========== Mobile menu & scroll state ==========
+const testimonials: TestimonialCard[] = [
+    {
+        name: 'Jack Wilson',
+        role: 'Pasien',
+        message:
+            'Layanannya cepat, staff-nya sigap, dan proses konsultasinya terasa lebih tertata. Saya merasa lebih tenang sejak menggunakan halaman informasi ini.',
+        rating: 5,
+    },
+    {
+        name: 'Ella Lewis',
+        role: 'Pasien',
+        message:
+            'Informasi dokter dan kontak mudah ditemukan. Tampilan halaman juga bersih sehingga saya cepat menemukan kebutuhan saya.',
+        rating: 5,
+    },
+    {
+        name: 'Maya Santoso',
+        role: 'Pasien',
+        message:
+            'Section testimoni terasa lebih hidup ketika bisa digeser. Sekarang saya bisa melihat beberapa pengalaman pasien lain dengan lebih nyaman.',
+        rating: 5,
+    },
+];
+
+const articles: ArticleCard[] = [
+    {
+        category: 'Edukasi',
+        title: 'Cara hidup sehat tanpa rasa sakit atau penyakit',
+        excerpt:
+            'Panduan sederhana untuk menjaga kebugaran harian, tidur cukup, dan kebiasaan yang membantu tubuh tetap fit.',
+        image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd2e?w=900&auto=format&fit=crop&q=80',
+        date: '12 Mar, 2026',
+        author: 'Asep Carey',
+    },
+    {
+        category: 'Kesehatan',
+        title: 'Mengapa Anda perlu meninggalkan kebiasaan buruk agar tetap sehat',
+        excerpt:
+            'Kebiasaan kecil punya dampak besar. Mulai dari konsumsi air, pola makan, sampai aktivitas fisik rutin.',
+        image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=900&auto=format&fit=crop&q=80',
+        date: '11 Mar, 2026',
+        author: 'Fiona Wood',
+    },
+    {
+        category: 'Perawatan',
+        title: 'Setiap rumah wajib memiliki kotak P3K',
+        excerpt:
+            'Perlengkapan dasar pertolongan pertama membantu penanganan cepat sebelum konsultasi ke tenaga medis.',
+        image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=900&auto=format&fit=crop&q=80',
+        date: '10 Mar, 2026',
+        author: 'Charlee Tao',
+    },
+];
+
 const mobileMenuOpen = ref(false);
-const scrolled = ref(false);
-const showScrollTop = ref(false);
+const assistantOpen = ref(false);
+const currentSlide = ref(0);
+const currentTestimonial = ref(0);
+const assistantAnchor = ref<{
+    top: number;
+    left: number;
+    originX: number;
+} | null>(null);
+let heroSlideTimer: ReturnType<typeof window.setInterval> | null = null;
 
-const onScroll = () => {
-    scrolled.value = window.scrollY > 80;
-    showScrollTop.value = window.scrollY > 600;
-};
+const whatsappUrl = computed(
+    () =>
+        `https://wa.me/${props.contact.whatsapp.replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(
+            props.hospitalName,
+        )}%2C%20saya%20ingin%20bertanya%20tentang%20layanan.`,
+);
 
-const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-};
+const navigationItems = [
+    { href: '#beranda', label: 'Beranda' },
+    { href: '#layanan', label: 'Layanan' },
+    { href: '#tentang', label: 'Tentang Kami' },
+    { href: '#dokter', label: 'Dokter' },
+    { href: '#bantuan', label: 'Bantuan' },
+    { href: '#artikel', label: 'Artikel' },
+    { href: '#kontak', label: 'Kontak' },
+];
 
-const closeMobileMenu = () => {
+const heroSlides = [
+    {
+        eyebrow: '01/03',
+        title: 'Kami merawat pasien dengan layanan yang hangat dan terpadu.',
+        description:
+            'Informasi jadwal, layanan unggulan, dan kontak penting disusun ringkas agar pasien bisa bergerak lebih cepat menuju tindakan yang dibutuhkan.',
+        image: '/img/rs-ibnu-sina.png',
+    },
+    {
+        eyebrow: '02/03',
+        title: 'Tim dokter spesialis siap mendampingi Anda dengan sepenuh perhatian.',
+        description:
+            'Setiap layanan disiapkan agar lebih mudah ditemukan, lebih nyaman digunakan, dan tetap terasa personal.',
+        image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1800&auto=format&fit=crop&q=80',
+    },
+    {
+        eyebrow: '03/03',
+        title: 'Asisten virtual siap membantu 24 jam kapan pun Anda butuhkan.',
+        description:
+            'Tanyakan gejala ringan, cari dokter terdekat, atau konfirmasi jadwal melalui chat untuk mempercepat pelayanan.',
+        image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1800&auto=format&fit=crop&q=80',
+    },
+];
+
+const currentYear = new Date().getFullYear();
+const testimonialPageCount = Math.max(1, Math.ceil(testimonials.length / 2));
+
+const assistantPopupStyle = computed(() => {
+    return {
+        top: assistantAnchor.value ? `${assistantAnchor.value.top}px` : '6rem',
+        left: 'calc(100vw - 0.5rem - min(360px, calc(100vw - 1rem)))',
+        '--assistant-origin': assistantAnchor.value
+            ? `${assistantAnchor.value.originX}px -0.75rem`
+            : 'calc(100% - 2.75rem) -0.75rem',
+    };
+});
+
+const closeMobileMenu = (): void => {
     mobileMenuOpen.value = false;
 };
 
-// ========== Lifecycle ==========
+const openAssistant = (event?: MouseEvent): void => {
+    const trigger = event?.currentTarget;
+
+    if (trigger instanceof HTMLElement) {
+        const rect = trigger.getBoundingClientRect();
+        const popupHeight = Math.min(720, window.innerHeight - 112);
+        const top = Math.min(
+            Math.max(96, rect.bottom + 14),
+            window.innerHeight - popupHeight - 16,
+        );
+
+        assistantAnchor.value = {
+            top,
+            left: 0,
+            originX: 320,
+        };
+    }
+
+    assistantOpen.value = !assistantOpen.value;
+};
+
+const goToSlide = (index: number): void => {
+    currentSlide.value = (index + heroSlides.length) % heroSlides.length;
+};
+
+const nextSlide = (): void => {
+    goToSlide(currentSlide.value + 1);
+};
+
+const previousSlide = (): void => {
+    goToSlide(currentSlide.value - 1);
+};
+
+const goToTestimonial = (index: number): void => {
+    currentTestimonial.value =
+        (index + testimonialPageCount) % testimonialPageCount;
+};
+
+const nextTestimonial = (): void => {
+    goToTestimonial(currentTestimonial.value + 1);
+};
+
+const previousTestimonial = (): void => {
+    goToTestimonial(currentTestimonial.value - 1);
+};
+
+const testimonialPages = computed(() => {
+    if (testimonials.length <= 2) {
+        return [testimonials];
+    }
+
+    const pages: TestimonialCard[][] = [];
+
+    for (let index = 0; index < testimonials.length; index += 2) {
+        pages.push([
+            testimonials[index],
+            testimonials[(index + 1) % testimonials.length],
+        ]);
+    }
+
+    return pages;
+});
+
+const testimonialTrackStyle = computed(() => {
+    return {
+        transform: `translateX(-${currentTestimonial.value * 100}%)`,
+    };
+});
+
 onMounted(() => {
-    startAutoplay();
-    window.addEventListener('scroll', onScroll, { passive: true });
+    heroSlideTimer = window.setInterval(() => {
+        nextSlide();
+    }, 5000);
 });
-onBeforeUnmount(() => {
-    stopAutoplay();
-    window.removeEventListener('scroll', onScroll);
+
+onUnmounted(() => {
+    if (heroSlideTimer !== null) {
+        window.clearInterval(heroSlideTimer);
+        heroSlideTimer = null;
+    }
 });
+
+watch(
+    () => currentSlide.value,
+    () => {
+        const slide = heroSlides[currentSlide.value];
+        const image = new Image();
+        image.src = slide.image;
+    },
+);
 </script>
 
 <template>
-    <Head :title="`${hospitalName} — Customer Service Virtual`" />
+    <Head :title="`${hospitalName} - Layanan Informasi`" />
 
-    <div class="min-h-screen bg-white text-slate-900">
-        <!-- ========== HERO BLOCK ========== -->
-        <section class="relative px-3 pt-3 pb-10 sm:px-5 sm:pt-5">
+    <div class="min-h-screen bg-white text-slate-950">
+        <div class="relative isolate overflow-hidden">
             <div
-                class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#059669] via-[#10b981] to-[#34d399] px-6 pt-6 pb-12 text-white sm:px-10 sm:pt-8"
-            >
-                <!-- Decorative blobs -->
-                <div
-                    class="pointer-events-none absolute -top-24 -right-24 size-80 rounded-full bg-white/10 blur-3xl"
-                />
-                <div
-                    class="pointer-events-none absolute -bottom-24 -left-24 size-80 rounded-full bg-white/10 blur-3xl"
-                />
+                class="absolute inset-x-0 top-0 -z-20 h-[720px] bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(15,23,42,0.08),_transparent_28%),linear-gradient(180deg,_#f8fafc_0%,_#ffffff_58%)]"
+            />
+            <div
+                class="absolute inset-x-0 top-0 -z-10 h-[540px] bg-[linear-gradient(to_right,rgba(148,163,184,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.12)_1px,transparent_1px)] [mask-image:linear-gradient(to_bottom,white,transparent)] bg-[size:72px_72px]"
+            />
 
-                <!-- ----- NAV ----- -->
-                <header class="relative flex items-center justify-between">
-                    <Link href="/" class="flex items-center gap-2">
-                        <div
-                            class="flex size-9 items-center justify-center rounded-xl bg-white text-[#059669] shadow-sm"
-                        >
-                            <HeartPulse class="size-5" stroke-width="2.5" />
-                        </div>
-                        <span class="text-base font-semibold tracking-tight"
-                            >IbnuSinaCare</span
-                        >
+            <header
+                class="fixed inset-x-0 top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl"
+            >
+                <div
+                    class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8"
+                >
+                    <Link href="/" class="flex items-center gap-3">
+                        <img
+                            src="/img/logo-rumah-sakit-ibnu-sina.png"
+                            alt="Logo Rumah Sakit Ibnu Sina"
+                            class="h-11 w-auto object-contain"
+                            loading="eager"
+                        />
                     </Link>
 
                     <nav
-                        class="hidden items-center gap-1 rounded-full bg-white/10 p-1.5 text-sm backdrop-blur lg:flex"
+                        class="hidden items-center gap-7 text-sm text-slate-600 lg:flex"
                     >
                         <a
-                            href="#beranda"
-                            class="rounded-full bg-white/15 px-4 py-1.5 font-medium"
-                            >Beranda</a
+                            v-for="item in navigationItems"
+                            :key="item.href"
+                            :href="item.href"
+                            class="transition hover:text-slate-950"
                         >
-                        <a
-                            href="#tentang"
-                            class="rounded-full px-4 py-1.5 text-white/80 transition hover:text-white"
-                            >Profil RS</a
-                        >
-                        <a
-                            href="#layanan"
-                            class="rounded-full px-4 py-1.5 text-white/80 transition hover:text-white"
-                            >Layanan</a
-                        >
-                        <a
-                            href="#dokter"
-                            class="rounded-full px-4 py-1.5 text-white/80 transition hover:text-white"
-                            >Dokter</a
-                        >
-                        <a
-                            href="#testimoni"
-                            class="rounded-full px-4 py-1.5 text-white/80 transition hover:text-white"
-                            >Testimoni</a
-                        >
-                        <a
-                            href="#kontak"
-                            class="rounded-full px-4 py-1.5 text-white/80 transition hover:text-white"
-                            >Kontak</a
-                        >
+                            {{ item.label }}
+                        </a>
                     </nav>
 
-                    <div class="flex items-center gap-2">
+                    <div class="hidden items-center gap-3 lg:flex">
                         <Link
                             v-if="$page.props.auth.user"
                             :href="dashboard()"
-                            class="hidden rounded-full px-4 py-2 text-sm text-white/90 hover:text-white sm:inline-block"
-                            >Dashboard</Link
+                            class="rounded-xl px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
                         >
-                        <Link
-                            v-else
-                            :href="login()"
-                            class="hidden rounded-full px-4 py-2 text-sm text-white/90 hover:text-white sm:inline-block"
-                            >Login Admin</Link
-                        >
-                        <Link
-                            href="/chat"
-                            class="hidden items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#059669] shadow-sm transition hover:bg-emerald-50 sm:inline-flex"
-                        >
-                            Tanya AI
-                            <span
-                                class="flex size-5 items-center justify-center rounded-full bg-[#059669] text-white"
-                            >
-                                <ArrowRight class="size-3" />
-                            </span>
+                            Dasbor
                         </Link>
-
-                        <!-- Mobile menu trigger -->
                         <button
                             type="button"
-                            class="flex size-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25 lg:hidden"
-                            :aria-label="
-                                mobileMenuOpen
-                                    ? 'Tutup menu'
-                                    : 'Buka menu'
-                            "
-                            @click="mobileMenuOpen = !mobileMenuOpen"
+                            class="inline-flex items-center gap-2 rounded-xl bg-[#339966] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2b8055]"
+                            @click="openAssistant($event)"
                         >
-                            <Menu v-if="!mobileMenuOpen" class="size-5" />
-                            <X v-else class="size-5" />
+                            Tanya AI
+                            <ArrowRight class="size-4" />
                         </button>
                     </div>
-                </header>
 
-                <!-- Mobile drawer -->
+                    <button
+                        type="button"
+                        class="flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm lg:hidden"
+                        :aria-label="
+                            mobileMenuOpen ? 'Tutup menu' : 'Buka menu'
+                        "
+                        @click="mobileMenuOpen = !mobileMenuOpen"
+                    >
+                        <Menu v-if="!mobileMenuOpen" class="size-5" />
+                        <X v-else class="size-5" />
+                    </button>
+                </div>
+
                 <Transition
                     enter-from-class="opacity-0 -translate-y-2"
                     enter-active-class="transition duration-200 ease-out"
@@ -325,1159 +460,964 @@ onBeforeUnmount(() => {
                 >
                     <div
                         v-if="mobileMenuOpen"
-                        class="absolute inset-x-6 top-20 z-50 rounded-2xl bg-white p-4 shadow-2xl ring-1 ring-black/5 lg:hidden"
+                        class="border-t border-slate-200 bg-white lg:hidden"
                     >
-                        <ul class="flex flex-col text-sm text-slate-700">
-                            <li
-                                v-for="item in [
-                                    { href: '#beranda', label: 'Beranda' },
-                                    { href: '#tentang', label: 'Profil RS' },
-                                    { href: '#layanan', label: 'Layanan' },
-                                    { href: '#dokter', label: 'Dokter' },
-                                    { href: '#testimoni', label: 'Testimoni' },
-                                    { href: '#kontak', label: 'Kontak' },
-                                ]"
+                        <div
+                            class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-4 sm:px-6"
+                        >
+                            <a
+                                v-for="item in navigationItems"
                                 :key="item.href"
+                                :href="item.href"
+                                class="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
+                                @click="closeMobileMenu"
                             >
-                                <a
-                                    :href="item.href"
-                                    class="block rounded-lg px-4 py-2.5 transition hover:bg-emerald-50 hover:text-[#059669]"
-                                    @click="closeMobileMenu"
-                                    >{{ item.label }}</a
-                                >
-                            </li>
-                            <li class="mt-2 border-t pt-2">
-                                <Link
-                                    href="/chat"
-                                    class="flex items-center justify-between rounded-lg bg-emerald-600 px-4 py-2.5 font-semibold text-white"
-                                    @click="closeMobileMenu"
-                                >
-                                    Tanya Asisten AI
-                                    <ArrowRight class="size-4" />
-                                </Link>
-                            </li>
-                        </ul>
+                                {{ item.label }}
+                            </a>
+                            <button
+                                type="button"
+                                class="mt-2 inline-flex items-center justify-between rounded-xl bg-[#339966] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#2b8055]"
+                                @click="
+                                    closeMobileMenu();
+                                    openAssistant($event);
+                                "
+                            >
+                                Tanya AI
+                                <ArrowRight class="size-4" />
+                            </button>
+                        </div>
                     </div>
                 </Transition>
+            </header>
 
-                <!-- ----- HERO SLIDER ----- -->
-                <div
+            <main>
+                <section
                     id="beranda"
-                    class="relative mt-12 lg:mt-16"
-                    @mouseenter="stopAutoplay"
-                    @mouseleave="startAutoplay"
+                    class="relative mt-16 overflow-hidden bg-slate-950 text-white sm:mt-20"
                 >
+                    <div class="absolute inset-0">
+                        <Transition
+                            enter-active-class="transition duration-700 ease-out"
+                            enter-from-class="opacity-0 scale-105"
+                            enter-to-class="opacity-100 scale-100"
+                            leave-active-class="transition duration-700 ease-out"
+                            leave-to-class="opacity-0 scale-105"
+                            mode="out-in"
+                        >
+                            <img
+                                :key="heroSlides[currentSlide].image"
+                                :src="heroSlides[currentSlide].image"
+                                alt="Hero rumah sakit"
+                                class="absolute inset-0 h-full w-full object-cover"
+                                loading="eager"
+                            />
+                        </Transition>
+                        <div
+                            class="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,6,23,0.82)_0%,rgba(2,6,23,0.52)_42%,rgba(2,6,23,0.14)_100%),linear-gradient(to_top,rgba(6,95,70,0.3)_0%,transparent_44%)]"
+                        />
+                    </div>
+
                     <div
-                        v-for="(slide, idx) in slides"
-                        :key="idx"
-                        :aria-hidden="idx !== currentSlide"
-                        class="grid gap-8 transition-all duration-700 ease-out lg:grid-cols-2 lg:items-center"
-                        :class="
-                            idx === currentSlide
-                                ? 'opacity-100 translate-x-0'
-                                : 'pointer-events-none absolute inset-0 opacity-0 ' +
-                                  (slideDirection === 'right'
-                                      ? '-translate-x-8'
-                                      : 'translate-x-8')
-                        "
+                        class="relative mx-auto flex min-h-[720px] max-w-7xl flex-col justify-center px-4 py-24 sm:px-6 lg:px-8"
                     >
-                        <div class="relative">
-                            <div
-                                class="mb-6 inline-flex items-center gap-3 rounded-full bg-white/10 py-1.5 pr-4 pl-1.5 text-sm backdrop-blur"
-                            >
-                                <div class="flex -space-x-2">
-                                    <span
-                                        v-for="(c, i) in [
-                                            '#fca5a5',
-                                            '#86efac',
-                                            '#fcd34d',
-                                            '#a5b4fc',
-                                        ]"
-                                        :key="i"
-                                        class="flex size-7 items-center justify-center rounded-full text-[10px] font-semibold text-white ring-2 ring-white/40"
-                                        :style="{ background: c }"
+                        <div
+                            class="grid gap-12 lg:grid-cols-[1fr_0.7fr] lg:items-end"
+                        >
+                            <div class="max-w-3xl">
+                                <div class="mb-6 flex items-center gap-5">
+                                    <div class="h-20 w-px bg-white/40" />
+                                    <p
+                                        class="text-2xl font-medium tracking-[0.24em] text-white/80"
                                     >
-                                        {{ ['H', 'A', 'S', 'M'][i] }}
-                                    </span>
+                                        {{ heroSlides[currentSlide].eyebrow }}
+                                    </p>
                                 </div>
-                                <span class="font-medium">{{
-                                    slide.eyebrow
-                                }}</span>
+
+                                <h1
+                                    class="max-w-3xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl"
+                                >
+                                    {{ heroSlides[currentSlide].title }}
+                                </h1>
+                                <p
+                                    class="mt-4 max-w-2xl text-sm leading-7 text-white/75 sm:text-base"
+                                >
+                                    {{ heroSlides[currentSlide].description }}
+                                </p>
+
+                                <div
+                                    class="mt-8 flex flex-col gap-3 sm:flex-row"
+                                >
+                                    <button
+                                        type="button"
+                                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#339966] px-6 py-3.5 text-sm font-medium text-white transition hover:bg-[#2b8055]"
+                                        @click="openAssistant($event)"
+                                    >
+                                        Tanya AI
+                                        <ArrowRight class="size-4" />
+                                    </button>
+                                    <a
+                                        href="#kontak"
+                                        class="inline-flex items-center justify-center rounded-xl border border-white/35 px-6 py-3.5 text-sm font-medium text-white transition hover:border-white/60 hover:bg-white/10"
+                                    >
+                                        Hubungi Kami
+                                    </a>
+                                </div>
+
+                                <div class="mt-7 flex items-center gap-4">
+                                    <button
+                                        type="button"
+                                        class="flex size-12 items-center justify-center rounded-full border border-white/35 text-white transition hover:border-white/70 hover:bg-white/10"
+                                        aria-label="Slide sebelumnya"
+                                        @click="previousSlide"
+                                    >
+                                        <ChevronLeft class="size-5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="flex size-12 items-center justify-center rounded-full border border-white/35 text-white transition hover:border-white/70 hover:bg-white/10"
+                                        aria-label="Slide berikutnya"
+                                        @click="nextSlide"
+                                    >
+                                        <ChevronRight class="size-5" />
+                                    </button>
+                                </div>
                             </div>
 
-                            <h1
-                                class="text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl lg:text-6xl"
+                            <div
+                                class="flex items-end justify-start lg:justify-end"
                             >
-                                <template
-                                    v-for="(line, li) in slide.title"
-                                    :key="li"
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-medium text-white backdrop-blur-md transition hover:bg-white/15"
+                                    @click="openAssistant($event)"
                                 >
-                                    {{ line
-                                    }}<br v-if="li < slide.title.length - 1"
-                                /></template>
-                            </h1>
-
-                            <component
-                                :is="
-                                    slide.cta.href.startsWith('/')
-                                        ? Link
-                                        : 'a'
-                                "
-                                :href="slide.cta.href"
-                                class="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#059669] shadow-md transition hover:shadow-lg"
-                            >
-                                {{ slide.cta.label }}
-                                <span
-                                    class="flex size-6 items-center justify-center rounded-full bg-[#059669] text-white"
-                                >
-                                    <ArrowRight class="size-3.5" />
-                                </span>
-                            </component>
-
-                            <div class="mt-16 max-w-md">
-                                <p
-                                    class="text-sm font-semibold tracking-wide"
-                                >
-                                    Pelayanan Komprehensif &amp; Islami
-                                </p>
-                                <p
-                                    class="mt-2 text-sm leading-relaxed text-white/80"
-                                >
-                                    {{ slide.desc }}
-                                </p>
+                                    <span
+                                        class="flex size-8 items-center justify-center rounded-lg bg-white/10"
+                                    >
+                                        <Play class="size-4" />
+                                    </span>
+                                    Lihat Video
+                                </button>
                             </div>
                         </div>
+                    </div>
+                </section>
 
-                        <div class="relative">
-                            <div
-                                class="overflow-hidden rounded-3xl ring-1 ring-white/20"
+                <section
+                    id="layanan"
+                    class="bg-white px-4 py-20 sm:px-6 lg:px-8"
+                >
+                    <div class="mx-auto max-w-7xl">
+                        <div class="mb-8">
+                            <div class="flex items-center gap-3">
+                                <span class="h-5 w-px bg-[#339966]" />
+                                <p
+                                    class="text-sm font-semibold tracking-[0.08em] text-slate-500 uppercase"
+                                >
+                                    Solusi Kesehatan
+                                </p>
+                            </div>
+                            <h2
+                                class="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
                             >
+                                Solusi layanan kesehatan untuk kenyamanan Anda
+                            </h2>
+                        </div>
+
+                        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            <article
+                                v-for="item in serviceCards"
+                                :key="item.title"
+                                class="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/3 transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-100 hover:shadow-md"
+                                :class="
+                                    item.title === 'Kardiologi' &&
+                                    'border-[rgba(51,153,102,0.18)] bg-[rgba(51,153,102,0.10)]'
+                                "
+                            >
+                                <div class="flex items-start gap-4">
+                                    <div
+                                        class="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-[#339966] ring-1 ring-[rgba(51,153,102,0.16)]"
+                                    >
+                                        <component
+                                            :is="item.icon"
+                                            class="size-4"
+                                        />
+                                    </div>
+                                </div>
+
+                                <h3
+                                    class="mt-6 text-sm font-semibold tracking-tight text-slate-950"
+                                >
+                                    {{ item.title }}
+                                </h3>
+                                <p
+                                    class="mt-3 text-sm leading-7 text-slate-600"
+                                >
+                                    {{ item.description }}
+                                </p>
+
+                                <div class="mt-6 flex justify-start">
+                                    <span
+                                        class="flex size-10 items-center justify-center rounded-full bg-white text-[#339966] ring-1 ring-[rgba(51,153,102,0.2)] transition group-hover:bg-[#339966] group-hover:text-white"
+                                    >
+                                        <ArrowRight class="size-6 -rotate-45" />
+                                    </span>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                    id="tentang"
+                    class="bg-slate-50/70 px-4 py-20 sm:px-6 lg:px-8"
+                >
+                    <div class="mx-auto max-w-7xl">
+                        <div
+                            class="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center"
+                        >
+                            <div class="relative">
                                 <img
-                                    :src="slide.image"
-                                    :alt="slide.imageAlt"
-                                    class="h-[420px] w-full object-cover lg:h-[480px]"
+                                    src="/img/rs-ibnu-sina.png"
+                                    alt="RS Ibnu Sina"
+                                    class="h-[420px] w-full rounded-3xl object-cover"
                                     loading="lazy"
                                 />
-                            </div>
-                            <div
-                                class="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-md backdrop-blur"
-                            >
-                                <span
-                                    class="size-2 rounded-full"
-                                    :class="slide.badge.color"
-                                />
-                                {{ slide.badge.label }}
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Floating cards (persistent) -->
-                    <div
-                        class="absolute right-4 -bottom-6 left-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:right-4 lg:left-auto lg:w-[420px]"
-                    >
-                        <div
-                            class="rounded-2xl bg-white/15 p-4 ring-1 ring-white/20 backdrop-blur-md"
-                        >
-                            <p class="text-xs text-white/70">
-                                Indeks Kepuasan Pasien
-                            </p>
-                            <p class="mt-1 text-3xl font-semibold">97%</p>
-                            <p
-                                class="mt-1 text-[11px] leading-snug text-white/70"
-                            >
-                                Berdasarkan survei rutin
-                                <br />pasien rawat jalan
-                            </p>
-                        </div>
-                        <div
-                            class="space-y-2 rounded-2xl bg-white/15 p-3 ring-1 ring-white/20 backdrop-blur-md"
-                        >
-                            <span
-                                class="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs"
-                            >
-                                <Check class="size-3" /> Ramah
-                            </span>
-                            <span
-                                class="flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[#059669]"
-                            >
-                                <Check class="size-3" /> Islami
-                            </span>
-                            <span
-                                class="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs"
-                            >
-                                <Check class="size-3" /> Tepercaya
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Slider controls -->
-                <div
-                    class="relative mt-10 flex items-center justify-between"
-                >
-                    <div class="flex items-center gap-2">
-                        <button
-                            v-for="(s, i) in slides"
-                            :key="i"
-                            type="button"
-                            :aria-label="`Slide ${i + 1}`"
-                            class="h-1.5 rounded-full transition-all duration-300"
-                            :class="
-                                i === currentSlide
-                                    ? 'w-8 bg-white'
-                                    : 'w-4 bg-white/30 hover:bg-white/50'
-                            "
-                            @click="
-                                goToSlide(
-                                    i,
-                                    i > currentSlide ? 'right' : 'left',
-                                )
-                            "
-                        />
-                        <span class="ml-3 text-xs text-white/70">
-                            {{ currentSlide + 1 }} / {{ slides.length }}
-                        </span>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <button
-                            type="button"
-                            aria-label="Slide sebelumnya"
-                            class="flex size-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25"
-                            @click="prevSlide"
-                        >
-                            <ArrowRight
-                                class="size-4 rotate-180"
-                                aria-hidden="true"
-                            />
-                        </button>
-                        <button
-                            type="button"
-                            aria-label="Slide berikutnya"
-                            class="flex size-10 items-center justify-center rounded-full bg-white text-[#059669] shadow-md transition hover:shadow-lg"
-                            @click="nextSlide"
-                        >
-                            <ArrowRight class="size-4" />
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========== PROFIL RUMAH SAKIT ========== -->
-        <section id="tentang" class="px-4 py-20 sm:px-6">
-            <div class="mx-auto max-w-6xl">
-                <div class="grid gap-12 lg:grid-cols-2 lg:items-center">
-                    <div class="relative">
-                        <div
-                            class="overflow-hidden rounded-3xl ring-1 ring-emerald-100"
-                        >
-                            <img
-                                src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=900&auto=format&fit=crop&q=70"
-                                alt="Gedung RS Ibnu Sina"
-                                class="h-[460px] w-full object-cover"
-                                loading="lazy"
-                            />
-                        </div>
-
-                        <div
-                            class="absolute -top-4 -right-4 rounded-2xl bg-white p-4 shadow-lg ring-1 ring-emerald-100 sm:-top-6 sm:-right-6"
-                        >
-                            <p class="text-xs text-slate-500">Berdiri Sejak</p>
-                            <p class="text-2xl font-semibold text-[#059669]">
-                                1988
-                            </p>
-                            <p class="text-[10px] text-slate-500">
-                                37+ tahun melayani
-                            </p>
-                        </div>
-
-                        <div
-                            class="absolute -bottom-4 -left-4 max-w-[220px] rounded-2xl bg-[#064e3b] p-4 text-white shadow-lg sm:-bottom-6 sm:-left-6"
-                        >
-                            <div
-                                class="flex size-9 items-center justify-center rounded-lg bg-white/15"
-                            >
-                                <ShieldCheck class="size-5" />
-                            </div>
-                            <p class="mt-3 text-sm font-semibold">
-                                Akreditasi Paripurna
-                            </p>
-                            <p class="mt-1 text-xs text-white/70">
-                                KARS · Faskes Rujukan Tipe B BPJS
-                            </p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <span
-                            class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
-                        >
-                            <Sparkles class="size-3.5" /> Profil Rumah Sakit
-                        </span>
-                        <h2
-                            class="mt-3 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
-                        >
-                            Pelayanan Kesehatan Paripurna
-                            <br />Bernuansa Islami di Makassar
-                        </h2>
-                        <p
-                            class="mt-5 text-base leading-relaxed text-slate-600"
-                        >
-                            {{ hospitalName }} adalah rumah sakit umum tipe B
-                            di bawah Yayasan Wakaf Universitas Muslim Indonesia
-                            (YW-UMI). Sejak 1988, kami merawat masyarakat
-                            Sulawesi Selatan dengan pelayanan medis paripurna,
-                            ramah, dan menjunjung nilai-nilai Islami — dari
-                            rawat jalan, rawat inap, hingga gawat darurat 24
-                            jam.
-                        </p>
-
-                        <ul class="mt-6 space-y-3">
-                            <li
-                                v-for="point in [
-                                    'Faskes rujukan tipe B BPJS Kesehatan',
-                                    'Tim dokter spesialis berpengalaman',
-                                    'Fasilitas IGD, ICU, NICU, &amp; PICU 24 jam',
-                                    'Asisten virtual cerdas berbahasa Indonesia',
-                                ]"
-                                :key="point"
-                                class="flex items-start gap-3 text-sm text-slate-700"
-                            >
-                                <span
-                                    class="mt-0.5 flex size-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[#059669]"
+                                <div
+                                    class="absolute top-6 left-6 rounded-2xl bg-white px-5 py-4 shadow-lg shadow-slate-950/10"
                                 >
-                                    <Check class="size-3" stroke-width="3" />
-                                </span>
-                                <span v-html="point" />
-                            </li>
-                        </ul>
+                                    <div class="flex items-center gap-3">
+                                        <span
+                                            class="flex size-10 items-center justify-center rounded-full bg-[rgba(51,153,102,0.10)] text-[#339966]"
+                                        >
+                                            <MessageCircle class="size-5" />
+                                        </span>
+                                        <div>
+                                            <p
+                                                class="text-lg font-semibold text-slate-950"
+                                            >
+                                                24/7
+                                            </p>
+                                            <p class="text-sm text-slate-500">
+                                                Kami siap membantu kapan pun
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <a
-                            href="#layanan"
-                            class="mt-8 inline-flex items-center gap-2 rounded-full bg-[#059669] px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#047857]"
-                        >
-                            Lihat Layanan Kami
-                            <span
-                                class="flex size-5 items-center justify-center rounded-full bg-white text-[#059669]"
-                            >
-                                <ArrowRight class="size-3" />
-                            </span>
-                        </a>
-                    </div>
-                </div>
+                                <div
+                                    class="absolute right-6 bottom-6 max-w-xs rounded-2xl bg-white px-5 py-4 shadow-lg shadow-slate-950/10"
+                                >
+                                    <div class="flex items-start gap-3">
+                                        <span
+                                            class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-[rgba(51,153,102,0.10)] text-[#339966]"
+                                        >
+                                            <CheckCircle2 class="size-4" />
+                                        </span>
+                                        <div>
+                                            <p
+                                                class="font-semibold text-slate-950"
+                                            >
+                                                8 Tahun pengalaman
+                                            </p>
+                                            <p
+                                                class="mt-1 text-sm leading-6 text-slate-500"
+                                            >
+                                                Melayani komunitas dengan
+                                                layanan medis yang profesional,
+                                                ramah, dan penuh perhatian.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                <div
-                    class="mt-16 grid gap-4 rounded-3xl border border-emerald-100 bg-emerald-50/40 p-6 sm:grid-cols-2 lg:grid-cols-4"
-                >
-                    <div class="text-center">
-                        <p
-                            class="text-4xl font-semibold tracking-tight text-[#059669]"
-                        >
-                            37+
-                        </p>
-                        <p class="mt-1 text-xs text-slate-600">
-                            Tahun melayani masyarakat
-                        </p>
-                    </div>
-                    <div class="text-center">
-                        <p
-                            class="text-4xl font-semibold tracking-tight text-[#059669]"
-                        >
-                            {{ stats.specializations }}
-                        </p>
-                        <p class="mt-1 text-xs text-slate-600">
-                            Bidang spesialisasi
-                        </p>
-                    </div>
-                    <div class="text-center">
-                        <p
-                            class="text-4xl font-semibold tracking-tight text-[#059669]"
-                        >
-                            150+
-                        </p>
-                        <p class="mt-1 text-xs text-slate-600">
-                            Tempat tidur rawat inap
-                        </p>
-                    </div>
-                    <div class="text-center">
-                        <p
-                            class="text-4xl font-semibold tracking-tight text-[#059669]"
-                        >
-                            24/7
-                        </p>
-                        <p class="mt-1 text-xs text-slate-600">
-                            Layanan IGD &amp; farmasi
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========== WHY CHOOSE US ========== -->
-        <section id="layanan" class="px-4 py-20 sm:px-6">
-            <div class="mx-auto max-w-6xl">
-                <div class="mb-12">
-                    <span
-                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
-                    >
-                        <Sparkles class="size-3.5" /> Mengapa RS Ibnu Sina
-                    </span>
-                    <div class="mt-3 grid items-end gap-6 lg:grid-cols-2">
-                        <h2
-                            class="text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
-                        >
-                            Pelayanan Paripurna untuk
-                            <br />Setiap Pasien &amp; Keluarga
-                        </h2>
-                        <p class="text-sm leading-relaxed text-slate-600">
-                            Kami melayani dengan sepenuh hati — memadukan
-                            keahlian dokter spesialis, fasilitas medis modern,
-                            dan nilai-nilai Islami untuk kenyamanan dan
-                            kesembuhan Anda.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="grid gap-6 lg:grid-cols-3 lg:items-stretch">
-                    <!-- Values list -->
-                    <div
-                        class="rounded-3xl border border-slate-200 bg-white p-6"
-                    >
-                        <div
-                            class="mb-5 flex items-center justify-between text-xs"
-                        >
-                            <span class="font-medium text-slate-500"
-                                >Nilai Pelayanan</span
-                            >
-                            <span class="text-slate-400">{{ valueIndex }}</span>
-                        </div>
-                        <ul class="space-y-1">
-                            <li
-                                v-for="(v, i) in values"
-                                :key="v.title"
-                                class="flex cursor-pointer items-center justify-between rounded-xl px-4 py-3 text-sm transition"
-                                :class="
-                                    i === activeValue
-                                        ? 'bg-[#059669] text-white'
-                                        : 'text-slate-700 hover:bg-slate-50'
-                                "
-                                @click="activeValue = i"
-                            >
-                                <span class="font-medium">{{ v.title }}</span>
-                                <ArrowRight
-                                    class="size-4"
-                                    :class="
-                                        i === activeValue
-                                            ? 'text-white'
-                                            : 'text-slate-300'
-                                    "
-                                />
-                            </li>
-                        </ul>
-                        <Link
-                            href="/chat"
-                            class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-                        >
-                            Daftar Berobat
-                            <span
-                                class="flex size-5 items-center justify-center rounded-full bg-white text-slate-900"
-                            >
-                                <ArrowRight class="size-3" />
-                            </span>
-                        </Link>
-                    </div>
-
-                    <!-- Image card with active value description overlay -->
-                    <div
-                        class="relative overflow-hidden rounded-3xl ring-1 ring-slate-200"
-                    >
-                        <img
-                            src="https://images.unsplash.com/photo-1581056771107-24ca5f033842?w=800&auto=format&fit=crop&q=70"
-                            alt="Dokter sedang berkonsultasi dengan pasien"
-                            class="h-full max-h-[460px] w-full object-cover"
-                            loading="lazy"
-                        />
-                        <div
-                            class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent p-6 text-white"
-                        >
-                            <Transition
-                                mode="out-in"
-                                enter-active-class="transition duration-300 ease-out"
-                                leave-active-class="transition duration-150 ease-in"
-                                enter-from-class="opacity-0 translate-y-2"
-                                leave-to-class="opacity-0 -translate-y-2"
-                            >
-                                <div :key="activeValue">
+                            <div>
+                                <div class="mb-5 flex items-center gap-3">
                                     <p
-                                        class="text-xs font-medium tracking-wide uppercase text-emerald-200"
+                                        class="text-sm font-semibold tracking-[0.08em] text-slate-500 uppercase"
                                     >
-                                        {{ valueIndex }} ·
-                                        {{ values[activeValue].title }}
-                                    </p>
-                                    <p
-                                        class="mt-2 text-sm leading-relaxed"
-                                    >
-                                        {{ values[activeValue].description }}
+                                        | Tentang Kami
                                     </p>
                                 </div>
-                            </Transition>
+
+                                <h2
+                                    class="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
+                                >
+                                    Kami menyediakan layanan perawatan pasien
+                                    dan fasilitas terbaik
+                                </h2>
+                                <p
+                                    class="mt-5 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base"
+                                >
+                                    Kami merancang layanan yang komprehensif
+                                    agar pasien merasa nyaman, terbantu, dan
+                                    lebih cepat mendapatkan tindakan yang tepat
+                                    saat datang ke rumah sakit.
+                                </p>
+
+                                <div
+                                    class="mt-8 grid gap-x-6 gap-y-3 sm:grid-cols-2"
+                                >
+                                    <p
+                                        v-for="feature in aboutFeatures"
+                                        :key="feature"
+                                        class="flex items-center gap-3 text-sm font-medium text-slate-700"
+                                    >
+                                        <span
+                                            class="flex size-5 items-center justify-center rounded bg-[rgba(51,153,102,0.18)] text-[#339966]"
+                                        >
+                                            <CheckCircle2 class="size-3.5" />
+                                        </span>
+                                        {{ feature }}
+                                    </p>
+                                </div>
+
+                                <div class="mt-8">
+                                    <a
+                                        href="#dokter"
+                                        class="inline-flex items-center gap-2 rounded-xl bg-[#339966] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#2b8055]"
+                                    >
+                                        Selengkapnya Tentang Kami
+                                        <ArrowRight class="size-4" />
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </section>
 
-                    <!-- Commitment card -->
+                <section id="dokter" class="px-4 py-20 sm:px-6 lg:px-8">
+                    <div class="mx-auto max-w-7xl">
+                        <div class="flex items-end justify-between gap-6">
+                            <div>
+                                <p
+                                    class="text-sm font-semibold tracking-[0.08em] text-slate-500 uppercase"
+                                >
+                                    | Tim Dokter Kami
+                                </p>
+                                <h2
+                                    class="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
+                                >
+                                    Kenali dokter ahli kami
+                                </h2>
+                            </div>
+                            <a
+                                href="#kontak"
+                                class="hidden items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-950 sm:inline-flex"
+                            >
+                                Lihat Semua Tim
+                                <ArrowRight class="size-4" />
+                            </a>
+                        </div>
+
+                        <div class="mt-10 overflow-hidden">
+                            <div class="doctor-track flex w-max gap-5">
+                                <article
+                                    v-for="(
+                                        doctor, index
+                                    ) in doctorMarqueeCards"
+                                    :key="`${doctor.name}-${doctor.specialization}-${index}`"
+                                    class="w-[260px] shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-950/5 sm:w-[280px] lg:w-[300px]"
+                                >
+                                    <img
+                                        :src="doctor.image"
+                                        :alt="doctor.name"
+                                        class="h-56 w-full object-cover"
+                                        loading="lazy"
+                                    />
+                                    <div class="border-t border-slate-100 p-4">
+                                        <p
+                                            class="text-base font-semibold tracking-tight text-slate-950"
+                                        >
+                                            {{ doctor.name }}
+                                        </p>
+                                        <p class="mt-1 text-sm text-slate-500">
+                                            {{ doctor.specialization }}
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="h-1 bg-[rgba(51,153,102,0.8)]"
+                                    />
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                    id="bantuan"
+                    class="bg-white px-4 py-20 sm:px-6 lg:px-8"
+                >
                     <div
-                        class="flex flex-col justify-between rounded-3xl bg-gradient-to-br from-[#059669] to-[#0d9488] p-7 text-white"
+                        class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center"
                     >
                         <div>
-                            <p class="text-xs font-medium text-white/70">
-                                Komitmen Kami
-                            </p>
-                            <h3
-                                class="mt-3 text-2xl leading-snug font-semibold"
-                            >
-                                Memberikan pelayanan kesehatan paripurna dengan
-                                empati &amp; akhlak Islami untuk setiap pasien.
-                            </h3>
-                        </div>
-                        <div class="mt-8 flex flex-wrap gap-2">
-                            <span
-                                v-for="v in values"
-                                :key="v.title"
-                                class="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-medium backdrop-blur"
-                            >
-                                {{ v.title }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========== PELAYANAN TERPADU ========== -->
-        <section class="bg-emerald-50/60 px-4 py-20 sm:px-6">
-            <div class="mx-auto max-w-6xl text-center">
-                <span
-                    class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
-                >
-                    <Sparkles class="size-3.5" /> Pendekatan Pelayanan
-                </span>
-                <h2
-                    class="mt-3 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
-                >
-                    Satu Tim, Satu Tujuan:
-                    <br />Kesembuhan Anda
-                </h2>
-                <p
-                    class="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-slate-600"
-                >
-                    Mulai dari pendaftaran, pemeriksaan, hingga rawat inap —
-                    setiap langkah dirancang agar pasien dan keluarga merasa
-                    nyaman, aman, dan dilayani sepenuh hati.
-                </p>
-
-                <div
-                    class="relative mt-10 overflow-hidden rounded-3xl ring-1 ring-emerald-100"
-                >
-                    <img
-                        src="https://images.unsplash.com/photo-1559757175-5700dde675bc?w=1400&auto=format&fit=crop&q=70"
-                        alt="Tim dokter sedang melakukan visite pasien"
-                        class="h-[360px] w-full object-cover sm:h-[480px]"
-                        loading="lazy"
-                    />
-                    <div
-                        class="absolute inset-0 bg-gradient-to-t from-[#059669]/80 via-[#059669]/20 to-transparent"
-                    />
-                    <button
-                        type="button"
-                        class="group absolute top-1/2 left-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#059669] backdrop-blur transition hover:size-20 hover:bg-white"
-                    >
-                        <Play class="size-6 fill-current" />
-                    </button>
-                    <p
-                        class="absolute right-6 bottom-6 left-6 text-left text-sm text-white sm:max-w-xl"
-                    >
-                        Dokter umum, spesialis, perawat, hingga apoteker
-                        bekerja sama dalam satu rangkaian pelayanan. Setiap
-                        pasien didampingi dari awal kunjungan hingga pemulihan,
-                        dengan informasi yang transparan dan ramah.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========== DOCTORS ========== -->
-        <section id="dokter" class="px-4 py-20 sm:px-6">
-            <div class="mx-auto max-w-6xl">
-                <div class="mb-10 text-center">
-                    <span
-                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
-                    >
-                        <Stethoscope class="size-3.5" /> Tim Dokter
-                    </span>
-                    <h2
-                        class="mt-3 text-3xl font-semibold tracking-tight md:text-4xl"
-                    >
-                        Dokter Spesialis Kami
-                    </h2>
-                    <p class="mt-3 text-sm text-slate-600">
-                        {{ stats.doctors }} dokter dengan
-                        {{ stats.specializations }} bidang spesialisasi siap
-                        melayani Anda
-                    </p>
-                </div>
-
-                <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                    <div
-                        v-for="d in doctors"
-                        :key="d.id"
-                        class="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-100/50"
-                    >
-                        <div class="flex items-start gap-3">
-                            <div
-                                class="flex size-12 items-center justify-center rounded-full bg-emerald-100 font-semibold text-[#059669] transition group-hover:bg-[#059669] group-hover:text-white"
-                            >
-                                {{ d.name.charAt(0) }}
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <p
-                                    class="truncate font-semibold"
-                                    :title="d.name"
-                                >
-                                    {{ d.name }}
-                                </p>
-                                <p class="text-xs font-medium text-[#059669]">
-                                    {{ d.specialization }}
-                                </p>
-                                <p
-                                    v-if="d.polyclinic"
-                                    class="mt-0.5 text-xs text-slate-500"
-                                >
-                                    {{ d.polyclinic }}
-                                </p>
-                            </div>
-                            <span
-                                v-if="d.on_leave"
-                                class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800"
-                                >Cuti</span
-                            >
-                        </div>
-                        <div
-                            v-if="d.schedule_summary"
-                            class="mt-4 flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600"
-                        >
-                            <Calendar class="mt-0.5 size-3.5 flex-shrink-0" />
-                            <span>{{ d.schedule_summary }}</span>
-                        </div>
-                        <Link
-                            href="/chat"
-                            class="mt-4 inline-flex items-center gap-1 text-xs font-medium text-[#059669] opacity-0 transition group-hover:opacity-100"
-                        >
-                            Tanya jadwal lengkap
-                            <ArrowRight class="size-3" />
-                        </Link>
-                    </div>
-                </div>
-
-                <div class="mt-10 flex flex-wrap justify-center gap-2">
-                    <span
-                        v-for="spec in specializations"
-                        :key="spec"
-                        class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs text-slate-700 transition hover:border-emerald-400 hover:bg-emerald-100"
-                    >
-                        <Stethoscope class="size-3 text-[#059669]" />
-                        {{ spec }}
-                    </span>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========== TESTIMONIALS ========== -->
-        <section id="testimoni" class="bg-slate-50 px-4 py-20 sm:px-6">
-            <div class="mx-auto max-w-6xl">
-                <div class="mb-12 text-center">
-                    <span
-                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
-                    >
-                        <Star class="size-3.5" /> Testimoni Pasien
-                    </span>
-                    <h2
-                        class="mt-3 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
-                    >
-                        Yang Mereka Rasakan
-                        <br />Setelah Berobat di Sini
-                    </h2>
-                    <p class="mx-auto mt-3 max-w-xl text-sm text-slate-600">
-                        Pengalaman jujur dari pasien dan keluarga yang
-                        mempercayakan kesehatan mereka kepada RS Ibnu Sina.
-                    </p>
-                </div>
-
-                <div class="grid gap-5 md:grid-cols-3">
-                    <div
-                        v-for="(t, i) in testimonials"
-                        :key="i"
-                        class="rounded-2xl p-6 transition hover:-translate-y-0.5"
-                        :class="
-                            t.featured
-                                ? 'bg-gradient-to-br from-[#059669] to-[#0d9488] text-white shadow-lg shadow-emerald-200'
-                                : 'border border-slate-200 bg-white hover:shadow-md'
-                        "
-                    >
-                        <!-- Star rating -->
-                        <div class="mb-3 flex gap-0.5">
-                            <Star
-                                v-for="n in 5"
-                                :key="n"
-                                class="size-4"
-                                :class="
-                                    n <= t.rating
-                                        ? t.featured
-                                            ? 'fill-amber-300 text-amber-300'
-                                            : 'fill-amber-400 text-amber-400'
-                                        : t.featured
-                                          ? 'text-white/30'
-                                          : 'text-slate-300'
-                                "
-                            />
-                        </div>
-                        <p
-                            class="text-base leading-relaxed"
-                            :class="t.featured ? 'text-white' : 'text-slate-800'"
-                        >
-                            “{{ t.message }}”
-                        </p>
-                        <div
-                            class="mt-6 flex items-center gap-3 border-t pt-4"
-                            :class="
-                                t.featured
-                                    ? 'border-white/20'
-                                    : 'border-slate-100'
-                            "
-                        >
-                            <div
-                                class="flex size-9 items-center justify-center rounded-full font-semibold"
-                                :class="
-                                    t.featured
-                                        ? 'bg-white/20 text-white'
-                                        : 'bg-emerald-100 text-[#059669]'
-                                "
-                            >
-                                {{ t.name.charAt(0) }}
-                            </div>
-                            <div class="text-xs">
-                                <p
-                                    class="font-medium"
-                                    :class="t.featured ? 'text-white' : ''"
-                                >
-                                    {{ t.name }}
-                                </p>
-                                <p
-                                    :class="
-                                        t.featured
-                                            ? 'text-white/70'
-                                            : 'text-slate-500'
-                                    "
-                                >
-                                    {{ t.role }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========== INSIGHTS / BLOG ========== -->
-        <section class="px-4 py-20 sm:px-6">
-            <div class="mx-auto max-w-6xl">
-                <div class="mb-10">
-                    <span
-                        class="inline-flex items-center gap-1.5 text-sm font-medium text-[#059669]"
-                    >
-                        <Sparkles class="size-3.5" /> Edukasi Kesehatan
-                    </span>
-                    <div class="mt-3 grid gap-4 lg:grid-cols-2 lg:items-end">
-                        <h2
-                            class="text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
-                        >
-                            Informasi Kesehatan untuk
-                            <br />Anda &amp; Keluarga
-                        </h2>
-                        <p class="text-sm leading-relaxed text-slate-600">
-                            Panduan kesehatan, tips pencegahan penyakit, dan
-                            edukasi medis dari tim dokter RS Ibnu Sina untuk
-                            membantu Anda hidup lebih sehat.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="grid gap-6 md:grid-cols-3">
-                    <article
-                        v-for="(post, i) in insights"
-                        :key="i"
-                        class="group rounded-2xl border border-slate-200 bg-white p-3 transition hover:-translate-y-1 hover:shadow-lg"
-                    >
-                        <div class="relative overflow-hidden rounded-xl">
-                            <img
-                                :src="post.image"
-                                :alt="post.title"
-                                class="h-44 w-full object-cover transition duration-500 group-hover:scale-105"
-                                loading="lazy"
-                            />
-                            <span
-                                class="absolute top-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-[#059669] backdrop-blur"
-                            >
-                                {{ post.category }}
-                            </span>
-                        </div>
-                        <div class="px-2 pt-4 pb-2">
-                            <h3
-                                class="line-clamp-2 font-semibold leading-snug"
-                            >
-                                {{ post.title }}
-                            </h3>
                             <p
-                                class="mt-2 line-clamp-2 text-sm text-slate-600"
+                                class="text-sm font-semibold tracking-[0.08em] text-slate-500 uppercase"
                             >
-                                {{ post.excerpt }}
+                                | Layanan Darurat
                             </p>
-                            <div
-                                class="mt-4 flex items-center justify-between text-xs text-slate-500"
-                            >
-                                <span class="flex items-center gap-1">
-                                    <span
-                                        class="flex size-5 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-semibold text-[#059669]"
-                                        >{{
-                                            post.author.charAt(0)
-                                        }}</span
-                                    >
-                                    {{ post.author }}
-                                </span>
-                                <span>{{ post.reading_time }} mnt baca</span>
-                            </div>
-                            <div
-                                class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3"
-                            >
-                                <a
-                                    href="#"
-                                    class="inline-flex items-center gap-1 text-xs font-medium text-[#059669]"
-                                >
-                                    Baca Selengkapnya
-                                    <span
-                                        class="flex size-5 items-center justify-center rounded-full bg-[#059669] text-white transition group-hover:translate-x-0.5"
-                                    >
-                                        <ArrowRight class="size-3" />
-                                    </span>
-                                </a>
-                                <span class="text-xs text-slate-400">{{
-                                    post.date
-                                }}</span>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========== CTA BANNER ========== -->
-        <section class="px-4 py-12 sm:px-6">
-            <div class="mx-auto max-w-6xl">
-                <div
-                    class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#059669] via-[#10b981] to-[#0d9488] p-8 text-white sm:p-12"
-                >
-                    <div
-                        class="pointer-events-none absolute -top-20 -right-20 size-72 rounded-full bg-white/10 blur-3xl"
-                    />
-                    <div
-                        class="pointer-events-none absolute -bottom-20 -left-20 size-72 rounded-full bg-white/10 blur-3xl"
-                    />
-
-                    <div
-                        class="relative grid items-center gap-8 lg:grid-cols-[1.4fr_1fr]"
-                    >
-                        <div>
-                            <span
-                                class="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur"
-                            >
-                                <Sparkles class="size-3" /> Mulai Sekarang
-                            </span>
                             <h2
-                                class="mt-4 text-3xl leading-tight font-semibold tracking-tight md:text-4xl"
+                                class="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
                             >
-                                Punya pertanyaan?
-                                <br />Asisten kami siap menjawab.
+                                Layanan bantuan 24/7
                             </h2>
                             <p
-                                class="mt-3 max-w-xl text-sm leading-relaxed text-white/85"
+                                class="mt-5 max-w-xl text-sm leading-7 text-slate-600 sm:text-base"
                             >
-                                Tanyakan jadwal dokter, prosedur BPJS, biaya,
-                                atau apa pun seputar layanan rumah sakit. Bot
-                                tidak memberikan diagnosis medis dan akan
-                                otomatis menghubungkan Anda ke petugas bila
-                                diperlukan.
+                                Kontak darurat dan informasi dasar selalu
+                                tersedia agar keluarga pasien bisa bergerak
+                                cepat saat dibutuhkan.
                             </p>
-                            <div class="mt-6 flex flex-wrap gap-3">
-                                <Link
-                                    href="/chat"
-                                    class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#059669] shadow-md transition hover:shadow-lg"
+
+                            <div class="mt-8 grid gap-4 sm:grid-cols-2">
+                                <article
+                                    v-for="card in emergencyCards"
+                                    :key="card.title"
+                                    class="rounded-[1.4rem] border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5"
                                 >
-                                    <MessageCircle class="size-4" />
-                                    Mulai Chat Sekarang
-                                </Link>
-                                <a
-                                    :href="`tel:${contact.phone}`"
-                                    class="inline-flex items-center gap-2 rounded-full bg-white/15 px-6 py-3 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur transition hover:bg-white/25"
-                                >
-                                    <Phone class="size-4" />
-                                    {{ contact.phone }}
-                                </a>
+                                    <div class="flex items-start gap-3">
+                                        <span
+                                            class="flex size-10 items-center justify-center rounded-xl bg-[rgba(51,153,102,0.10)] text-[#339966]"
+                                        >
+                                            <component
+                                                :is="card.icon"
+                                                class="size-4"
+                                            />
+                                        </span>
+                                        <div>
+                                            <p
+                                                class="text-sm font-semibold text-slate-950"
+                                            >
+                                                {{ card.title }}
+                                            </p>
+                                            <p
+                                                class="mt-2 text-sm text-slate-600"
+                                            >
+                                                {{ card.value }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </article>
                             </div>
                         </div>
 
-                        <div class="hidden lg:block">
+                        <div class="relative">
+                            <img
+                                src="https://images.unsplash.com/photo-1584515933487-779824d29309?w=1200&auto=format&fit=crop&q=80"
+                                alt="Bantuan darurat"
+                                class="h-[380px] w-full rounded-3xl object-cover"
+                                loading="lazy"
+                            />
                             <div
-                                class="space-y-3 rounded-2xl bg-white/15 p-5 ring-1 ring-white/20 backdrop-blur"
+                                class="absolute top-6 left-6 rounded-2xl bg-white px-4 py-3 shadow-lg shadow-slate-950/10"
                             >
-                                <p class="text-xs text-white/70">
-                                    Pertanyaan paling sering ditanyakan
+                                <p
+                                    class="text-xs font-semibold tracking-[0.08em] text-slate-500 uppercase"
+                                >
+                                    Janji Temu
                                 </p>
-                                <ul class="space-y-2 text-sm">
-                                    <li
-                                        v-for="faq in featuredFaqs.slice(0, 4)"
-                                        :key="faq.id"
-                                        class="flex items-start gap-2"
+                                <p
+                                    class="mt-1 text-sm font-medium text-slate-950"
+                                >
+                                    Buat janji kapan saja.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                    id="aplikasi"
+                    class="bg-slate-50/70 px-4 py-20 sm:px-6 lg:px-8"
+                >
+                    <div
+                        class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center"
+                    >
+                        <div class="relative">
+                            <img
+                                src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&auto=format&fit=crop&q=80"
+                                alt="Mobile app"
+                                class="h-[380px] w-full rounded-3xl object-cover"
+                                loading="lazy"
+                            />
+                            <div
+                                class="absolute bottom-8 left-8 rounded-lg bg-white px-4 py-3 shadow-lg shadow-slate-950/10"
+                            >
+                                <p
+                                    class="text-xs font-semibold tracking-normal text-slate-500 normal-case"
+                                >
+                                    Kunjungan rumah sakit
+                                </p>
+                            </div>
+                            <div
+                                class="absolute right-8 bottom-8 rounded-lg bg-white px-4 py-3 shadow-lg shadow-slate-950/10"
+                            >
+                                <p
+                                    class="text-xs font-semibold tracking-normal text-slate-500 normal-case"
+                                >
+                                    Chat lewat aplikasi
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p
+                                class="text-sm font-semibold tracking-[0.08em] text-slate-500 uppercase"
+                            >
+                                | Unduh Aplikasi
+                            </p>
+                            <h2
+                                class="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
+                            >
+                                Unduh aplikasi mobile kami untuk pengalaman
+                                terbaik
+                            </h2>
+                            <p
+                                class="mt-5 max-w-xl text-sm leading-7 text-slate-600 sm:text-base"
+                            >
+                                Akses jadwal, pesan layanan, dan pantau
+                                kunjungan dari ponsel agar pengalaman pasien
+                                lebih cepat dan praktis.
+                            </p>
+
+                            <div class="mt-6 flex items-center gap-3">
+                                <div class="flex -space-x-2">
+                                    <img
+                                        v-for="avatar in doctorTeam.slice(0, 3)"
+                                        :key="avatar.name"
+                                        :src="avatar.image"
+                                        :alt="avatar.name"
+                                        class="size-10 rounded-full border-2 border-white object-cover"
+                                    />
+                                </div>
+                                <div>
+                                    <p
+                                        class="text-sm font-semibold text-slate-950"
                                     >
-                                        <Check
-                                            class="mt-0.5 size-4 flex-shrink-0 text-emerald-200"
-                                        />
-                                        <span class="line-clamp-1">{{
-                                            faq.question
+                                        800+
+                                    </p>
+                                    <p class="text-sm text-slate-500">
+                                        Dokter tersedia di aplikasi mobile
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 flex flex-wrap gap-3">
+                                <a
+                                    href="#kontak"
+                                    class="inline-flex items-center gap-2 rounded-xl bg-rose-500 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-600"
+                                >
+                                    Dapatkan di Google Play
+                                </a>
+                                <a
+                                    href="#kontak"
+                                    class="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-800"
+                                >
+                                    Dapatkan di App Store
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="testimoni" class="px-4 py-20 sm:px-6 lg:px-8">
+                    <div class="mx-auto max-w-7xl">
+                        <div>
+                            <p
+                                class="text-sm font-semibold tracking-[0.08em] text-slate-500 uppercase"
+                            >
+                                | Testimoni
+                            </p>
+                            <h2
+                                class="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
+                            >
+                                Apa kata pasien kami
+                            </h2>
+                        </div>
+
+                        <div class="mt-10">
+                            <div class="overflow-hidden">
+                                <div
+                                    class="testimonial-track flex"
+                                    :style="testimonialTrackStyle"
+                                >
+                                    <article
+                                        v-for="(
+                                            page, pageIndex
+                                        ) in testimonialPages"
+                                        :key="pageIndex"
+                                        class="min-w-full px-0 md:px-2"
+                                    >
+                                        <div class="grid gap-5 md:grid-cols-2">
+                                            <article
+                                                v-for="testimonial in page"
+                                                :key="`${pageIndex}-${testimonial.name}`"
+                                                class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5"
+                                            >
+                                                <Quote
+                                                    class="size-8 text-[rgba(51,153,102,0.7)]"
+                                                />
+                                                <p
+                                                    class="mt-5 text-sm leading-7 text-slate-600"
+                                                >
+                                                    {{ testimonial.message }}
+                                                </p>
+                                                <div
+                                                    class="mt-6 flex items-center gap-1"
+                                                >
+                                                    <Star
+                                                        v-for="index in 5"
+                                                        :key="index"
+                                                        class="size-4"
+                                                        :class="
+                                                            index <=
+                                                            testimonial.rating
+                                                                ? 'fill-amber-400 text-amber-400'
+                                                                : 'text-slate-200'
+                                                        "
+                                                    />
+                                                </div>
+                                                <div
+                                                    class="mt-5 flex items-center gap-3 border-t border-slate-100 pt-4"
+                                                >
+                                                    <div
+                                                        class="flex size-10 items-center justify-center rounded-full bg-slate-100 text-slate-500"
+                                                    >
+                                                        {{
+                                                            testimonial.name.charAt(
+                                                                0,
+                                                            )
+                                                        }}
+                                                    </div>
+                                                    <div>
+                                                        <p
+                                                            class="text-sm font-semibold text-slate-950"
+                                                        >
+                                                            {{
+                                                                testimonial.name
+                                                            }}
+                                                        </p>
+                                                        <p
+                                                            class="text-sm text-slate-500"
+                                                        >
+                                                            {{
+                                                                testimonial.role
+                                                            }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+
+                            <div
+                                class="mt-6 flex items-center justify-center gap-3"
+                            >
+                                <button
+                                    type="button"
+                                    class="flex size-10 items-center justify-center rounded-full border border-[rgba(51,153,102,0.22)] bg-white text-[#339966] shadow-sm transition hover:border-[rgba(51,153,102,0.32)] hover:bg-[rgba(51,153,102,0.06)] hover:text-[#2b8055]"
+                                    aria-label="Testimoni sebelumnya"
+                                    @click="previousTestimonial"
+                                >
+                                    <ChevronLeft class="size-5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="flex size-10 items-center justify-center rounded-full border border-[rgba(51,153,102,0.22)] bg-white text-[#339966] shadow-sm transition hover:border-[rgba(51,153,102,0.32)] hover:bg-[rgba(51,153,102,0.06)] hover:text-[#2b8055]"
+                                    aria-label="Testimoni berikutnya"
+                                    @click="nextTestimonial"
+                                >
+                                    <ChevronRight class="size-5" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                    id="artikel"
+                    class="bg-white px-4 py-20 sm:px-6 lg:px-8"
+                >
+                    <div class="mx-auto max-w-7xl">
+                        <div class="flex items-end justify-between gap-6">
+                            <div>
+                                <p
+                                    class="text-sm font-semibold tracking-[0.08em] text-slate-500 uppercase"
+                                >
+                                    | Blog & Artikel
+                                </p>
+                                <h2
+                                    class="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
+                                >
+                                    Baca artikel terbaik dari dokter ahli
+                                </h2>
+                            </div>
+                            <a
+                                href="#kontak"
+                                class="hidden items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-950 sm:inline-flex"
+                            >
+                                Lihat Lainnya
+                                <ArrowRight class="size-4" />
+                            </a>
+                        </div>
+
+                        <div class="mt-10 grid gap-8 lg:grid-cols-3">
+                            <article
+                                v-for="article in articles"
+                                :key="article.title"
+                                class="rounded-xl border border-slate-200 bg-white p-2 shadow-sm shadow-slate-950/5"
+                            >
+                                <img
+                                    :src="article.image"
+                                    :alt="article.title"
+                                    class="h-52 w-full rounded-lg object-cover"
+                                    loading="lazy"
+                                />
+                                <div class="px-1 pt-2 pb-1">
+                                    <div
+                                        class="flex items-center justify-between text-xs font-semibold tracking-[0.08em] text-slate-500"
+                                    >
+                                        <span
+                                            class="rounded-md bg-[rgba(51,153,102,0.10)] px-3 py-1 text-[#2b8055] lowercase normal-case"
+                                        >
+                                            {{ article.category }}
+                                        </span>
+                                        <span class="uppercase">{{
+                                            article.date
                                         }}</span>
+                                    </div>
+                                    <h3
+                                        class="mt-3 text-lg font-semibold tracking-tight text-slate-950"
+                                    >
+                                        {{ article.title }}
+                                    </h3>
+                                    <div class="mt-4">
+                                        <a
+                                            href="#kontak"
+                                            class="inline-flex items-center gap-1 text-sm font-medium text-slate-950"
+                                        >
+                                            Baca Selengkapnya
+                                            <ArrowRight
+                                                class="size-4 -rotate-45"
+                                            />
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                    id="kontak"
+                    class="bg-slate-900 px-4 pt-16 pb-8 text-white sm:px-6 lg:px-8"
+                >
+                    <div class="mx-auto max-w-7xl">
+                        <div class="grid gap-10 lg:grid-cols-[1.2fr_1fr_1fr]">
+                            <div>
+                                <Link
+                                    href="/"
+                                    class="inline-flex items-center rounded-lg bg-white px-3 py-2 shadow-sm ring-1 ring-black/5"
+                                >
+                                    <img
+                                        src="/img/logo-rumah-sakit-ibnu-sina.png"
+                                        alt="Logo Rumah Sakit Ibnu Sina"
+                                        class="h-10 w-auto object-contain"
+                                    />
+                                </Link>
+                                <p
+                                    class="mt-4 max-w-md text-sm leading-7 text-white/65"
+                                >
+                                    Informasi rumah sakit disusun agar pasien
+                                    dan keluarga dapat bergerak lebih cepat,
+                                    lebih jelas, dan tetap nyaman.
+                                </p>
+
+                                <div
+                                    class="mt-6 flex max-w-sm items-center gap-2 rounded-full bg-white/5 p-1.5 ring-1 ring-white/10"
+                                >
+                                    <input
+                                        type="email"
+                                        placeholder="Alamat email"
+                                        class="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="rounded-xl bg-[#339966] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#2b8055]"
+                                    >
+                                        Berlangganan
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <p
+                                    class="text-sm font-semibold tracking-[0.08em] text-white/85 uppercase"
+                                >
+                                    | Tautan Cepat
+                                </p>
+                                <ul
+                                    class="mt-4 grid gap-3 text-sm text-white/60"
+                                >
+                                    <li>
+                                        <a
+                                            href="#beranda"
+                                            class="transition hover:text-white"
+                                            >Beranda</a
+                                        >
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#layanan"
+                                            class="transition hover:text-white"
+                                            >Layanan</a
+                                        >
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#tentang"
+                                            class="transition hover:text-white"
+                                            >Tentang</a
+                                        >
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#dokter"
+                                            class="transition hover:text-white"
+                                            >Dokter</a
+                                        >
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#artikel"
+                                            class="transition hover:text-white"
+                                            >Artikel</a
+                                        >
                                     </li>
                                 </ul>
                             </div>
+
+                            <div>
+                                <p
+                                    class="text-sm font-semibold tracking-[0.08em] text-white/85 uppercase"
+                                >
+                                    | Alamat
+                                </p>
+                                <div
+                                    class="mt-4 grid gap-4 text-sm text-white/65"
+                                >
+                                    <p>{{ contact.address }}</p>
+                                    <p>{{ contact.phone }}</p>
+                                    <p>{{ contact.email }}</p>
+                                    <p>{{ contact.whatsapp }}</p>
+                                    <p>{{ contact.website }}</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- ========== DARK FOOTER ========== -->
-        <footer
-            id="kontak"
-            class="bg-gradient-to-br from-[#064e3b] to-[#115e59] px-4 pt-16 pb-10 text-white sm:px-6"
-        >
-            <div class="mx-auto max-w-6xl">
-                <div class="grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
-                    <div>
-                        <h3
-                            class="text-3xl leading-tight font-semibold tracking-tight"
+                        <div
+                            class="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-white/45 sm:flex-row sm:items-center sm:justify-between"
                         >
-                            Tetap terhubung
-                            <br />dengan kami
-                        </h3>
-                        <p class="mt-3 text-sm text-white/70">
-                            Berlangganan untuk mendapatkan informasi jadwal
-                            dokter, promo MCU, dan tips kesehatan keluarga
-                            langsung ke email Anda.
-                        </p>
-                        <form
-                            class="mt-5 flex max-w-sm items-center gap-2 rounded-full bg-white/10 p-1.5 ring-1 ring-white/15"
-                            @submit.prevent
-                        >
-                            <input
-                                type="email"
-                                placeholder="Alamat email Anda"
-                                class="flex-1 bg-transparent px-3 py-2 text-sm placeholder:text-white/50 focus:outline-none"
-                            />
-                            <button
-                                type="submit"
-                                class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#064e3b] hover:bg-emerald-50"
-                            >
-                                Berlangganan
-                            </button>
-                        </form>
-                    </div>
-
-                    <div>
-                        <p class="mb-4 text-sm font-semibold">Tautan Cepat</p>
-                        <ul class="space-y-2 text-sm text-white/70">
-                            <li>
-                                <a
-                                    href="#beranda"
-                                    class="transition hover:text-white"
-                                    >Beranda</a
-                                >
-                            </li>
-                            <li>
-                                <a
-                                    href="#tentang"
-                                    class="transition hover:text-white"
-                                    >Profil RS</a
-                                >
-                            </li>
-                            <li>
-                                <a
-                                    href="#layanan"
-                                    class="transition hover:text-white"
-                                    >Layanan</a
-                                >
-                            </li>
-                            <li>
-                                <Link
-                                    href="/chat"
-                                    class="transition hover:text-white"
-                                    >Tanya AI</Link
-                                >
-                            </li>
-                            <li>
+                            <p>
+                                © {{ currentYear }} {{ hospitalName }}. Semua
+                                hak dilindungi.
+                            </p>
+                            <div class="flex gap-6">
                                 <a
                                     href="#kontak"
                                     class="transition hover:text-white"
-                                    >Kontak</a
+                                    >Kebijakan Privasi</a
                                 >
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <p class="mb-4 text-sm font-semibold">
-                            Layanan Unggulan
-                        </p>
-                        <ul class="space-y-2 text-sm text-white/70">
-                            <li>IGD 24 Jam</li>
-                            <li>Rawat Inap &amp; ICU</li>
-                            <li>Poliklinik Spesialis</li>
-                            <li>Persalinan &amp; Kebidanan</li>
-                            <li>Medical Check-Up</li>
-                            <li>MCU Haji &amp; Umroh</li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <p class="mb-4 text-sm font-semibold">Hubungi Kami</p>
-                        <ul class="space-y-3 text-sm text-white/80">
-                            <li class="flex items-start gap-2">
-                                <MapPin
-                                    class="mt-0.5 size-4 flex-shrink-0 text-white/60"
-                                />
-                                <span>{{ contact.address }}</span>
-                            </li>
-                            <li>
                                 <a
-                                    :href="`tel:${contact.phone}`"
-                                    class="flex items-center gap-2 transition hover:text-white"
+                                    href="#kontak"
+                                    class="transition hover:text-white"
+                                    >Syarat & Ketentuan</a
                                 >
-                                    <Phone
-                                        class="size-4 flex-shrink-0 text-white/60"
-                                    />
-                                    <span>CS {{ contact.phone }}</span>
-                                </a>
-                            </li>
-                            <li class="flex items-center gap-2 text-rose-200">
-                                <ShieldCheck class="size-4 flex-shrink-0" />
-                                <span>IGD {{ contact.igd }}</span>
-                            </li>
-                            <li>
                                 <a
-                                    :href="`mailto:${contact.email}`"
-                                    class="flex items-center gap-2 transition hover:text-white"
+                                    href="#kontak"
+                                    class="transition hover:text-white"
+                                    >Lisensi</a
                                 >
-                                    <Mail
-                                        class="size-4 flex-shrink-0 text-white/60"
-                                    />
-                                    <span>{{ contact.email }}</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    :href="`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}`"
-                                    target="_blank"
-                                    rel="noopener"
-                                    class="flex items-center gap-2 transition hover:text-white"
-                                >
-                                    <MessageCircle
-                                        class="size-4 flex-shrink-0 text-white/60"
-                                    />
-                                    <span>WA {{ contact.whatsapp }}</span>
-                                </a>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </section>
+            </main>
+        </div>
 
-                <div
-                    class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/60 sm:flex-row"
-                >
-                    <p class="flex items-center gap-2">
-                        <span
-                            class="flex size-7 items-center justify-center rounded-lg bg-white/10"
-                        >
-                            <HeartPulse class="size-4" />
-                        </span>
-                        IbnuSinaCare
-                    </p>
-                    <p>
-                        © {{ new Date().getFullYear() }} {{ hospitalName }}.
-                        Hak cipta dilindungi.
-                    </p>
-                    <p>
-                        Asisten virtual ini tidak menggantikan konsultasi
-                        medis.
-                    </p>
-                </div>
-            </div>
-        </footer>
-
-        <!-- ========== FLOATING ACTION BUTTONS ========== -->
         <div
             class="fixed right-4 bottom-4 z-40 flex flex-col items-end gap-3 sm:right-6 sm:bottom-6"
         >
-            <Transition
-                enter-from-class="opacity-0 translate-y-2"
-                enter-active-class="transition duration-200 ease-out"
-                leave-active-class="transition duration-150 ease-in"
-                leave-to-class="opacity-0 translate-y-2"
-            >
-                <button
-                    v-if="showScrollTop"
-                    type="button"
-                    aria-label="Kembali ke atas"
-                    class="flex size-11 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:bg-slate-800"
-                    @click="scrollToTop"
-                >
-                    <ArrowUp class="size-5" />
-                </button>
-            </Transition>
-
             <a
-                :href="`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}?text=Halo%20RS%20Ibnu%20Sina%2C%20saya%20ingin%20bertanya...`"
+                :href="whatsappUrl"
                 target="_blank"
                 rel="noopener"
                 aria-label="Chat WhatsApp"
-                class="group relative flex size-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl ring-4 ring-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-emerald-600"
+                class="group relative flex size-14 items-center justify-center rounded-xl bg-[#339966] text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-[#2b8055]"
             >
                 <span
-                    class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-30"
+                    class="absolute inline-flex size-full animate-ping rounded-xl bg-[rgba(51,153,102,0.25)] opacity-20"
                 />
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    class="relative size-7"
-                    aria-hidden="true"
-                >
-                    <path
-                        d="M19.05 4.91A9.82 9.82 0 0 0 12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.91-7.02ZM12.04 20.15h-.01a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.12.82.83-3.04-.2-.31a8.21 8.21 0 0 1-1.26-4.39c0-4.54 3.7-8.24 8.25-8.24a8.18 8.18 0 0 1 5.83 2.42 8.19 8.19 0 0 1 2.41 5.82c0 4.54-3.7 8.24-8.25 8.24Zm4.52-6.16c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06a6.79 6.79 0 0 1-2-1.23 7.51 7.51 0 0 1-1.39-1.72c-.14-.25-.02-.39.11-.51.11-.11.25-.29.38-.43.13-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.13-.56-1.34-.76-1.84-.2-.48-.4-.41-.56-.42h-.48c-.17 0-.43.06-.66.31-.23.25-.86.84-.86 2.05 0 1.21.88 2.38 1 2.55.13.17 1.74 2.66 4.21 3.73.59.25 1.05.4 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.3Z"
-                    />
-                </svg>
+                <MessageCircle class="relative size-6" />
                 <span
-                    class="pointer-events-none absolute right-full mr-3 hidden whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-lg sm:group-hover:block"
+                    class="pointer-events-none absolute right-full mr-3 hidden rounded-xl bg-slate-950 px-3 py-2 text-xs font-medium whitespace-nowrap text-white shadow-lg sm:group-hover:block"
                 >
-                    Chat WhatsApp
+                    Hubungi via WhatsApp
                 </span>
             </a>
         </div>
+
+        <Dialog v-model:open="assistantOpen" :modal="false">
+            <DialogContent
+                :show-close-button="false"
+                overlay-class="pointer-events-none bg-transparent"
+                :style="assistantPopupStyle"
+                class="top-0 left-0 h-[min(720px,calc(100dvh-7rem))] min-h-0 w-[360px] max-w-[calc(100vw-2rem)] [transform-origin:var(--assistant-origin)] translate-x-0 translate-y-0 gap-0 overflow-hidden rounded-2xl border border-slate-200 p-0 shadow-[0_28px_90px_-30px_rgba(15,23,42,0.35)] duration-300 data-[state=closed]:zoom-out-95 data-[state=closed]:slide-out-to-top-4 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-top-4"
+            >
+                <AssistantChatPanel
+                    :hospital-name="hospitalName"
+                    :welcome-message="welcomeMessage"
+                    :categories="chatCategories"
+                    :suggestions="chatSuggestions"
+                    :contact="{
+                        phone: contact.phone,
+                        igd: contact.igd,
+                        whatsapp: contact.whatsapp,
+                    }"
+                    @close="assistantOpen = false"
+                />
+            </DialogContent>
+        </Dialog>
     </div>
 </template>
+
+<style scoped>
+.doctor-track {
+    animation: doctor-marquee 28s linear infinite;
+    will-change: transform;
+}
+
+.doctor-track:hover {
+    animation-play-state: paused;
+}
+
+.testimonial-track {
+    transition: transform 0.45s ease;
+    will-change: transform;
+}
+
+@keyframes doctor-marquee {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}
+</style>

@@ -16,7 +16,11 @@ defineOptions({
   inheritAttrs: false,
 })
 
-const props = withDefaults(defineProps<DialogContentProps & { class?: HTMLAttributes["class"], showCloseButton?: boolean }>(), {
+const props = withDefaults(defineProps<DialogContentProps & {
+  class?: HTMLAttributes["class"],
+  overlayClass?: HTMLAttributes["class"],
+  showCloseButton?: boolean,
+}>(), {
   showCloseButton: true,
 })
 const emits = defineEmits<DialogContentEmits>()
@@ -28,7 +32,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
 
 <template>
   <DialogPortal>
-    <DialogOverlay />
+    <DialogOverlay :class="props.overlayClass" />
     <DialogContent
       data-slot="dialog-content"
       v-bind="{ ...$attrs, ...forwarded }"
