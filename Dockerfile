@@ -1,59 +1,5 @@
-# ============================================================
-# Stage 1: Install PHP dependencies + generate Wayfinder types
-# ============================================================
-FROM php:8.4-cli-alpine AS composer
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-RUN apk add --no-cache \
-    libpq-dev \
-    oniguruma-dev \
-    libzip-dev \
-    icu-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_pgsql pgsql bcmath mbstring zip intl gd
-
-WORKDIR /app
-
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-autoloader --no-scripts --prefer-dist
-
-COPY . .
-RUN composer install --no-dev --optimize-autoloader --prefer-dist
-
-# Generate Wayfinder types (needs autoloader + .env for artisan boot)
-RUN cp .env.example .env && php artisan key:generate --force && php artisan wayfinder:generate --with-form
-
-# ============================================================
-# Stage 2: Build frontend assets (skip Wayfinder - already done)
-# ============================================================
-FROM node:22-alpine AS frontend
-
-WORKDIR /app
-
-# Copy vendor from composer stage (includes generated Wayfinder types)
-COPY --from=composer /app/vendor ./vendor
-
-COPY package.json package-lock.json ./
-COPY scripts/ ./scripts/
-
-RUN npm ci --ignore-scripts && npm run postinstall
-
-COPY . .
-
-# Skip Wayfinder generation (already generated in composer stage)
-ENV VITE_WAYFINDER_SKIP=true
-RUN npm run build
-
-# ============================================================
-# Stage 3: PHP-FPM Application
-# ============================================================
 FROM php:8.4-fpm-alpine AS production
 
-# Install system dependencies
 RUN apk add --no-cache \
     git \
     curl \
@@ -69,54 +15,31 @@ RUN apk add --no-cache \
     nodejs \
     npm
 
-# Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
-    pdo \
-    pdo_pgsql \
-    pgsql \
-    bcmath \
-    mbstring \
-    zip \
-    pcntl \
-    opcache \
-    intl \
-    gd
+    && docker-php-ext-install pdo pdo_pgsql pgsql bcmath mbstring zip pcntl opcache intl gd
 
-# Install Redis extension
 RUN apk add --no-cache $PHPIZE_DEPS \
     && pecl install redis \
     && docker-php-ext-enable redis
 
-# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /var/www
 
-# Copy application files from stages
-COPY --from=composer /app/vendor ./vendor
-COPY --from=frontend /app/node_modules ./node_modules
-COPY --from=frontend /app/public/build ./public/build
 COPY . .
 
-# Set permissions
+RUN composer install --no-dev --optimize-autoloader --prefer-dist
+
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage \
     && chmod -R 755 /var/www/bootstrap/cache
 
-# Copy PHP configuration
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-
-# Copy Supervisor configuration
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Create log directories
 RUN mkdir -p /var/log/supervisor /var/log/php
 
-# Expose port
 EXPOSE 9000
 
-# Start Supervisor (manages PHP-FPM + queue worker)
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
